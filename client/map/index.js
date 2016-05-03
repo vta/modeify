@@ -93,13 +93,14 @@ module.exports.toggleRealtime = function(viewMap) {
       }, config.query_interval());
 
       if (!map.realtime) {
-          map.realtime = {
-	      points: []
-	  };
+        map.realtime = {
+          points: []
+        };
       }
+
       L.amigo.realtime.on('realtime', function (data) {
           var point = data.data[data.data.length - 1];
-	  module.exports.realtimePoint = point;
+          module.exports.realtimePoint = point;
 
           if (module.exports.findPoint(map, point) === -1) {
               module.exports.addPoint(map, point);
@@ -133,10 +134,10 @@ module.exports.loadBusRoutesData  = function (url) {
 
       for (var i = 0; i < data.data.length; i++) {
         routes[parseInt(data.data[i].lineabbr)] =
-	  {
+	        {
             amigoId: data.data[i].amigo_id,
-	    lineName: data.data[i].linename,
-	    schedules: data.data[i].schedules
+	          lineName: data.data[i].linename,
+	          schedules: data.data[i].schedules
           };
       }
       module.exports.busRoutesData = routes;
@@ -151,17 +152,48 @@ module.exports.loadBusPredictionData  = function (url) {
     queryUrl = projectUrl + '/sql?token=' + config.realtime_access_token() +
       '&query=' + query + '&limit=1000';
 
-  
-  L.amigo.utils.get(queryUrl).
-    then(function (data) {
-      var buses = {};
+  var busLegRequests = [],
+      legs = {}, // populated by getValidBuses
+      direction = false;
 
-      for (var i = 0; i < data.data.length; i++) {
-        buses[data.data[i].vehicle_id] =
-          data.data[i];
-      }
-      module.exports.busPredictionData = buses;
+  var getValidBuses = function () { 
+    // returns list of busses on selected leg routes that are heading in direction of route
+    $.each(module.exports.currentBusLegs, function (routeId, currDirection) {
+      var endpoint = 'http://api.transitime.org/api/v1/key/5ec0de94/agency/vta/command/vehiclesDetails',
+          direction = currDirection.toString();
+      busLegRequests.push($.get(endpoint, {
+        r: routeId,
+        format: 'json'
+      }).success(function (data) {
+        $.each(data.vehicles, function (idx, bus) {
+          if (bus.direction === direction) {
+            if (!legs[bus.routeId]) {
+              legs[bus.routeId] = [];
+            }
+            legs[bus.routeId].push(parseInt(bus.id, 10));
+          }
+        });
+      }))
     });
+  };
+  
+  var getLegs = getValidBuses();
+
+  $.when.apply(null, getLegs).done(function () {
+    L.amigo.utils.get(queryUrl).
+      then(function (data) {
+        var buses = {};
+
+        for (var i = 0; i < data.data.length; i++) {
+          var bus = data.data[i];
+          if (legs[bus.route_id] && legs[bus.route_id].indexOf(bus.vehicle_id) !== -1) {
+            buses[bus.vehicle_id] = bus;
+          }
+        }
+
+        module.exports.busPredictionData = buses;
+      });
+  });
 };
 
 module.exports.drawRoute = function (marker) {
@@ -292,9 +324,8 @@ module.exports.getRouteId = function (point) {
     busId = parseInt(busId);
 
     if (module.exports.busPredictionData &&
-	module.exports.busPredictionData[busId] &&
-	module.exports.busPredictionData[busId].route_id
-    ) {
+	       module.exports.busPredictionData[busId] &&
+	       module.exports.busPredictionData[busId].route_id) {
       routeId = module.exports.busPredictionData[busId].route_id;
     }
     return routeId;
@@ -303,6 +334,8 @@ module.exports.getRouteId = function (point) {
 module.exports.addPoint = function (map, point) {
     var routeId = module.exports.getRouteId(point),
       line, newPoint;
+
+    if (!routeId) { return; } // if the point isn't part of the current route, we shouldn't display it
 
     line = L.polyline(
         [
@@ -344,22 +377,22 @@ module.exports.addPoint = function (map, point) {
     newPoint.marker.realtimeData = point;
     newPoint.marker.bindPopup(module.exports.makePopup(point));
     newPoint.marker.on('popupopen', function () {
-	// Workaround for bug where you can no longer
-	// click on start and end markers after opening
-	// a real-time popup
-	var zoomHideEl = document.querySelectorAll('svg.leaflet-zoom-hide')[0];
-	if (zoomHideEl) zoomHideEl.style.display = 'inherit';
-	module.exports.drawRoute(this);
-    });
-    newPoint.marker.on('popupclose', function () {
-	// Workaround counterpart
-	var zoomHideEl = document.querySelectorAll('path.realtimemarker');
-	console.log("zoomHideEl", zoomHideEl);
-	for (i in zoomHideEl) {
-	    var parent = zoomHideEl[i].parentNode;
-	}
-	module.exports.deleteRoute(this);
-    });
+  	// Workaround for bug where you can no longer
+  	// click on start and end markers after opening
+  	// a real-time popup
+  	var zoomHideEl = document.querySelectorAll('svg.leaflet-zoom-hide')[0];
+  	if (zoomHideEl) zoomHideEl.style.display = 'inherit';
+  	module.exports.drawRoute(this);
+      });
+      newPoint.marker.on('popupclose', function () {
+  	// Workaround counterpart
+  	var zoomHideEl = document.querySelectorAll('path.realtimemarker');
+  	console.log("zoomHideEl", zoomHideEl);
+  	for (i in zoomHideEl) {
+  	    var parent = zoomHideEl[i].parentNode;
+  	}
+  	module.exports.deleteRoute(this);
+      });
 
     map.realtime.points.push(newPoint);
 };
@@ -377,6 +410,8 @@ module.exports.findPoint = function (map, point) {
 module.exports.movePoint = function (map, point) {
     var routeId = module.exports.getRouteId(point),
       line, currentPoint;
+
+    if (!routeId) { return; } // if the point isn't part of the current route, we shouldn't display it
 
     currentPoint = map.realtime.points[module.exports.findPoint(point)];
     line = L.polyline(

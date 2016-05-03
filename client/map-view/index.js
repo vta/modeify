@@ -465,6 +465,8 @@ module.exports.removeRouteBuses = function () {
 module.exports.mapRouteStops = function (legs) {
     module.exports.removeRouteStops();
 
+    mapModule.currentBusLegs = {}; // used by mapModule.loadBusPredictionData to filter displayed realtime busses
+
     for (var i = 0; i < legs.length; i++) {
         if (legs[i].mode === 'BUS') {
             module.exports.loadRouteStops(legs[i].routeId,
@@ -518,6 +520,8 @@ module.exports.loadRouteStops = function (routeId, from, to) {
                 stops.push(route.directions[i].stops[s]);
             }
         }
+
+        mapModule.currentBusLegs[routeId] = i; // i, in this case, represents the direction the bus is traveling
 
         module.exports.drawRouteStops(routeId, stops);
         // module.exports.loadRouteBuses(routeId, stops, i);
