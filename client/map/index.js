@@ -79,11 +79,11 @@ if (config.map_provider() === 'AmigoCloud') {
 /**
  * Toggle realtime
  */
-module.exports.toggleRealtime = function(viewMap) {
+module.exports.toggleRealtime = function(viewMap, isRefresh) {
   var map = viewMap;
   debug('toggling realtime');
 
-  if (!map.realtime || !map.realtime.active) {
+  var loadRealtime = function () {
       map = module.exports.realtimeMap = viewMap;
 
       module.exports.loadBusPredictionData(config.bus_prediction_url());
@@ -109,14 +109,25 @@ module.exports.toggleRealtime = function(viewMap) {
           }
       });
       map.realtime.active = true;
-  } else {
+  };
+
+  var clearRealtime = function () {
       window.clearInterval(module.exports.queryFunctionId);
       L.amigo.realtime.socket.removeAllListeners('realtime');
       for (var i = 0; i < map.realtime.points.length; i++) {
-	  map.removeLayer(map.realtime.points[i].marker);
+        map.removeLayer(map.realtime.points[i].marker);
       }
       map.realtime.points = [];
       map.realtime.active = false;
+  };
+
+  if (!map.realtime || !map.realtime.active) {
+      loadRealtime();
+  } else if (isRefresh) {
+      clearRealtime();
+      loadRealtime();
+  } else {
+      clearRealtime();
   }
 };
 
@@ -152,14 +163,17 @@ module.exports.loadBusPredictionData  = function (url) {
     queryUrl = projectUrl + '/sql?token=' + config.realtime_access_token() +
       '&query=' + query + '&limit=1000';
 
-  L.amigo.utils.get(queryUrl).
+  module.exports.busPredictionData = [];
+
+  return L.amigo.utils.get(queryUrl).
     then(function (data) {
-      var buses = {};
+      var validBusses = module.exports.validBusses,
+          buses = {};
 
       for (var i = 0; i < data.data.length; i++) {
         var bus = data.data[i];
 
-        if (module.exports.validBusses.indexOf(bus.vehicle_id) !== -1) {
+        if (validBusses[bus.route_id] && validBusses[bus.route_id].indexOf(bus.vehicle_id) !== -1) {
           buses[bus.vehicle_id] = bus;
         }
       }
@@ -264,24 +278,22 @@ L.Control.ToggleRealTime = L.Control.extend({
           .addListener(controlDiv, 'click', L.DomEvent.stopPropagation)
           .addListener(controlDiv, 'click', L.DomEvent.preventDefault)
           .addListener(controlDiv, 'click', function () {
-      
-      if (!this.active) {
-        this.className += ' active';
-        this.active = true;
-      } else {
-        this.className = this.className.split(' ').slice(0 ,2).join(' ');
-        this.active = false;
-      }
-	    
-      module.exports.toggleRealtime(map);
-	});
+            if (!this.active) {
+              this.className += ' active';
+              this.active = true;
+            } else {
+              this.className = this.className.split(' ').slice(0 ,2).join(' ');
+              this.active = false;
+            }
+            module.exports.toggleRealtime(map);
+          });
 
-        var button = L.DomUtil.create('a', 'leaflet-control-realtime-interior', controlDiv);
-	var busIcon = L.DomUtil.create('i', 'fa fa-fw fa-bus', button);
-	var rssIcon = L.DomUtil.create('i', 'fa fa-fw fa-rss', button);
+      var button = L.DomUtil.create('a', 'leaflet-control-realtime-interior', controlDiv);
+      var busIcon = L.DomUtil.create('i', 'fa fa-fw fa-bus', button);
+      var rssIcon = L.DomUtil.create('i', 'fa fa-fw fa-rss', button);
         button.title = 'Toggle Realtime';
         return controlDiv;
-    }
+      }
 });
 
 L.control.toggleRealTime = function (options) {
@@ -303,6 +315,7 @@ module.exports.getRouteId = function (point) {
 	       module.exports.busPredictionData[busId].route_id) {
       routeId = module.exports.busPredictionData[busId].route_id;
     }
+
     return routeId;
 }
 
