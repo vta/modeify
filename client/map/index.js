@@ -152,48 +152,20 @@ module.exports.loadBusPredictionData  = function (url) {
     queryUrl = projectUrl + '/sql?token=' + config.realtime_access_token() +
       '&query=' + query + '&limit=1000';
 
-  var busLegRequests = [],
-      legs = {}, // populated by getValidBuses
-      direction = false;
+  L.amigo.utils.get(queryUrl).
+    then(function (data) {
+      var buses = {};
 
-  var getValidBuses = function () { 
-    // returns list of busses on selected leg routes that are heading in direction of route
-    $.each(module.exports.currentBusLegs, function (routeId, currDirection) {
-      var endpoint = 'http://api.transitime.org/api/v1/key/5ec0de94/agency/vta/command/vehiclesDetails',
-          direction = currDirection.toString();
-      busLegRequests.push($.get(endpoint, {
-        r: routeId,
-        format: 'json'
-      }).success(function (data) {
-        $.each(data.vehicles, function (idx, bus) {
-          if (bus.direction === direction) {
-            if (!legs[bus.routeId]) {
-              legs[bus.routeId] = [];
-            }
-            legs[bus.routeId].push(parseInt(bus.id, 10));
-          }
-        });
-      }))
-    });
-  };
-  
-  var getLegs = getValidBuses();
+      for (var i = 0; i < data.data.length; i++) {
+        var bus = data.data[i];
 
-  $.when.apply(null, getLegs).done(function () {
-    L.amigo.utils.get(queryUrl).
-      then(function (data) {
-        var buses = {};
-
-        for (var i = 0; i < data.data.length; i++) {
-          var bus = data.data[i];
-          if (legs[bus.route_id] && legs[bus.route_id].indexOf(bus.vehicle_id) !== -1) {
-            buses[bus.vehicle_id] = bus;
-          }
+        if (module.exports.validBusses.indexOf(bus.vehicle_id) !== -1) {
+          buses[bus.vehicle_id] = bus;
         }
+      }
 
-        module.exports.busPredictionData = buses;
-      });
-  });
+      module.exports.busPredictionData = buses;
+    });
 };
 
 module.exports.drawRoute = function (marker) {
@@ -203,19 +175,19 @@ module.exports.drawRoute = function (marker) {
       datasetId = tokens[tokens.length - 1],
       projectUrl = tokens.slice(0, tokens.length - 2).join('/'),
       routeStyle = {
-	  color: '#8ec449',
-	  opacity: 1,
-	  weight: 4,
-      className:'realtimemarker'
+  	    color: '#8ec449',
+  	    opacity: 1,
+  	    weight: 4,
+        className:'realtimemarker'
       },
       routeId,
       queryUrl,
       query;
 
     if (busId.indexOf(' ') === -1) {
-	busId = busId.split('-')[0];
+      busId = busId.split('-')[0];
     } else {
-	busId = busId.split(' ')[0];
+      busId = busId.split(' ')[0];
     }
     if (!module.exports.busPredictionData[busId]) return;
     routeId = module.exports.busPredictionData[busId].route_id;

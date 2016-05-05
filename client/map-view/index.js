@@ -462,27 +462,63 @@ module.exports.removeRouteBuses = function () {
     this.addedRouteBuses = [];
 };
 
-module.exports.mapRouteStops = function (legs) {
-    module.exports.removeRouteStops();
+module.exports.manageRealtime = {
+    validBusses: [],
 
-    mapModule.currentBusLegs = {}; // used by mapModule.loadBusPredictionData to filter displayed realtime busses
-
-    for (var i = 0; i < legs.length; i++) {
-        if (legs[i].mode === 'BUS') {
-            module.exports.loadRouteStops(legs[i].routeId,
-                                          legs[i].from.stopCode,
-                                          legs[i].to.stopCode);
-        }
+    renderRealtime: function () {
+        mapModule.validBusses = this.validBusses;
+        mapModule.toggleRealtime(module.exports.getMap());
     }
 };
 
-module.exports.loadRouteStops = function (routeId, from, to) {
-    var endPoint = 'http://api.transitime.org/api/v1/key/5ec0de94/agency/vta/command/routesDetails';
+module.exports.mapRouteStops = function (legs) {
+    var busses = legs.filter(function (leg) {
+        return leg.mode === 'BUS';
+    }),
+        deferredRouteDetails = [];
 
-    $.get(endPoint, {
+    module.exports.removeRouteStops();
+
+    var loadRouteDetails = function () {
+        $.each(busses, function (idx, bus) {
+            deferredRouteDetails.push(module.exports.loadRouteStops(bus.routeId, bus.from.stopCode, bus.to.stopCode));
+        });
+        return deferredRouteDetails;
+    };
+
+    var getDetails = loadRouteDetails(),
+        mr = module.exports.manageRealtime;
+    $.when.apply(null, getDetails).done(mr.renderRealtime.bind(mr));
+};
+
+module.exports.loadRouteStops = function (routeId, from, to) {
+    var endPoint = 'http://api.transitime.org/api/v1/key/5ec0de94/agency/vta/command/routesDetails',
+        routeDirection = '';
+
+    var getVehicleDetails = function () {
+        var endpoint = 'http://api.transitime.org/api/v1/key/5ec0de94/agency/vta/command/vehiclesDetails';
+        return $.get(endpoint, {
+            r: routeId,
+            format: 'json'
+        });
+    };
+
+    var findValidBussesInRoute = function (data) {
+        var validBusses = [],
+            bus = {};
+
+        for (var i = 0; i < data.vehicles.length; i++) {
+            bus = data.vehicles[i];
+            if (bus.direction === routeDirection) {
+                module.exports.manageRealtime.validBusses.push(parseInt(bus.id, 10));
+            }
+        }
+    };
+
+    return $.get(endPoint, {
         r: routeId,
         format: 'json'
-    }).done(function (data) {
+    }).then(function (data) {
         var route = data.routes[0],
             foundFrom = false, foundTo = false,
             startAdding = false,
@@ -492,6 +528,9 @@ module.exports.loadRouteStops = function (routeId, from, to) {
         // detecting which direction we need to draw
         for (; i < route.directions.length; i++) {
             for (var j = 0; j < route.directions[i].stops.length; j++) {
+                if (foundFrom && foundTo) {
+                    break;
+                }
                 if (route.directions[i].stops[j].code + '' === from) {
                     foundFrom = true;
                 }
@@ -521,21 +560,10 @@ module.exports.loadRouteStops = function (routeId, from, to) {
             }
         }
 
-        mapModule.currentBusLegs[routeId] = i; // i, in this case, represents the direction the bus is traveling
-
         module.exports.drawRouteStops(routeId, stops);
-        // module.exports.loadRouteBuses(routeId, stops, i);
-    });
-};
 
-module.exports.findBusInRoute = function (bus, stops, direction) {
-    for (var i = 0; i < stops.length; i++) {
-        if (stops[i].id === bus.nextStopId && bus.direction === direction) {
-            return true;
-        }
-    }
-
-    return false;
+        return routeDirection = (1 - i).toString(); // routeDirection is always 1 or 0 and a string
+    }).then(getVehicleDetails).done(findValidBussesInRoute);
 };
 
 module.exports.loadRouteBuses = function (routeId, stops, direction) {
