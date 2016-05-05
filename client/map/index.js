@@ -258,19 +258,22 @@ L.Control.ToggleRealTime = L.Control.extend({
     },
 
     onAdd: function (map) {
-        var controlDiv = L.DomUtil.create('div', 'leaflet-control-realtime');
-        L.DomEvent
-            .addListener(controlDiv, 'click', L.DomEvent.stopPropagation)
-            .addListener(controlDiv, 'click', L.DomEvent.preventDefault)
-        .addListener(controlDiv, 'click', function () {
-	    if (!this.active) {
-		this.className += ' active';
-		this.active = true;
-	    } else {
-		this.className = this.className.split(' ').slice(0 ,2).join(' ');
-		this.active = false;
-	    }
-	    module.exports.toggleRealtime(map);
+      var controlDiv = L.DomUtil.create('div', 'leaflet-control-realtime');
+    
+      L.DomEvent
+          .addListener(controlDiv, 'click', L.DomEvent.stopPropagation)
+          .addListener(controlDiv, 'click', L.DomEvent.preventDefault)
+          .addListener(controlDiv, 'click', function () {
+      
+      if (!this.active) {
+        this.className += ' active';
+        this.active = true;
+      } else {
+        this.className = this.className.split(' ').slice(0 ,2).join(' ');
+        this.active = false;
+      }
+	    
+      module.exports.toggleRealtime(map);
 	});
 
         var button = L.DomUtil.create('a', 'leaflet-control-realtime-interior', controlDiv);

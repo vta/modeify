@@ -58,7 +58,7 @@ module.exports = function (el) {
 
         module.exports.activeMap = map;
 
-        map.realtimeControl = L.control.toggleRealTime().addTo(map);
+        //map.realtimeControl = L.control.toggleRealTime().addTo(map);
 
         realtime = mapModule.realtime();
 
