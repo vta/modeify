@@ -18,6 +18,7 @@
     "active.js",
     "dropdown.js",
     "each.js",
+    "dateTime.js",
     "index.js",
     "messages.js",
     "tap.js"

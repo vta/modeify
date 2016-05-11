@@ -33,6 +33,7 @@ var Plan = module.exports = model('Plan')
     bus: true,
     car: false,
     days: 'M—F',
+    arriveBy: false,
     end_time: (new Date()).getHours() + 4,
     from: '',
     from_valid: false,
@@ -53,6 +54,7 @@ var Plan = module.exports = model('Plan')
   .attr('bus')
   .attr('car')
   .attr('days')
+  .attr('arriveBy')
   .attr('end_time')
   .attr('from')
   .attr('from_id')
@@ -342,6 +344,7 @@ Plan.prototype.generateQuery = function() {
   var startTime = this.start_time();
   var endTime = this.end_time();
   var scorer = this.scorer();
+  var arriveBy = this.arriveBy();
 
   // Convert the hours into strings
   startTime += ':00';
@@ -350,7 +353,7 @@ Plan.prototype.generateQuery = function() {
   return {
     date: this.nextDate(),
     mode: modes.join(','),
-      time: startTime,
+      time: arriveBy ? endTime : startTime,
       fromPlace: (from.lat + ',' + from.lng),
       toPlace: (to.lat + ',' + to.lng),
       numItineraries: 3,
@@ -363,7 +366,8 @@ Plan.prototype.generateQuery = function() {
       triangleSafetyFactor: 0.9,
       triangleSlopeFactor: 0.5,
       triangleTimeFactor: 0.9,
-      optimize: 'QUICK'
+      optimize: 'QUICK',
+      arriveBy: arriveBy
   };
 };
 

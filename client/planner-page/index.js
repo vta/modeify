@@ -82,13 +82,13 @@ module.exports = function(ctx, next) {
           places: [
             {
               place_id: 'from',
-             place_lat: e.latlng.lat,
+              place_lat: e.latlng.lat,
               place_lon: e.latlng.lng,
               place_name: 'From'
-           },
+            },
             {
               place_id: 'to',
-             place_lat: (plan.to_ll() ? plan.to_ll().lat : 0),
+              place_lat: (plan.to_ll() ? plan.to_ll().lat : 0),
               place_lon: (plan.to_ll() ? plan.to_ll().lng : 0),
               place_name: 'To'
             }

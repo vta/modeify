@@ -8,6 +8,7 @@ var view = require('view');
 reactive.use(require('./active'));
 reactive.use(require('./dropdown'));
 reactive.use(require('./each'));
+reactive.use(require('./dateTime'));
 reactive.use(require('reactive-child'));
 reactive.use(require('reactive-disabled'));
 reactive.use(require('./messages'));
