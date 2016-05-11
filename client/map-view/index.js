@@ -315,6 +315,8 @@ module.exports.drawRouteAmigo = function (legs, mode, itineration) {
 
     var dasharray = '';
 
+    module.exports.clearExistingRoutes(); // remove old realtime & stop data from map
+
     if (mode == "CAR") {
         color = '#9E9E9E';
         dasharray = '6';
@@ -448,6 +450,15 @@ module.exports.drawRouteStops = function (routeId, stops, isBus) {
     stopsGroup.addTo(this.activeMap);
 };
 
+module.exports.clearExistingRoutes = function () {
+    if (this.activeMap) {
+        if (this.addedRouteStops) {
+            this.removeRouteStops();
+        }
+        this.manageRealtime.removeRealtimeData(this.activeMap);
+    }
+};
+
 module.exports.removeRouteStops = function () {
     for (var r in this.addedRouteStops) {
         this.activeMap.removeLayer(this.addedRouteStops[r]);
@@ -471,9 +482,16 @@ module.exports.manageRealtime = {
         this.validBusses = {};
     },
 
+    removeRealtimeData: function (map) {
+        this.resetValidBusses();
+        if (map.realtime && map.realtime.active) {
+            mapModule.toggleRealtime(map);
+        }
+    },
+
     renderRealtime: function () {
         mapModule.validBusses = this.validBusses;
-        mapModule.toggleRealtime(module.exports.getMap(), true);
+        mapModule.toggleRealtime(module.exports.getMap());
     }
 };
 
@@ -481,9 +499,7 @@ module.exports.mapRouteStops = function (legs) {
     var deferredRouteDetails = [],
         bussesInRoute = false;
 
-    module.exports.removeRouteStops();
-
-    module.exports.manageRealtime.resetValidBusses();
+    module.exports.clearExistingRoutes();
 
     var loadRouteDetails = function () {
         $.each(legs, function (idx, vehicle) {
