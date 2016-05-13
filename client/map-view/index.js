@@ -304,6 +304,28 @@ module.exports.marker_map_point = function (to, map, itineration) {
     }
 };
 
+module.exports.setRouteColorClosure = function () {
+    var colors = {
+        'CAR': { hex: '#f03b20' }, 
+        'BICYCLE': { hex: '#ffeda0' }, 
+        'TRAM': { hex: ['#bae4b3', '#74c476', '#31a354'], count: 0 }, 
+        'WALK': { hex: '#bcbddc' }, 
+        'BUS': { hex: ['#bdd7e7', '#6baed6', '#3182bd'], count: 0 }
+    };
+
+    return function (mode) {
+        var obj = colors[mode] ? colors[mode] : colors['TRAM'],
+            color = '';
+        if (Array.isArray(obj.hex)) {
+            color = obj.hex[obj.count];
+            obj.count = obj.count >= obj.hex.length - 1 ? 0 : obj.count += 1;
+        } else {
+            color = obj.hex;
+        }
+        return color;
+    };
+};
+
 module.exports.drawRouteAmigo = function (legs, mode, itineration) {
     var route = legs.legGeometry.points;
     var circle_from = [legs.from.lat, legs.from.lon, legs.from.name];
@@ -315,22 +337,24 @@ module.exports.drawRouteAmigo = function (legs, mode, itineration) {
 
     var dasharray = '';
 
-    module.exports.clearExistingRoutes(); // remove old realtime & stop data from map
+    if (!this.setRouteColor) {
+        this.setRouteColor = this.setRouteColorClosure();
+    }
 
-    if (mode == "CAR") {
-        color = '#9E9E9E';
+    color = this.setRouteColor(mode);
+
+    if (mode === "CAR") {
         dasharray = '6';
         weight = 3;
 
-    } else if (mode == "BICYCLE") {
-        color = '#FF0000';
+    } else if (mode === "BICYCLE") {
         if (!(legs.routeColor === undefined)) {
             color = "#" + legs.routeColor;
         }
         dasharray = '6';
         weight = 3;
 
-    } else if (mode == "SUBWAY" || mode == "RAIL") {
+    } else if (mode == "SUBWAY" || mode == "RAIL" || mode === "TRAM") {
         if (!(legs.routeColor === undefined)) {
             if (legs.routeColor != "" || legs.routeColor.length == 6) {
                 color = "#" + legs.routeColor;
@@ -342,11 +366,9 @@ module.exports.drawRouteAmigo = function (legs, mode, itineration) {
         this.marker_map_point(circle_to, this.activeMap, itineration);
 
     } else if (mode == "WALK") {
-        color = '#0BC8F4';
         dasharray = '6';
         weight = 3;
     } else if (mode == "BUS") {
-        //color = '#FEF0B5';
         if (!(legs.routeColor === undefined)) {
             if (legs.routeColor != "" || legs.routeColor.length == 6) {
                 color = "#" + legs.routeColor;
@@ -451,6 +473,7 @@ module.exports.drawRouteStops = function (routeId, stops, isBus) {
 };
 
 module.exports.clearExistingRoutes = function () {
+    this.setRouteColor = this.setRouteColorClosure();
     if (this.activeMap) {
         if (this.addedRouteStops) {
             this.removeRouteStops();
