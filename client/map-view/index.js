@@ -304,7 +304,7 @@ module.exports.marker_map_point = function (to, map, itineration) {
     }
 };
 
-module.exports.setRouteColorClosure = function () {
+module.exports.setRouteColorRefresh = function () {
     var colors = {
         'CAR': { hex: '#f03b20' }, 
         'BICYCLE': { hex: '#ffeda0' }, 
@@ -338,7 +338,7 @@ module.exports.drawRouteAmigo = function (legs, mode, itineration) {
     var dasharray = '';
 
     if (!this.setRouteColor) {
-        this.setRouteColor = this.setRouteColorClosure();
+        this.setRouteColor = this.setRouteColorRefresh();
     }
 
     color = this.setRouteColor(mode);
@@ -473,7 +473,7 @@ module.exports.drawRouteStops = function (routeId, stops, isBus) {
 };
 
 module.exports.clearExistingRoutes = function () {
-    this.setRouteColor = this.setRouteColorClosure();
+    this.setRouteColor = this.setRouteColorRefresh();
     if (this.activeMap) {
         if (this.addedRouteStops) {
             this.removeRouteStops();
