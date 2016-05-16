@@ -311,44 +311,24 @@ module.exports.toggleMapElement = function (el, showHide) {
     $(el)[showHide]();
 };
 
-module.exports.setRouteColorRefresh = function () {
-    var colors = {
-        'CAR': { hex: '#f03b20' }, 
-        'BICYCLE': { hex: '#ffeda0' }, 
-        'TRAM': { hex: ['#bae4b3', '#74c476', '#31a354'], count: 0 }, 
-        'WALK': { hex: '#bcbddc' }, 
-        'BUS': { hex: ['#bdd7e7', '#6baed6', '#3182bd'], count: 0 }
-    };
-
-    return function (mode) {
-        var obj = colors[mode] ? colors[mode] : colors['TRAM'],
-            color = '';
-        if (Array.isArray(obj.hex)) {
-            color = obj.hex[obj.count];
-            obj.count = obj.count >= obj.hex.length - 1 ? 0 : obj.count += 1;
-        } else {
-            color = obj.hex;
-        }
-        return color;
-    };
-};
-
 module.exports.drawRouteAmigo = function (legs, mode, itineration) {
     var route = legs.legGeometry.points;
     var circle_from = [legs.from.lat, legs.from.lon, legs.from.name];
     var circle_to = [legs.to.lat, legs.to.lon, legs.to.name];
-    var color = '#000000';
     var weight = 5;
     var classname = "iteration-" + itineration + " iteration-200";
 
-
     var dasharray = '';
 
-    if (!this.setRouteColor) {
-        this.setRouteColor = this.setRouteColorRefresh();
-    }
-
-    color = this.setRouteColor(mode);
+    var colors = {
+        'CAR': '#ffeda0', 
+        'BICYCLE': '#f03b20', 
+        'TRAM': '#74c476',
+        'RAIL': '#fe9929',
+        'WALK': '#3182bd', 
+        'BUS': '#6baed6'
+    };
+    var color = colors[mode] ? colors[mode] : '#000000';
 
     if (mode === "CAR") {
         dasharray = '6';
@@ -358,7 +338,7 @@ module.exports.drawRouteAmigo = function (legs, mode, itineration) {
         if (!(legs.routeColor === undefined)) {
             color = "#" + legs.routeColor;
         }
-        dasharray = '6';
+        dasharray = '5,5';
         weight = 3;
 
     } else if (mode == "SUBWAY" || mode == "RAIL" || mode === "TRAM") {
@@ -373,7 +353,7 @@ module.exports.drawRouteAmigo = function (legs, mode, itineration) {
         this.marker_map_point(circle_to, this.activeMap, itineration);
 
     } else if (mode == "WALK") {
-        dasharray = '6';
+        dasharray = '5,5';
         weight = 3;
     } else if (mode == "BUS") {
         if (!(legs.routeColor === undefined)) {
@@ -484,7 +464,6 @@ module.exports.drawRouteStops = function (routeId, stops, isBus) {
 };
 
 module.exports.clearExistingRoutes = function () {
-    this.setRouteColor = this.setRouteColorRefresh();
     if (this.activeMap) {
         if (this.addedRouteStops) {
             this.removeRouteStops();
