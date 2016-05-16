@@ -118,6 +118,10 @@
   height: 15px;
 }
 
+.stops-icon.junction {
+  border:2px solid black;
+}
+
 
 .stop-popup .leaflet-popup-content-wrapper {
   border-radius: 5px;

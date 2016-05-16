@@ -158,7 +158,7 @@ View.prototype.showDetails = function (e) {
     optionsView.lastCardSelected = _this;
 
     e.preventDefault();
-    mapView.removeRouteStops();
+    mapView.clearExistingRoutes();
     var el = this.el;
     var expanded = document.querySelector('.option.expanded');
     if (expanded) expanded.classList.remove('expanded');
@@ -197,7 +197,7 @@ View.prototype.hideDetails = function (e) {
     }
 
     this.isSelected = false;
-    mapView.removeRouteStops();
+    mapView.clearExistingRoutes();
 };
 
 /**

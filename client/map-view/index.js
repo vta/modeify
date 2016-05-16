@@ -304,6 +304,13 @@ module.exports.marker_map_point = function (to, map, itineration) {
     }
 };
 
+module.exports.toggleMapElement = function (el, showHide) {
+    if (!el || !showHide) {
+        return;
+    }
+    $(el)[showHide]();
+};
+
 module.exports.setRouteColorRefresh = function () {
     var colors = {
         'CAR': { hex: '#f03b20' }, 
@@ -404,6 +411,10 @@ module.exports.drawRouteStops = function (routeId, stops, isBus) {
     for (var i = 0; i < stops.length; i++) {
         var class_name = 'stops-icon';
 
+        if (i === 0 || i === stops.length - 1) {
+            class_name += ' junction';
+        }
+
         var marker = L.marker({
             "lat": stops[i].lat,
             "lng": stops[i].lon
@@ -479,6 +490,7 @@ module.exports.clearExistingRoutes = function () {
             this.removeRouteStops();
         }
         this.manageRealtime.removeRealtimeData(this.activeMap);
+        this.toggleMapElement('.leaflet-div-icon1', 'show');
     }
 };
 
@@ -599,6 +611,7 @@ module.exports.loadRouteStops = function (routeId, from, to, isBus) {
         }
 
         module.exports.drawRouteStops(routeId, stops, isBus);
+        module.exports.toggleMapElement('.leaflet-div-icon1', 'hide');
 
         return (1 - i).toString(); // i here matches the route direction and is always 1 or 0
     });
