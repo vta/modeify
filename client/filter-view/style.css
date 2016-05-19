@@ -1,10 +1,11 @@
 
-.FilterView > .mode-filters {
+.FilterView > .mode-filters, .FilterView > .bike-filters {
   margin-top: 5px;
   display: inline-block;
 }
 
-.FilterView > .mode-filters > button {
+.FilterView > .mode-filters > button,
+.FilterView > .bike-filters > button {
   box-shadow: none;
   background-color: var(--vta-dark-blue);
   color: var(--vta-light-gray);
@@ -18,7 +19,14 @@
   position: relative;
 }
 
-.mode-filters i {
+.FilterView > .bike-filters > button { 
+  font-size: 15px;
+  height: 28px;
+  width: 60px;
+  padding: 0 15px 1px 0;
+}
+
+.mode-filters i, .bike-filters i {
   font-size: 16px;
   position: absolute;
   top: 23px;
@@ -28,24 +36,43 @@
   visibility: hidden;
 }
 
+.bike-filters i {
+  top: 5px;
+  left: 42px;
+}
 
-.mode-filters > button.active {
+
+.mode-filters > button.active, .bike-filters > button.active {
   background-color: var(--vta-dark-blue);
   color: var(--vta-light-gray);
 
   text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.3);
 }
 
-.mode-filters > button:hover,
-.mode-filters > button:focus {
+.mode-filters > button:hover, .bike-filters > button:hover,
+.mode-filters > button:focus, .bike-filters > button:focus {
   background-color: var(--vta-middle-blue);
   color: var(--vta-dark-gray);
 
   text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.3);
 }
 
-.mode-filters > button.active > i {
+.mode-filters > button.active > i,
+.bike-filters > button.active > i {
   visibility: visible;
+}
+
+.FilterView > .bike-filters .title {
+  display: inline-block;
+  font-size: 13px;
+  background-color: var(--vta-dark-blue);
+  color: white;
+  padding: 5px 0 0 4px;
+  width: 88px;
+  height: 28px;
+  float: left;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
 }
 
 .submit {

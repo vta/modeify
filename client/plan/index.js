@@ -47,7 +47,10 @@ var Plan = module.exports = model('Plan')
     to_valid: false,
     train: true,
     tripsPerYear: 235,
-    walk: true
+    walk: true,
+    fast: true,
+    safe: true,
+    flat: true
   }))
   .attr('bike')
   .attr('bikeShare')
@@ -72,7 +75,10 @@ var Plan = module.exports = model('Plan')
   .attr('to_valid')
   .attr('train')
   .attr('tripsPerYear')
-  .attr('walk');
+  .attr('walk')
+  .attr('fast')
+  .attr('safe')
+  .attr('flat');
 
 /**
  * Expose `load`
@@ -316,6 +322,23 @@ Plan.prototype.setModes = function(csv) {
   this.car(modes.indexOf('CAR') !== -1);
 };
 
+Plan.prototype.triangulateBikeOptions = function () {
+  var totalOpts = 0,
+      opts = [this.flat(), this.safe(), this.fast()];
+
+  opts.forEach(function (opt) {
+    totalOpts += opt ? 1 : 0;
+  });
+
+  if (!totalOpts) {
+    return [0.333, 0.333, 0.333];
+  } else {
+    return opts.map(function (opt) {
+      return opt ? +(1 / totalOpts).toFixed(3) : 0;
+    });
+  }
+}
+
 /**
  * Generate Query Parameters for this plan
  */
@@ -345,6 +368,7 @@ Plan.prototype.generateQuery = function() {
   var endTime = this.end_time();
   var scorer = this.scorer();
   var arriveBy = this.arriveBy();
+  var triangleFactors = this.triangulateBikeOptions();
 
   // Convert the hours into strings
   startTime += ':00';
@@ -363,10 +387,10 @@ Plan.prototype.generateQuery = function() {
       walkReluctance: 10,
       clampInitialWait: 60,
 //      waitAtBeginningFactor: 0.5,
-      triangleSafetyFactor: 0.9,
-      triangleSlopeFactor: 0.5,
-      triangleTimeFactor: 0.9,
-      optimize: 'QUICK',
+      triangleSlopeFactor: triangleFactors[0],
+      triangleSafetyFactor: triangleFactors[1],
+      triangleTimeFactor: triangleFactors[2],
+      optimize: 'TRIANGLE',
       arriveBy: arriveBy
   };
 };
