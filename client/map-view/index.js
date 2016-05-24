@@ -321,11 +321,11 @@ module.exports.drawRouteAmigo = function (legs, mode, itineration) {
     var dasharray = '';
 
     var colors = {
-        'CAR': '#ffeda0', 
-        'BICYCLE': '#f03b20', 
+        'CAR': '#ffeda0',
+        'BICYCLE': '#f03b20',
         'TRAM': '#74c476',
         'RAIL': '#fe9929',
-        'WALK': '#3182bd', 
+        'WALK': '#3182bd',
         'BUS': '#6baed6'
     };
     var color = colors[mode] ? colors[mode] : '#000000';
@@ -490,61 +490,56 @@ module.exports.removeRouteBuses = function () {
 };
 
 module.exports.manageRealtime = {
-    validBusses: {},
+    currRoutes: {},
 
-    resetValidBusses: function () {
-        this.validBusses = {};
+    pushToCurrRoutes: function (id, direction) {
+        this.currRoutes[id] = direction;
     },
 
     removeRealtimeData: function (map) {
-        this.resetValidBusses();
+        this.currRoutes = {};
         if (map.realtime && map.realtime.active) {
             mapModule.toggleRealtime(map);
         }
     },
 
     renderRealtime: function () {
-        mapModule.validBusses = this.validBusses;
+        mapModule.currRoutes = this.currRoutes;
         mapModule.toggleRealtime(module.exports.getMap());
+    },
+
+    toggleAsyncRealtime: function (apiCalls) {
+        $.when.apply($, apiCalls).done($.proxy(this.renderRealtime, this));
     }
 };
 
 module.exports.mapRouteStops = function (legs) {
     var deferredRouteDetails = [],
-        bussesInRoute = false;
+        vehicle = {};
 
     module.exports.clearExistingRoutes();
 
-    var loadRouteDetails = function () {
-        $.each(legs, function (idx, vehicle) {
-            if (vehicle.mode === 'TRAM') {
-                module.exports.loadRouteStops(vehicle.routeId, 
-                                              vehicle.from.stopCode, 
-                                              vehicle.to.stopCode,
-                                              false);
-            } else if (vehicle.mode === 'BUS') {
-                bussesInRoute = true;
-                deferredRouteDetails.push(module.exports.loadRouteStops(vehicle.routeId, 
-                                                                    vehicle.from.stopCode, 
-                                                                    vehicle.to.stopCode,
-                                                                    true));
-            }
-        });
-        return deferredRouteDetails;
-    };
-
-    var getDetails = loadRouteDetails();
-    $.when.apply(null, getDetails).done(function () {
-        if (bussesInRoute) {
-            module.exports.manageRealtime.renderRealtime();
+    for (var i = 0; i < legs.length; i++) {
+        vehicle = legs[i];
+        if (vehicle.mode === 'TRAM' || vehicle.mode === 'BUS') {
+            deferredRouteDetails.push(
+                module.exports.loadRouteStops(
+                    vehicle.routeId,
+                    vehicle.from.stopCode,
+                    vehicle.to.stopCode,
+                    vehicle.mode === 'BUS'
+                )
+            );
         }
-    });
+    }
+
+    this.manageRealtime.toggleAsyncRealtime(deferredRouteDetails);
 };
 
 module.exports.loadRouteStops = function (routeId, from, to, isBus) {
     var endPoint = 'http://api.transitime.org/api/v1/key/5ec0de94/agency/vta/command/routesDetails';
 
-    var getRoute = $.get(endPoint, {
+    return $.get(endPoint, {
         r: routeId,
         format: 'json'
     }).then(function (data) {
@@ -592,62 +587,10 @@ module.exports.loadRouteStops = function (routeId, from, to, isBus) {
         module.exports.drawRouteStops(routeId, stops, isBus);
         module.exports.toggleMapElement('.leaflet-div-icon1', 'hide');
 
-        return (1 - i).toString(); // i here matches the route direction and is always 1 or 0
-    });
-
-    if (isBus) {
-        module.exports.getVehicleIds(getRoute, routeId);
-    }
-};
-
-module.exports.getVehicleIds = function (routeDetailsPromise, routeId) {
-    var routeDirection = '';
-
-    routeDetailsPromise.then(function (direction) {
-        var endpoint = 'http://api.transitime.org/api/v1/key/5ec0de94/agency/vta/command/vehiclesDetails';
-
-        routeDirection = direction;
-
-        return $.get(endpoint, {
-            r: routeId,
-            format: 'json'
-        });
-    }).done(function (data) {
-        // find busses in route heading relevant direction
-        var validBusses = module.exports.manageRealtime.validBusses,
-            bus = {};
-
-        for (var i = 0; i < data.vehicles.length; i++) {
-            bus = data.vehicles[i];
-            if (bus.direction === routeDirection) {
-                if (!validBusses[bus.routeId]) {
-                    validBusses[bus.routeId] = [];
-                }
-                validBusses[bus.routeId].push(parseInt(bus.id, 10));
-            }
-        }
-    });
-};
-
-module.exports.loadRouteBuses = function (routeId, stops, direction) {
-    module.exports.removeRouteBuses();
-    var endPoint = 'http://api.transitime.org/api/v1/key/5ec0de94/agency/vta/command/vehiclesDetails';
-    direction = direction.toString();
-
-    $.get(endPoint, {
-        r: routeId,
-        format: 'json'
-    }).done(function (data) {
-        var buses = data.vehicles,
-            validBuses = [];
-        for (var i = 0; i < buses.length; i++) {
-            if (module.exports.findBusInRoute(buses[i], stops, direction)) {
-                validBuses.push(buses[i]);
-            }
-        }
-
-        console.log(validBuses);
-        module.exports.drawRouteBuses(validBuses);
+        return module.exports.manageRealtime.pushToCurrRoutes(
+            routeId,
+            i.toString() // i here matches the route direction and is always 1 or 0
+        );
     });
 };
 
