@@ -115,11 +115,13 @@ module.exports.toggleRealtime = function(viewMap) {
         };
       }
 
+      map.realtime.active = true;
+
       var pollForVehicles = function () {
         var validVehicles = [];
         getValidVehicles = module.exports.getRealtimeVehicles(validVehicles);
         $.when.apply($, getValidVehicles).done(function () {
-          if (validVehicles.length) {
+          if (map.realtime.active && validVehicles.length) {
             for (var i = 0; i < validVehicles.length; i++) {
               var existingPoint = module.exports.findPoint(map, validVehicles[i]);
               if (existingPoint === -1) {
@@ -136,17 +138,16 @@ module.exports.toggleRealtime = function(viewMap) {
       };
 
       pollForVehicles(); // recursive, fires at least 3 seconds after it last completed
-      map.realtime.active = true;
   };
 
   var clearRealtime = function () {
       clearTimeout(module.exports.vehiclePoller);
+      map.realtime.active = false;
       L.amigo.realtime.socket.removeAllListeners('realtime'); // I left this in for reduncency when switching to polling - Luke
       for (var i = 0; i < map.realtime.points.length; i++) {
         map.removeLayer(map.realtime.points[i].marker);
       }
       map.realtime.points = [];
-      map.realtime.active = false;
   };
 
   if (!map.realtime || !map.realtime.active) {
@@ -249,6 +250,7 @@ module.exports.hasVehicleMoved = function (oldPoint, newPoint) {
 
 module.exports.addPoint = function (map, point) {
   var routeId = point.routeId,
+      iconUrl = 'assets/images/graphics/',
       line, newPoint;
 
   line = L.polyline(
@@ -269,26 +271,16 @@ module.exports.addPoint = function (map, point) {
     marker: L.animatedMarker(line.getLatLngs()).addTo(map)
   };
 
-  if (parseFloat(point.loc.speed) < 0.5) {
-    newPoint.marker.setIcon(new L.NumberedDivIcon({
-      iconUrl: 'assets/images/graphics/bus-gray.png',
-      iconSize: [40, 55],
-      iconAnchor: [20, 50],
-      popupAnchor:  [0, -50],
-      className: 'tint',
-      number: routeId,
-      divClass: 'number-inactive'
-    }));
-  } else {
-    newPoint.marker.setIcon(new L.NumberedDivIcon({
-      iconUrl: 'assets/images/graphics/bus-green.png',
-      iconSize: [40, 55],
-      iconAnchor: [20, 50],
-      popupAnchor:  [0, -50],
-      className: 'tint',
-      number: routeId
-    }));
-  }
+  iconUrl += point.vehicleType === '0' ? 'tram-realtime.png' : 'bus-realtime.png';
+
+  newPoint.marker.setIcon(new L.NumberedDivIcon({
+    iconUrl: iconUrl,
+    iconSize: [47, 47],
+    iconAnchor: [20, 45],
+    popupAnchor:  [0, -50],
+    className: 'tint',
+    number: routeId
+  }));
 
   newPoint.marker.realtimeData = point;
   newPoint.marker.bindPopup(module.exports.makePopup(point));
@@ -308,7 +300,6 @@ module.exports.addPoint = function (map, point) {
   newPoint.marker.on('popupclose', function () {
     // Workaround counterpart
     var zoomHideEl = document.querySelectorAll('path.realtimemarker');
-    console.log("zoomHideEl", zoomHideEl);
     for (i in zoomHideEl) {
       var parent = zoomHideEl[i].parentNode;
     }
@@ -319,54 +310,50 @@ module.exports.addPoint = function (map, point) {
 };
 
 module.exports.movePoint = function (map, point) {
-    var routeId = point.routeId,
-        line, currentPoint;
+  var routeId = point.routeId,
+      iconUrl = 'assets/images/graphics/',
+      line, currentPoint;
 
-    currentPoint = map.realtime.points[module.exports.findPoint(map, point)];
-    line = L.polyline(
-      [
-        [currentPoint.marker.getLatLng().lat, currentPoint.marker.getLatLng().lng],
-        [parseFloat(point.loc.lat), parseFloat(point.loc.lon)]
-      ],
-      {
-        className: "realtimemarker"
-      }
-    );
-
-    if (parseFloat(point.loc.speed) < 0.5) {
-      currentPoint.marker.setIcon(new L.NumberedDivIcon({
-        iconUrl: 'assets/images/graphics/bus-gray.png',
-        iconSize: [40, 55],
-        iconAnchor: [20, 50],
-        popupAnchor:  [0, -50],
-        className: 'tint',
-  	    number: routeId,
-  	    divClass: 'number-inactive'
-      }));
-    } else {
-      currentPoint.marker.setIcon(new L.NumberedDivIcon({
-        iconUrl: 'assets/images/graphics/bus-green.png',
-        iconSize: [40, 55],
-        iconAnchor: [20, 50],
-        popupAnchor:  [0, -50],
-        className: 'tint',
-        number: routeId
-      }));
+  currentPoint = map.realtime.points[module.exports.findPoint(map, point)];
+  line = L.polyline(
+    [
+      [currentPoint.marker.getLatLng().lat, currentPoint.marker.getLatLng().lng],
+      [parseFloat(point.loc.lat), parseFloat(point.loc.lon)]
+    ],
+    {
+      className: "realtimemarker"
     }
+  );
 
-    currentPoint.marker.realtimeData = point;
-    currentPoint.marker.setLine(line.getLatLngs());
-    currentPoint.marker.setPopupContent(
-      module.exports.makePopup(point)
-    );
-    currentPoint.marker.animate();
+  iconUrl += point.vehicleType === '0' ? 'tram-realtime.png' : 'bus-realtime.png';
+
+  currentPoint.marker.setIcon(new L.NumberedDivIcon({
+    iconUrl: iconUrl,
+    iconSize: [47, 47],
+    iconAnchor: [20, 45],
+    popupAnchor:  [0, -50],
+    className: 'tint',
+    number: routeId
+  }));
+
+  currentPoint.marker.realtimeData = point;
+  currentPoint.marker.setLine(line.getLatLngs());
+  currentPoint.marker.setPopupContent(
+    module.exports.makePopup(point)
+  );
+  currentPoint.marker.animate();
 };
 
 module.exports.makePopup = function (point) {
+  var routeName = point.routeName;
+  if (parseInt(routeName, 10) !== NaN && routeName.indexOf(' - ') !== -1) {
+    routeName = routeName.slice(routeName.indexOf(' - ') + 3);
+  }
+
   var string = '<div class="bus-popup"><div class="popup-header">';
   string += '<h5><i class="fa fa-bus"></i> ' + point.routeId + ': ';
   string += '<a target="_blank" href="http://www.vta.org/routes/rt' + point.routeId + '">';
-  string += point.routeName + '</a></h5></div>';
+  string += routeName + '</a></h5></div>';
 
   string += '<div class="popup-body"><table><tr class="popup-row">';
   string += '<td class="label">Longitude</td><td class="value">' + point.loc.lon + '</td></tr>';
@@ -377,8 +364,8 @@ module.exports.makePopup = function (point) {
   string += '<tr class="popup-row"><td class="label">Timestamp: </td>';
   string += '<td class="value">' + (new Date(point.loc.time * 1000)).toLocaleString().toString() + '</td></tr>';
 
-  string += '<tr class="popup-row"><td class="label">Speed: </td>';
-  string += '<td class="value"> ' + point.loc.speed + '</td></tr>';
+  string += '<tr class="popup-row"><td class="label">Next Stop: </td>';
+  string += '<td class="value"> ' + point.nextStopName + '</td></tr>';
 
   string += '</table></div></div>';
 

@@ -42,7 +42,8 @@ module.exports = function (reactive) {
 
     $(el).datetimepicker({
       defaultDate: moment().format(),
-      allowInputToggle: true
+      allowInputToggle: true,
+      widgetPositioning: { horizontal: 'right' }
     }).on('dp.hide', function (e) {
       e.stopPropagation();
 
@@ -50,13 +51,13 @@ module.exports = function (reactive) {
           day = setDayOfWeek(date.weekday()),
           hour = date.hour(),
           endOrStartTime = getEndOrStartTime(view);
-      
+
       if (view.model['days']) {
         view.model['days'](day);
       } else {
         return;
       }
-      
+
       if (view.model[endOrStartTime]) {
         view.model[endOrStartTime](hour);
       } else {

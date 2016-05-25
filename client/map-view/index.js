@@ -497,7 +497,7 @@ module.exports.manageRealtime = {
     },
 
     removeRealtimeData: function (map) {
-        this.currRoutes = {};
+        mapModule.currRoutes = this.currRoutes = {};
         if (map.realtime && map.realtime.active) {
             mapModule.toggleRealtime(map);
         }
