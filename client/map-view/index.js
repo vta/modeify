@@ -522,14 +522,16 @@ module.exports.mapRouteStops = function (legs) {
     for (var i = 0; i < legs.length; i++) {
         vehicle = legs[i];
         if (vehicle.mode === 'TRAM' || vehicle.mode === 'BUS') {
-            deferredRouteDetails.push(
-                module.exports.loadRouteStops(
-                    vehicle.routeId,
-                    vehicle.from.stopCode,
-                    vehicle.to.stopCode,
-                    vehicle.mode === 'BUS'
-                )
-            );
+            if (vehicle.routeId.length < 4) {
+                deferredRouteDetails.push(
+                    module.exports.loadRouteStops(
+                        vehicle.routeId,
+                        vehicle.from.stopCode,
+                        vehicle.to.stopCode,
+                        vehicle.mode === 'BUS'
+                    )
+                );
+            }
         }
     }
 
@@ -542,7 +544,7 @@ module.exports.loadRouteStops = function (routeId, from, to, isBus) {
     return $.get(endPoint, {
         r: routeId,
         format: 'json'
-    }).then(function (data) {
+    }).success(function (data) {
         var route = data.routes[0],
             foundFrom = false, foundTo = false,
             startAdding = false,
@@ -591,6 +593,8 @@ module.exports.loadRouteStops = function (routeId, from, to, isBus) {
             routeId,
             i.toString() // i here matches the route direction and is always 1 or 0
         );
+    }).fail(function (msg) {
+        console.log('Request returned with error msg:' + msg);
     });
 };
 

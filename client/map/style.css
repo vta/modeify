@@ -106,7 +106,7 @@
 }
 
 .leaflet-popup-content {
-  margin: 4px;
+  margin: 2px;
 }
 
 .leaflet-popup-tip-container .leaflet-popup-tip {
@@ -117,7 +117,7 @@
   background-color: #EDEFF0;
   padding: 5px 10px;
   text-align: center;
-  border-radius: 5px;
+  border-radius: 10px;
 }
 
 .leaflet-popup-content .popup-header > h5 {
@@ -134,8 +134,8 @@
 
 .leaflet-popup-content .popup-body {
   background-color: #fff;
-  margin-top: 7px;
-  border-radius: 5px;
+  margin-top: 4px;
+  border-radius: 10px;
 }
 
 .leaflet-popup-content .popup-body .popup-item {
@@ -166,11 +166,11 @@
 }
 
 .leaflet-popup-content .popup-body .popup-row:first-child td.label {
-  border-top-left-radius: 3px;
+  border-top-left-radius: 10px;
 }
 
 .leaflet-popup-content .popup-body .popup-row:last-child td.label {
-  border-bottom-left-radius: 3px;
+  border-bottom-left-radius: 10px;
 }
 
 .leaflet-marker-icon .number {
