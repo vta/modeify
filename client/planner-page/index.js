@@ -79,24 +79,24 @@ module.exports = function(ctx, next) {
           var to = plan.to_ll();
           if (!plan.coordinateIsValid(from)) {
             plan.journey({
-          places: [
-            {
-              place_id: 'from',
-              place_lat: e.latlng.lat,
-              place_lon: e.latlng.lng,
-              place_name: 'From'
-            },
-            {
-              place_id: 'to',
-              place_lat: (plan.to_ll() ? plan.to_ll().lat : 0),
-              place_lon: (plan.to_ll() ? plan.to_ll().lng : 0),
-              place_name: 'To'
-            }
-          ]
-        });
-        plan.setAddress('from', e.latlng.lng + ',' + e.latlng.lat, function (err, res) {
-            plan.updateRoutes();
-        });
+              places: [
+                {
+                  place_id: 'from',
+                  place_lat: e.latlng.lat,
+                  place_lon: e.latlng.lng,
+                  place_name: 'From'
+                },
+                {
+                  place_id: 'to',
+                  place_lat: (plan.to_ll() ? plan.to_ll().lat : 0),
+                  place_lon: (plan.to_ll() ? plan.to_ll().lng : 0),
+                  place_name: 'To'
+                }
+              ]
+            });
+            plan.setAddress('from', e.latlng.lng + ',' + e.latlng.lat, function (err, res) {
+              plan.updateRoutes();
+            });
           } else if (!plan.coordinateIsValid(to)) {
         plan.journey({
           places: [
@@ -150,13 +150,13 @@ module.exports = function(ctx, next) {
     }
   });
 
-  plan.on('updating options', function() {
-    ctx.view.panelFooter.classList.add('hidden');
-  });
+  // plan.on('updating options', function() {
+  //   ctx.view.panelFooter.classList.add('hidden');
+  // });
 
-  plan.on('updating options complete', function(res) {
-    if (res && !res.err) ctx.view.panelFooter.classList.remove('hidden');
-  });
+  // plan.on('updating options complete', function(res) {
+  //   if (res && !res.err) ctx.view.panelFooter.classList.remove('hidden');
+  // });
 
   next();
 };
@@ -220,21 +220,36 @@ View.prototype.feedback = function(e) {
  */
 
 View.prototype.hideSidePanel = function (e) {
-  var sidePanel = $('.SidePanel');
-  var fullscreen = $('.fullscreen');
-  var width = sidePanel.width();
-  var map = showMapView.getMap();
+  var $sidePanelBottom = $('.SidePanel.bottom'),
+      $nav = $('nav'),
+      $mapWrap = $('.MapView'),
+      map = showMapView.getMap();
 
-  sidePanel.css({
+  var navHeight = $nav.height(),
+      topHeight = $(window).height() - navHeight - $mapWrap.height(),
+      bottomHeight = $sidePanelBottom.height();
+
+  $nav.css({
     'transition': 'transform 2s',
     '-webkit-transition': '-webkit-transform 2s',
-    'transform': 'translate3d(' + width + 'px, 0, 0)'
+    'transform': 'translate3d(0, -' + navHeight + 'px, 0)'
   });
 
-  fullscreen.css({
-    'transition': 'padding 2s',
-    'padding': '0'
+  $('.SidePanel.top').css({
+    'transition': 'transform 2s',
+    '-webkit-transition': '-webkit-transform 2s',
+    'transform': 'translate3d(0, ' + topHeight + 'px, 0)'
   });
+
+  $sidePanelBottom.fadeOut(2000);
+
+  $mapWrap.css({
+    'transition': 'height 2s',
+    'height': '100%',
+    'transition': 'transform 2s',
+    '-webkit-transition': '-webkit-transform 2s',
+    'transform': 'translate3d(0, -' + navHeight + 'px, 0)'
+  }).children('.hide-map').css('display', 'inline-block');
 
   setTimeout(function () {
     map.invalidateSize();
@@ -246,21 +261,36 @@ View.prototype.hideSidePanel = function (e) {
  */
 
 View.prototype.showSidePanel = function (e) {
-  var sidePanel = $('.SidePanel');
-  var fullscreen = $('.fullscreen');
-  var width = sidePanel.width();
-  var map = showMapView.getMap();
+  var $sidePanelTop = $('.SidePanel.top'),
+      $sidePanelBottom = $('.SidePanel.bottom'),
+      $nav = $('nav'),
+      $mapWrap = $('.MapView'),
+      map = showMapView.getMap();
 
-  sidePanel.css({
+  var navHeight = $nav.height(),
+      topHeight = $(window).height() - navHeight - $mapWrap.height();
+
+  $nav.css({
     'transition': 'transform 2s',
     '-webkit-transition': '-webkit-transform 2s',
     'transform': 'translate3d(0, 0, 0)'
   });
 
-  fullscreen.css({
-    'transition': 'padding 2s',
-    'padding-right': '320px'
+  $sidePanelTop.css({
+    'transition': 'transform 2s',
+    '-webkit-transition': '-webkit-transform 2s',
+    'transform': 'translate3d(0, 0, 0)'
   });
+
+  $sidePanelBottom.fadeIn(2000);
+
+  $mapWrap.css({
+    'transition': 'height 2s',
+    'height': '280px',
+    'transition': 'transform 2s',
+    '-webkit-transition': '-webkit-transform 2s',
+    'transform': 'translate3d(0, 0, 0)'
+  }).children('.hide-map').css('display', 'none');
 
   setTimeout(function () {
     var plan = session.plan();
@@ -335,7 +365,7 @@ function updateMapOnPlanChange(plan, map) {
   showMapView.clearExistingRoutes(); // remove old realtime & stop data from map
 
   var sesion_plan = JSON.parse(localStorage.getItem('dataplan'));
-    if (journey && !isMobile) {
+    if (journey) {
       try {
 
         if(!(sesion_plan === null)) {
@@ -359,13 +389,14 @@ function updateMapOnPlanChange(plan, map) {
 
                 var lat_center_polyline = (sesion_plan.from.lat + sesion_plan.to.lat) / 2;
                 var lon_center_polyline = (sesion_plan.from.lon + sesion_plan.to.lon) / 2;
-                map.setView([lat_center_polyline, lon_center_polyline], 11);
+                var zoom = isMobile ? 9 : 11;
+                map.setView([lat_center_polyline, lon_center_polyline], zoom);
 
                 showMapView.drawMakerCollision();
             }
 
       } catch (e) {
-	    map.setView([center[1], center[0]], config.geocode().zoom);
+        map.setView([center[1], center[0]], config.geocode().zoom);
       }
 
     }

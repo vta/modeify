@@ -38,9 +38,9 @@
 
 
 @-webkit-keyframes fade-out {
-0% { opacity: 0.80;}
-50% { opacity: 0.60;}
-100% {opacity:0.40;}
+  0% { opacity: 0.80;}
+  50% { opacity: 0.60;}
+  100% {opacity:0.40;}
 }
 
 .fade-out {

@@ -1,6 +1,9 @@
 <div class="fullscreen">
-
-  <div class="SidePanel">
+  <div reactive="planner-nav"></div>
+  <div class="MapView">
+    <a class="hide-map" on-tap="showSidePanel"><i class="fa fa-fw fa-chevron-up"></i></a>
+  </div>
+  <div class="SidePanel top">
     <div id="scrollable" class="scrollable">
       <form autosubmit id="locations-form">
         <div class="title">Describe <strong>your</strong> trip <a class="fa fa-fw icon-reverse pull-right" on-tap="reverseCommute" title="Reverse Commute" href="#"></a></div>
@@ -9,19 +12,17 @@
       </form>
       <div reactive="options-view"></div>
     </div>
-    <div reactive="planner-nav"></div>
-    <div class="footer hidden">
-      <a class="show-map" on-tap="hideSidePanel"><i class="fa fa-fw fa-chevron-left"></i></a>
+  </div>
+  <div class="SidePanel bottom">
+    <div class="footer">
       <button class="btn btn-default help-me-choose" on-tap="helpMeChoose"><i class="fa fa-fw fa-list"></i> help me choose</button>
-      <a href="#" class="more-options pull-right" on-tap="scroll"><i class="fa fa-fw fa-chevron-down"></i></a>
       <a class="btn btn-default send-feedback"
       	 href="#"
       	 on-tap="feedback"
       	 title="Send feedback"
       	 target="_blank"><i class="fa fa-fw fa-bullhorn"></i> feedback</a>
+      <a href="#" class="more-options pull-right" on-tap="scroll"><i class="fa fa-fw fa-chevron-down"></i></a>
+      <a class="show-map" on-tap="hideSidePanel"><i class="fa fa-fw fa-chevron-down"></i></a>
     </div>
-  </div>
-  <div class="MapView">
-    <a class="hide-map" on-tap="showSidePanel"><i class="fa fa-fw fa-chevron-right"></i></a>
   </div>
 </div>
