@@ -20,8 +20,10 @@
 .SidePanel.top {
   margin-top: 70px;
   top: 0;
-  height: 100%;
   overflow-y: scroll;
+  min-height: 300px;
+  height: 100%;
+  padding-bottom: 120px;
 }
 
 .SidePanel.bottom {
@@ -53,7 +55,6 @@
 
   .SidePanel .scrollable {
     padding-top: 0;
-    overflow-y: visible;
   }
 
   .SidePanel.bottom {
@@ -71,11 +72,6 @@
     font-size: 12px;
     padding: 2px 6px;
     margin: 6px 8px 14px 30px;
-  }
-
-
-  .SidePanel.bottom .footer .btn.send-feedback {
-    float: none;
   }
 
   .SidePanel .footer .more-options {
@@ -149,7 +145,6 @@
 .SidePanel .footer .btn.send-feedback{
   background-color: var(--vta-burgundy);
   color: #fff;
-  float: right;
   margin-left: 0;
   margin-right: 0;
 }
@@ -161,7 +156,7 @@
   display: inline-block;
   line-height: 44px;
   text-align: right;
-  padding: 0 12px 0 16px;
+  padding: 0 12px 0 0;
 }
 
 .SidePanel .footer .show-map {

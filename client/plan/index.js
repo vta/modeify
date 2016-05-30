@@ -331,7 +331,7 @@ Plan.prototype.triangulateBikeOptions = function () {
   });
 
   if (!totalOpts) {
-    return [0.333, 0.333, 0.333];
+    return [0.333, 0.333, 0.334];
   } else {
     return opts.map(function (opt) {
       return opt ? +(1 / totalOpts).toFixed(3) : 0;
@@ -389,7 +389,7 @@ Plan.prototype.generateQuery = function() {
 //      waitAtBeginningFactor: 0.5,
       triangleSlopeFactor: triangleFactors[0],
       triangleSafetyFactor: triangleFactors[1],
-      triangleTimeFactor: triangleFactors[2],
+      triangleTimeFactor: (triangleFactors[2] === 0.333) ? triangleFactors[2] + 0.001 : triangleFactors[2], // must add to one
       optimize: 'TRIANGLE',
       arriveBy: arriveBy
   };
