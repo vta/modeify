@@ -22,7 +22,7 @@ module.exports = function (el) {
             amigoLogo: 'right',
             loadAmigoLayers: false,
             inertia: false,
-            zoomAnimation: $('.hide-map').css('display') !== 'none',
+            zoomAnimation: true,
             maxBounds: L.latLngBounds(southWest, northEast),
             minZoom: 8
         })).setView([center[1], center[0]], config.geocode().zoom);

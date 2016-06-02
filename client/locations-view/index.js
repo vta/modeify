@@ -52,8 +52,8 @@ View.prototype.blurInput = function(e) {
 	suggestionList.classList.add('empty');
 
 	setTimeout(function() {
-			suggestionList.innerHTML = '';
-			}, 250);
+		suggestionList.innerHTML = '';
+	}, 500);
 
 	inputGroup.classList.remove('highlight');
 	this.save(e.target);
@@ -191,10 +191,21 @@ View.prototype.save = function(el) {
 };
 
 /**
+ * Scroll down a certain number of pixels
+ */
+
+View.prototype.scrollDown = function (num) {
+  $('.fullscreen').animate({
+    scrollTop: num
+  }, 250);
+};
+
+/**
  * Highlight the selected input
  */
 
 View.prototype.focusInput = function(e) {
+  this.scrollDown(100);
 	e.target.parentNode.classList.add('highlight');
 };
 

@@ -50,11 +50,16 @@
 
   .SidePanel.top {
     margin-top: 0;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .SidePanel .scrollable {
     padding-top: 0;
+    overflow: visible;
+  }
+
+  .SidePanel .scrollable .Options {
+    padding-bottom: 60px;
   }
 
   .SidePanel.bottom {
