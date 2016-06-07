@@ -128,7 +128,7 @@
 }
 
 .stop-popup .leaflet-popup-content-wrapper .leaflet-popup-content {
-  margin: 10px;
+  margin: 2px;
 }
 
 .stop-popup .leaflet-popup-content-wrapper .leaflet-popup-content .stop-loading {

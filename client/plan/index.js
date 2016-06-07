@@ -33,6 +33,7 @@ var Plan = module.exports = model('Plan')
     bus: true,
     car: false,
     days: 'M—F',
+    date: moment().format('MM:DD:YYYY'),
     arriveBy: false,
     end_time: (new Date()).getHours() + 4,
     from: '',
@@ -43,6 +44,7 @@ var Plan = module.exports = model('Plan')
     query: new ProfileQuery(),
     scorer: new ProfileScorer(),
     start_time: (new Date()).getHours() - 1,
+    minute: moment().minute(),
     to: '',
     to_valid: false,
     train: true,
@@ -57,6 +59,7 @@ var Plan = module.exports = model('Plan')
   .attr('bus')
   .attr('car')
   .attr('days')
+  .attr('date')
   .attr('arriveBy')
   .attr('end_time')
   .attr('from')
@@ -69,6 +72,7 @@ var Plan = module.exports = model('Plan')
   .attr('query')
   .attr('scorer')
   .attr('start_time')
+  .attr('minute')
   .attr('to')
   .attr('to_id')
   .attr('to_ll')
@@ -370,14 +374,14 @@ Plan.prototype.generateQuery = function() {
   var arriveBy = this.arriveBy();
   var triangleFactors = this.triangulateBikeOptions();
 
-  // Convert the hours into strings
-  startTime += ':00';
-  endTime = endTime === 24 ? '23:59' : endTime + ':00';
+  // Get correct hour, add minutes and convert to string
+  var time = arriveBy ? endTime : startTime;
+  time += ':' + this.minute()
 
   return {
     date: this.nextDate(),
     mode: modes.join(','),
-      time: arriveBy ? endTime : startTime,
+      time: time,
       fromPlace: (from.lat + ',' + from.lng),
       toPlace: (to.lat + ',' + to.lng),
       numItineraries: 3,
@@ -473,6 +477,8 @@ Plan.prototype.generateQueryString = function() {
     modes: this.modesCSV(),
     start_time: this.start_time(),
     end_time: this.end_time(),
-    days: this.days()
+    days: this.days(),
+    date: this.date(),
+    minute: this.minute()
   });
 };

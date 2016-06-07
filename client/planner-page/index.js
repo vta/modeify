@@ -19,6 +19,7 @@ var view = require('view');
 var showWelcomeWizard = require('welcome-flow');
 var showPlannerWalkthrough = require('planner-walkthrough');
 var geocode = require('geocode');
+var dateTime = require('view/dateTime');
 
 var FROM = config.geocode().start_address;
 var TO = config.geocode().end_address;
@@ -321,6 +322,11 @@ function showQuery(query) {
   if (query.start_time !== undefined) plan.start_time(parseInt(query.start_time, 10));
   if (query.end_time !== undefined) plan.end_time(parseInt(query.end_time, 10));
   if (query.days !== undefined) plan.days(query.days);
+  if (query.date !== undefined) plan.date(query.date);
+  if (query.minute !== undefined) plan.minute(query.minute);
+
+  // set dateTimePicker to match query
+  dateTime.picker.setTime( dateTime.picker.generateMoment() );
 
   // If has valid coordinates, load
   if (plan.validCoordinates() && sameAddresses) {
