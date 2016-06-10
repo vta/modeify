@@ -336,23 +336,23 @@ function showQuery(query) {
     plan.updateRoutes();
 
   } else {
-      if (!plan.validCoordinates()) {
-	  plan.loading(false);
-	  return;
-      } else {
-    // Set addresses and update the routes
-    plan.setAddresses(from, to, function(err) {
-      if (err) {
-        log.error('%e', err);
-      } else {
-        plan.journey({
-          places: plan.generatePlaces()
-        });
-        plan.updateRoutes();
+    if (!plan.validCoordinates()) {
+      plan.loading(false);
+      return;
+    } else {
+      // Set addresses and update the routes
+      plan.setAddresses(from, to, function(err) {
+        if (err) {
+          log.error('%e', err);
+        } else {
+          plan.journey({
+            places: plan.generatePlaces()
+          });
+          plan.updateRoutes();
 
-      }
-    });
-}
+        }
+      });
+    }
   }
 }
 

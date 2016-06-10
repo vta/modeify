@@ -11,7 +11,7 @@ module.exports.reverseAmigo = reverseAmigo;
 module.exports.suggestAmigo = suggestAmigo;
 
 /**
- * Geocode
+ * Geocode (not currently in use!)
  */
 
 function geocode(address, callback) {
@@ -28,49 +28,173 @@ function geocode(address, callback) {
 }
 
 /**
+ * Geocoding options (google or amigo)
+ **/
+
+var defineProp = function (path, oldVal, newVal) {
+  Object.defineProperty(path, newVal, Object.getOwnPropertyDescriptor(path, oldVal));
+  delete path[oldVal];
+};
+
+var geocodingOptions = {
+  amigoSuggestions: function (text, res) {
+    var bounding = res.body.boundingbox;
+    var bounding_split = bounding.split(",");
+    var boinding_first = bounding_split[0].split(" ");
+    var boinding_second = bounding_split[1].split(" ");
+    var parameter = {
+        'token': config.realtime_access_token() ,
+        'boundary.rect.min_lat': boinding_first[1],
+        'boundary.rect.min_lon': boinding_first[0],
+        'boundary.rect.max_lat': boinding_second[1],
+        'boundary.rect.max_lon': boinding_second[0],
+        'sources':'osm,oa',
+        'text': text
+    };
+
+    return {
+      parameter: parameter,
+      endpoint: 'https://www.amigocloud.com/api/v1/me/geocoder/search'
+    }
+  },
+
+  amigoReverse: function (ll) {
+    var parameter = {
+      'token':config.realtime_access_token() ,
+      'point.lon':ll[0],
+      'point.lat':ll[1]
+    };
+
+    return {
+      parameter: parameter,
+      endpoint: 'https://www.amigocloud.com/api/v1/me/geocoder/reverse'
+    };
+  },
+
+  googleSuggestions: function (text, res) {
+    var mapper = function (res) {
+      var execute = function (func) { func(); };
+      var toMap = [
+        function getData () {
+          defineProp(res.body, 'results', 'features');
+        },
+
+        function mapLocations () {
+          res.body.features.forEach(function (feature, idx) {
+            defineProp(feature, 'address_components', 'properties');
+            feature.properties = {
+              country_a: "USA", // google results are always filtered to USA
+              region_a: "CA",
+              label: res.body.features[idx].formatted_address
+            };
+
+            defineProp(feature.geometry, 'location', 'coordinates');
+            var lat = feature.geometry.coordinates.lat,
+                lng = feature.geometry.coordinates.lng;
+            feature.geometry.coordinates = [lng, lat];
+          });
+        },
+      ];
+
+      toMap.forEach(execute);
+      return res;
+    };
+
+    var parameter = {
+      'address': text,
+      'key': 'AIzaSyBmJ2NvVf5Om1u1-YuA8lFKzEwZ2BHhd9U',
+      'components': 'administrative_area:CA|country:US'
+    };
+
+    if (res && res.body && res.body.boundingbox) {
+      var boundsArr = res.body.boundingbox.split(','),
+          westArr = boundsArr[0].split(' '),
+          eastArr = boundsArr[1].split(' '),
+          bounds = westArr[0] + '|' + westArr[1] + '|' + eastArr[0] + '|' + eastArr[1];
+
+      parameter.bounds = bounds;
+    }
+
+    return {
+      endpoint: 'https://maps.googleapis.com/maps/api/geocode/json',
+      parameter: parameter,
+      responseMapper: mapper
+    }
+  },
+
+  googleReverse: function (ll) {
+    var mapper = function (res) {
+      var execute = function (func) { func(); };
+      var toMap = [
+        function getData () {
+          defineProp(res.body, 'results', 'features');
+        },
+
+        function setLabel () {
+          var feature = res.body.features[0],
+              props = feature.properties = {};
+          props.label = feature.formatted_address;
+        },
+
+        function mapCoords () {
+          var geo = res.body.features[0].geometry,
+              lat = geo.location.lat,
+              lng = geo.location.lng;
+          defineProp(res.body.features[0].geometry, 'location', 'coordinates');
+          geo.coordinates = [lng, lat];
+        },
+
+        function setId () {
+          var feature = res.body.features[0],
+              id = feature.place_id;
+          feature.properties.id = id;
+          delete feature.place_id;
+        }
+      ];
+      
+      toMap.forEach(execute);
+      return res;
+    };
+
+    var parameter = {
+      latlng: ll[1] + ', ' + ll[0],
+      'key': 'AIzaSyBmJ2NvVf5Om1u1-YuA8lFKzEwZ2BHhd9U'
+    };
+
+    return {
+      endpoint: 'https://maps.googleapis.com/maps/api/geocode/json',
+      parameter: parameter,
+      responseMapper: mapper
+    };
+  }
+};
+
+/**
  * Reverse geocode
  */
 
 function reverseAmigo(ll, callback) {
-
-  var parameter = {
-      'token':config.realtime_access_token() ,
-      'point.lon':ll[0],
-      'point.lat':ll[1]
-  };
-
-  get('https://www.amigocloud.com/api/v1/me/geocoder/reverse', parameter, function(err, res) {
-
-    if (err) {
-      log('<-- geocoding error %e', err);
-
-    } else {
-      callback(false, res.body);
-    }
-  });
-}
-
-function reverseAmigo(ll, callback) {
   log('--> reverse geocoding %s', ll);
 
-  var parameter = {
-      'token':config.realtime_access_token() ,
-      'point.lon':ll[0],
-      'point.lat':ll[1]
-  };
-  get('https://www.amigocloud.com/api/v1/me/geocoder/reverse', parameter, function(err, res) {
+  // var query = geocodingOptions.amigoReverse(ll);
+  var query = geocodingOptions.googleReverse(ll);
+
+  get(query.endpoint, query.parameter, function(err, res) {
 
     if (err) {
       log('<-- geocoding error %e', err);
       //return false;
     } else {
+      if (query.responseMapper) {
+        res = query.responseMapper(res);
+      }
+
       log('<-- geocoding complete %j', res.body);
       //return res.body;
       callback(false, res.body);
     }
   });
 }
-
 
 /**
  * Suggestions!
@@ -85,26 +209,20 @@ function suggestAmigo(text, callback) {
             console.log("error");
         }else {
             var list_address;
-            var bounding = res.body.boundingbox;
-            var bounding_split = bounding.split(",");
-            var boinding_first = bounding_split[0].split(" ");
-            var boinding_second = bounding_split[1].split(" ");
-            var parameter = {
-                'token': config.realtime_access_token() ,
-                'boundary.rect.min_lat': boinding_first[1],
-                'boundary.rect.min_lon': boinding_first[0],
-                'boundary.rect.max_lat': boinding_second[1],
-                'boundary.rect.max_lon': boinding_second[0],
-                'sources':'osm,oa',
-                'text': text
-            };
+            
+            // var query = geocodingOptions.amigoSuggestions(text, res);
+            var query = geocodingOptions.googleSuggestions(text, res);
 
-            get('https://www.amigocloud.com/api/v1/me/geocoder/search', parameter, function(err, res) {
+            get(query.endpoint, query.parameter, function(err, res) {
 
                     if(err) {
                         log("Amigo Cloud Response Error ->", err);
 
                     }else{
+                        if (query.responseMapper) {
+                          res = query.responseMapper(res);
+                        }
+
                         if(res.body.features) {
 
                             list_address = res.body.features;
