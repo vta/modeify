@@ -346,6 +346,13 @@ module.exports.movePoint = function (map, point) {
 
 module.exports.makePopup = function (point) {
   var routeName = point.routeName;
+  var buildRow = function (label, val) {
+    var openRow = '<tr class="popup-row"><td class="label">',
+        switchTd = ' </td><td class="value">',
+        closeRow = '</td></tr>';
+    return openRow + label + switchTd + val + closeRow;
+  };
+
   if (parseInt(routeName, 10) !== NaN && routeName.indexOf(' - ') !== -1) {
     routeName = routeName.slice(routeName.indexOf(' - ') + 3);
   }
@@ -355,17 +362,13 @@ module.exports.makePopup = function (point) {
   string += '<a target="_blank" href="http://www.vta.org/routes/rt' + point.routeId + '">';
   string += routeName + '</a></h5></div>';
 
-  string += '<div class="popup-body"><table><tr class="popup-row">';
-  string += '<td class="label">Longitude</td><td class="value">' + point.loc.lon + '</td></tr>';
+  string += '<div class="popup-body"><table>';
 
-  string += '<tr class="popup-row"><td class="label">Latitude: </td>';
-  string += '<td class="value"> ' + point.loc.lat + '</td></tr>';
-
-  string += '<tr class="popup-row"><td class="label">Timestamp: </td>';
-  string += '<td class="value">' + (new Date(point.loc.time * 1000)).toLocaleString().toString() + '</td></tr>';
-
-  string += '<tr class="popup-row"><td class="label">Next Stop: </td>';
-  string += '<td class="value"> ' + point.nextStopName + '</td></tr>';
+  string += buildRow('Vehicle:', point.id);
+  string += buildRow('Route:', point.routeName);
+  string += buildRow('Headsign:', point.headsign);
+  string += buildRow('Block:', point.block);
+  string += buildRow('Next Stop:', point.nextStopName);
 
   string += '</table></div></div>';
 

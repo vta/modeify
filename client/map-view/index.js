@@ -413,43 +413,35 @@ module.exports.drawRouteStops = function (routeId, stops, isBus) {
             className: 'stop-popup'
         });
 
-        // Requesting stop prediction information here to avoid getting information ahead
         marker.on('click', function (e) {
             var popup = e.target.getPopup();
             popup.setContent('<div class="stop-loading"><i class="fa fa-circle-o-notch fa-spin"></i><div>');
             popup.update();
 
-            console.log(e.target.extra);
+            var rtiid = e.target.extra.code;
 
             $.get(endPoint, {
-                rs: routeId + '|' + e.target.extra.code,
+                rs: routeId + '|' + rtiid,
                 format: 'json'
             }).done(function (data) {
                 var stopInfo = data.predictions[0];
-                var prediction = data.predictions[0].dest[0].pred;
-                var string = '<div class="stop-popup-content">' +
-                        '<div class="popup-header"><h5>' +
-                        stopInfo.stopName + ' (' + stopInfo.stopId + ')' +
-                    '</h5></div>';
-                string += '<div class="popup-body">';
-                string += '<strong>Route:</strong> ';
-                string += stopInfo.routeShortName + '<br/>';
-                string += '<strong> Next ';
-                string += isBus ? 'Bus' : 'Train';
-                string += ':</strong><br/>';
-                string += '<ul>';
+                var predictions = data.predictions[0].dest[0].pred;
 
-                for (var pred in prediction) {
-                    if (prediction[pred].sec < 60) {
-                        string += '<li>Arriving</li>';
+                var header = '<div class="popup-header">' + '<h5>' + stopInfo.stopName + '</h5></div>';
+                var rtiidStr = '<strong>RTIID:</strong> ' + rtiid;
+                var route = '<strong>Route:</strong> ' + stopInfo.routeId + ' - ';
+
+                for (var i = 0; i < predictions.length; i++) {
+                    route += predictions[i].min;
+                    if (i === predictions.length - 1) {
+                        route += predictions[i].min !== 1 ? 'mins' : 'min';
                     } else {
-                        string += '<li>' + prediction[pred].min + ' mins</li>';
+                        route += ', ';
                     }
                 }
 
-                string += '</ul>';
-                string += '</div>';
-                string += '</div>';
+                var string = '<div class="stop-popup-content">' + header + '<div class="popup-body">' +
+                             rtiidStr + '<br/>' + route + '</div></div>';
 
                 popup.setContent(string);
                 popup.update();
@@ -596,72 +588,4 @@ module.exports.loadRouteStops = function (routeId, from, to, isBus) {
     }).fail(function (msg) {
         console.log('Request returned with error msg:' + msg);
     });
-};
-
-module.exports.drawRouteBuses = function (buses) {
-    var busesGroup = L.featureGroup();
-    var endPoint = 'http://api.transitime.org/api/v1/key/5ec0de94/agency/vta/command/predictions';
-
-    for (var i = 0; i < buses.length; i++) {
-        var class_name = 'leaflet-div-bus';
-
-        var marker = L.marker({
-            "lat": buses[i].loc.lat,
-            "lng": buses[i].loc.lon
-        }, {
-            icon: L.divIcon({
-                className: class_name,
-                iconSize: [15, 15],
-                iconAnchor: [0, 0]
-            }),
-            interactive: false,
-            clickable: true
-        });
-
-        // marker.extra = stops[i];
-        // marker.bindPopup('<i class="fa fa-circle-o-notch fa-spin"></i>');
-
-        // Requesting stop prediction information here to avoid getting information ahead
-        // marker.on('click', function (e) {
-        //     var popup = e.target.getPopup();
-        //     popup.setContent('<i class="fa fa-circle-o-notch fa-spin"></i>');
-        //     popup.update();
-
-        //     console.log(e.target.extra);
-
-        //     $.get(endPoint, {
-        //         rs: routeId + '|' + e.target.extra.code,
-        //         format: 'json'
-        //     }).done(function (data) {
-        //         var stopInfo = data.predictions[0];
-        //         var prediction = data.predictions[0].dest[0].pred;
-        //         var string = '<div class="stop-popup">' +
-        //                 '<div class="popup-header"><h5>' +
-        //                 stopInfo.stopName + ' (' + stopInfo.stopId + ')' +
-        //             '</h5></div>';
-        //         string += '<div class="popup-body">';
-        //         string += '<strong>Route:</strong> ';
-        //         string += stopInfo.routeShortName + '<br/>';
-        //         string += '<strong>Predictions:</strong><br/>';
-        //         string += '<ul>';
-
-        //         for (var pred in prediction) {
-        //             string += '<li>' + prediction[pred].min + 'mins ' + prediction[pred].sec % 60 + 'secs</li>';
-        //         }
-
-        //         string += '</ul>';
-        //         string += '</div>';
-        //         string += '</div>';
-
-        //         popup.setContent(string);
-        //         popup.update();
-        //     });
-        // });
-
-        marker.addTo(busesGroup);
-    }
-
-    this.addedRouteBuses.push(busesGroup);
-    busesGroup.addTo(this.activeMap);
-    busesGroup.bringToFront();
 };
