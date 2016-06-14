@@ -386,17 +386,20 @@ function updateMapOnPlanChange(plan, map) {
 
 
 
+                var route;
+                map.routes = []; // empty the routes array
                 for (i = 0; i < itineraries.length; i++) {
                     for (ii=0; ii < itineraries[i].legs.length; ii++) {
-                      showMapView.drawRouteAmigo(itineraries[i].legs[ii], itineraries[i].legs[ii].mode, i);
+                      route = showMapView.drawRouteAmigo(itineraries[i].legs[ii], itineraries[i].legs[ii].mode, i);
+                      map.routes.push(route);
                     }
                 }
 
-
-                var lat_center_polyline = (sesion_plan.from.lat + sesion_plan.to.lat) / 2;
-                var lon_center_polyline = (sesion_plan.from.lon + sesion_plan.to.lon) / 2;
-                var zoom = isMobile ? 9 : 11;
-                map.setView([lat_center_polyline, lon_center_polyline], zoom);
+                // set zoom to encapuslate all routes
+                if (map.routes.length) {
+                  var routeBoundaries  = new L.featureGroup(map.routes);
+                  map.fitBounds(routeBoundaries.getBounds());
+                }
 
                 showMapView.drawMakerCollision();
             }

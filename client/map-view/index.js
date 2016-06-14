@@ -56,6 +56,8 @@ module.exports = function (el) {
         map.layersControl.addOverlay(blurLayer);
         blurLayer.addTo(map);
 
+        map.routes = []; // array to hold all route objects
+
         module.exports.activeMap = map;
 
         //map.realtimeControl = L.control.toggleRealTime().addTo(map);
@@ -382,6 +384,7 @@ module.exports.drawRouteAmigo = function (legs, mode, itineration) {
     var boxes = L.RouteBoxer.box(route, 5);
     var boxpolys = new Array(boxes.length);
     route.addTo(this.activeMap);
+    return route;
 };
 
 module.exports.drawRouteStops = function (routeId, stops, isBus) {
