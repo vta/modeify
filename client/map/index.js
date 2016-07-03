@@ -365,9 +365,7 @@ module.exports.makePopup = function (point) {
   string += '<div class="popup-body"><table>';
 
   string += buildRow('Vehicle:', point.id);
-  string += buildRow('Route:', point.routeName);
   string += buildRow('Headsign:', point.headsign);
-  string += buildRow('Block:', point.block);
   string += buildRow('Next Stop:', point.nextStopName);
 
   string += '</table></div></div>';
