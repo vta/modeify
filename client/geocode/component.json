@@ -5,6 +5,7 @@
     "request"
   ],
   "scripts": [
-    "index.js"
+    "index.js",
+    "google_geocode.js"
   ]
 }

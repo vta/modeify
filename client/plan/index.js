@@ -32,6 +32,7 @@ var Plan = module.exports = model('Plan')
     bikeShare: false,
     bus: true,
     car: false,
+    parkRide: false,
     days: 'M—F',
     date: moment().format('MM:DD:YYYY'),
     arriveBy: false,
@@ -58,6 +59,7 @@ var Plan = module.exports = model('Plan')
   .attr('bikeShare')
   .attr('bus')
   .attr('car')
+  .attr('parkRide')
   .attr('days')
   .attr('date')
   .attr('arriveBy')
@@ -354,18 +356,33 @@ Plan.prototype.generateQuery = function() {
   // Transit modes
   var modes = [];//['WALK'];
 
-  if (this.bikeShare()) modes.push('BICYCLE_RENT');
+  if (this.bikeShare()) {
+    modes.push('BICYCLE_RENT');
+  }
 
   if (this.car()) {
     modes.push('CAR');
   }
+
   if (this.bike()) {
     modes.push('BICYCLE');
   } else {
     modes.push('WALK');
   }
-  if (this.bus()) modes.push('BUSISH');
-  if (this.train()) modes.push('TRAINISH');
+
+  if (this.parkRide()) {
+    modes.push('CAR');
+    modes.push('BUSISH');
+    modes.push('TRAINISH');
+  } else {
+    if (this.bus()) {
+      modes.push('BUSISH');
+    }
+    if (this.train()) {
+      modes.push('TRAINISH');
+    }
+  }
+
   if (modes.length==0) modes.push('WALK');
 
   var startTime = this.start_time();
