@@ -367,6 +367,12 @@ module.exports.drawRouteAmigo = function (legs, mode, itineration) {
         this.marker_map_point(circle_from, this.activeMap, itineration);
         this.marker_map_point(circle_to, this.activeMap, itineration);
     }
+    
+    // we don't want white ever
+    if (color == "#FFFFFF") {
+        color = "#fec44f";
+    }
+    
 
     var color_options;
     color_options = {

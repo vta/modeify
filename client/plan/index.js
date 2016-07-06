@@ -405,7 +405,7 @@ Plan.prototype.generateQuery = function() {
       maxWalkDistance: 20000,
       bikeSpeed: 10,
       bikeBoardCost: 15,
-      walkReluctance: 10,
+      walkReluctance: 20,
       clampInitialWait: 60,
 //      waitAtBeginningFactor: 0.5,
       triangleSlopeFactor: triangleFactors[0],
