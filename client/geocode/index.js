@@ -1,6 +1,7 @@
 var config = require('config');
 var log = require('./client/log')('geocode');
 var get = require('./client/request').get;
+var googleGeocode = require('./google_geocode');
 
 /**
  * Geocode
@@ -11,7 +12,7 @@ module.exports.reverseAmigo = reverseAmigo;
 module.exports.suggestAmigo = suggestAmigo;
 
 /**
- * Geocode
+ * Geocode (not currently in use!)
  */
 
 function geocode(address, callback) {
@@ -28,49 +29,80 @@ function geocode(address, callback) {
 }
 
 /**
+ * Geocoding options (google or amigo)
+ **/
+
+var geocodingOptions = {
+  amigoSuggestions: function (text, res) {
+    var bounding = res.body.boundingbox;
+    var bounding_split = bounding.split(",");
+    var boinding_first = bounding_split[0].split(" ");
+    var boinding_second = bounding_split[1].split(" ");
+    var parameter = {
+        'token': config.realtime_access_token() ,
+        'boundary.rect.min_lat': boinding_first[1],
+        'boundary.rect.min_lon': boinding_first[0],
+        'boundary.rect.max_lat': boinding_second[1],
+        'boundary.rect.max_lon': boinding_second[0],
+        'sources':'osm,oa',
+        'text': text
+    };
+
+    return {
+      get: function () {
+        return $.get('https://www.amigocloud.com/api/v1/me/geocoder/search', parameter).then(function (data) {
+          return {
+            body: data
+          };
+        });
+      }
+    };
+  },
+
+  amigoReverse: function (ll) {
+    var parameter = {
+      'token':config.realtime_access_token() ,
+      'point.lon':ll[0],
+      'point.lat':ll[1]
+    };
+
+    return {
+      parameter: parameter,
+      endpoint: 'https://www.amigocloud.com/api/v1/me/geocoder/reverse'
+    };
+  },
+
+  googleSuggestions: googleGeocode.googleSuggestions,
+
+  googleReverse: googleGeocode.googleReverse
+};
+
+/**
  * Reverse geocode
  */
 
 function reverseAmigo(ll, callback) {
-
-  var parameter = {
-      'token':config.realtime_access_token() ,
-      'point.lon':ll[0],
-      'point.lat':ll[1]
-  };
-
-  get('https://www.amigocloud.com/api/v1/me/geocoder/reverse', parameter, function(err, res) {
-
-    if (err) {
-      log('<-- geocoding error %e', err);
-
-    } else {
-      callback(false, res.body);
-    }
-  });
-}
-
-function reverseAmigo(ll, callback) {
   log('--> reverse geocoding %s', ll);
 
-  var parameter = {
-      'token':config.realtime_access_token() ,
-      'point.lon':ll[0],
-      'point.lat':ll[1]
-  };
-  get('https://www.amigocloud.com/api/v1/me/geocoder/reverse', parameter, function(err, res) {
+  // var query = geocodingOptions.amigoReverse(ll);
+  var query = geocodingOptions.googleReverse(ll);
+
+  get(query.endpoint, query.parameter, function(err, res) {
 
     if (err) {
       log('<-- geocoding error %e', err);
       //return false;
     } else {
+      if (query.responseMapper) {
+        res = query.responseMapper(res);
+      }
+
       log('<-- geocoding complete %j', res.body);
       //return res.body;
       callback(false, res.body);
     }
   });
 }
-
 
 /**
  * Suggestions!
@@ -85,40 +117,29 @@ function suggestAmigo(text, callback) {
             console.log("error");
         }else {
             var list_address;
-            var bounding = res.body.boundingbox;
-            var bounding_split = bounding.split(",");
-            var boinding_first = bounding_split[0].split(" ");
-            var boinding_second = bounding_split[1].split(" ");
-            var parameter = {
-                'token': config.realtime_access_token() ,
-                'boundary.rect.min_lat': boinding_first[1],
-                'boundary.rect.min_lon': boinding_first[0],
-                'boundary.rect.max_lat': boinding_second[1],
-                'boundary.rect.max_lon': boinding_second[0],
-                'sources':'osm,oa',
-                'text': text
-            };
+            
+            // var query = geocodingOptions.amigoSuggestions(text, res);
+            var query = geocodingOptions.googleSuggestions(text, res);
 
-            get('https://www.amigocloud.com/api/v1/me/geocoder/search', parameter, function(err, res) {
+            query.get().then(function(res) {
 
-                    if(err) {
-                        log("Amigo Cloud Response Error ->", err);
+              if (query.responseMapper) {
+                var res = query.responseMapper(res);
+              }
 
-                    }else{
-                        if(res.body.features) {
+              if(res.body.features) {
 
-                            list_address = res.body.features;
-                            if (list_address.length > 0) {
-                                 callback(
-                                    null,
-                                    list_address
-                                );
-                            }else {
-                                callback(true, res);
-                            }
+                  list_address = res.body.features;
+                  if (list_address.length > 0) {
+                       callback(
+                          null,
+                          list_address
+                      );
+                  }else {
+                      callback(true, res);
+                  }
 
-                        }
-                    }
+              }
             });
         }
 

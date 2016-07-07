@@ -1,4 +1,4 @@
-var config = require('config'); 
+var config = require('config');
 var debug = require('debug')(config.name() + ':map');
 var page = require('page');
 var plugins = require('./leaflet-plugins');
@@ -69,12 +69,35 @@ if (config.map_provider() === 'AmigoCloud') {
 
         L.amigo.realtime.setAccessToken(config.realtime_access_token());
         L.amigo.realtime.connectDatasetByUrl(config.realtime_dataset_url());
-
-        L.amigo.realtime.on('realtime', function (data) {
-
-        });
     };
 }
+
+module.exports.getRealtimeVehicles = function (validVehicles) {
+  var currRoutes = module.exports.currRoutes,
+      requests = [],
+      endpoint = 'http://api.transitime.org/api/v1/key/5ec0de94/agency/vta/command/vehiclesDetails';
+
+  $.each(currRoutes, function (routeId, direction) {
+    // currRoutes is on obj containing current route legs stored as:
+    // key: routeId, value: direction of travel (1 or 0)
+    requests.push($.get(endpoint, {
+      r: routeId,
+      format: 'json'
+    }).then(function (data) {
+      // find vehicles in route heading direction that matches legs in currRoutes
+      var vehicle = {};
+
+      for (var j = 0; j < data.vehicles.length; j++) {
+        vehicle = data.vehicles[j];
+        if (vehicle.direction === currRoutes[vehicle.routeId]) {
+          validVehicles.push(vehicle);
+        }
+      }
+    }));
+  });
+
+  return requests;
+};
 
 /**
  * Toggle realtime
@@ -83,420 +106,271 @@ module.exports.toggleRealtime = function(viewMap) {
   var map = viewMap;
   debug('toggling realtime');
 
-  if (!map.realtime || !map.realtime.active) {
+  var loadRealtime = function () {
       map = module.exports.realtimeMap = viewMap;
 
-      module.exports.loadBusPredictionData(config.bus_prediction_url());
-      module.exports.loadBusRoutesData(config.bus_routes_url());
-      module.exports.queryFunctionId = setInterval(function () {
-        module.exports.loadBusPredictionData(config.bus_prediction_url());
-      }, config.query_interval());
-
       if (!map.realtime) {
-          map.realtime = {
-	      points: []
-	  };
+        map.realtime = {
+          points: []
+        };
       }
-      L.amigo.realtime.on('realtime', function (data) {
-          var point = data.data[data.data.length - 1];
-	  module.exports.realtimePoint = point;
 
-          if (module.exports.findPoint(map, point) === -1) {
-              module.exports.addPoint(map, point);
-          } else {
-              module.exports.movePoint(map, point);
-          }
-      });
       map.realtime.active = true;
-  } else {
-      window.clearInterval(module.exports.queryFunctionId);
-      L.amigo.realtime.socket.removeAllListeners('realtime');
+
+      var pollForVehicles = function () {
+        var validVehicles = [];
+        getValidVehicles = module.exports.getRealtimeVehicles(validVehicles);
+        $.when.apply($, getValidVehicles).done(function () {
+          if (map.realtime.active && validVehicles.length) {
+            for (var i = 0; i < validVehicles.length; i++) {
+              var existingPoint = module.exports.findPoint(map, validVehicles[i]);
+              if (existingPoint === -1) {
+                module.exports.addPoint(map, validVehicles[i]);
+              } else if (module.exports.hasVehicleMoved(map.realtime.points[existingPoint], validVehicles[i])) {
+                module.exports.movePoint(map, validVehicles[i]);
+              }
+            }
+          }
+          module.exports.vehiclePoller = setTimeout(function () {
+            pollForVehicles();
+          }, 3000);
+        });
+      };
+
+      pollForVehicles(); // recursive, fires at least 3 seconds after it last completed
+  };
+
+  var clearRealtime = function () {
+      clearTimeout(module.exports.vehiclePoller);
+      map.realtime.active = false;
+      L.amigo.realtime.socket.removeAllListeners('realtime'); // I left this in for reduncency when switching to polling - Luke
       for (var i = 0; i < map.realtime.points.length; i++) {
-	  map.removeLayer(map.realtime.points[i].marker);
+        map.removeLayer(map.realtime.points[i].marker);
       }
       map.realtime.points = [];
-      map.realtime.active = false;
+  };
+
+  if (!map.realtime || !map.realtime.active) {
+      loadRealtime();
+  } else {
+      clearRealtime();
   }
 };
 
-module.exports.loadBusRoutesData  = function (url) {
-  var tokens = url.split('/'),
-    datasetId = tokens[tokens.length - 1],
-    query = 'SELECT amigo_id, lineabbr, linename, schedules FROM dataset_' + datasetId,
-    projectUrl = tokens.slice(0, tokens.length - 2).join('/'),
-    queryUrl = projectUrl + '/sql?token=' + config.realtime_access_token() +
-      '&query=' + query + '&limit=1000';
-
-  L.amigo.utils.get(queryUrl).
-    then(function (data) {
-      var routes = {};
-
-      for (var i = 0; i < data.data.length; i++) {
-        routes[parseInt(data.data[i].lineabbr)] =
-	  {
-            amigoId: data.data[i].amigo_id,
-	    lineName: data.data[i].linename,
-	    schedules: data.data[i].schedules
-          };
-      }
-      module.exports.busRoutesData = routes;
-    });
-}
-
-module.exports.loadBusPredictionData  = function (url) {
-  var tokens = url.split('/'),
-    datasetId = tokens[tokens.length - 1],
-    query = 'SELECT * FROM dataset_' + datasetId,
-    projectUrl = tokens.slice(0, tokens.length - 2).join('/'),
-    queryUrl = projectUrl + '/sql?token=' + config.realtime_access_token() +
-      '&query=' + query + '&limit=1000';
-
-  
-  L.amigo.utils.get(queryUrl).
-    then(function (data) {
-      var buses = {};
-
-      for (var i = 0; i < data.data.length; i++) {
-        buses[data.data[i].vehicle_id] =
-          data.data[i];
-      }
-      module.exports.busPredictionData = buses;
-    });
-};
-
 module.exports.drawRoute = function (marker) {
-    var busId = marker.realtimeData.object_id,
+  var routeId = marker.realtimeData.routeId,
       url = config.bus_routes_url(),
       tokens = url.split('/'),
       datasetId = tokens[tokens.length - 1],
       projectUrl = tokens.slice(0, tokens.length - 2).join('/'),
       routeStyle = {
-	  color: '#8ec449',
-	  opacity: 1,
-	  weight: 4,
-      className:'realtimemarker'
+  	    color: '#8ec449',
+  	    opacity: 1,
+  	    weight: 4,
+        className:'realtimemarker'
       },
-      routeId,
-      queryUrl,
-      query;
+      queryUrl;
 
-    if (busId.indexOf(' ') === -1) {
-	busId = busId.split('-')[0];
-    } else {
-	busId = busId.split(' ')[0];
-    }
-    if (!module.exports.busPredictionData[busId]) return;
-    routeId = module.exports.busPredictionData[busId].route_id;
+  var query = 'SELECT st_asgeojson(wkb_geometry) FROM dataset_' + datasetId +
+    " WHERE lineabbr='" + routeId + "'";
+  queryUrl = projectUrl + '/sql?token=' + config.realtime_access_token() +
+    '&query=' + query + '&limit=1000';
 
-    if (!routeId) return;
+  L.amigo.utils.get(queryUrl).
+    then(function (data) {
+      if (!data.data.length) {
+        return;
+      }
 
-    query = 'SELECT st_asgeojson(wkb_geometry) FROM dataset_' + datasetId +
-      " WHERE lineabbr='" + routeId + "'";
-    queryUrl = projectUrl + '/sql?token=' + config.realtime_access_token() +
-      '&query=' + query + '&limit=1000';
+      module.exports.activeRoute = L.geoJson(
 
-    L.amigo.utils.get(queryUrl).
-	then(function (data) {
-	    if (!data.data.length) return;
-	    module.exports.activeRoute = L.geoJson(
-		JSON.parse(data.data[0].st_asgeojson),
-		{
-		    style: routeStyle
-		}
-	    ).addTo(module.exports.realtimeMap);
-	});
+      JSON.parse(data.data[0].st_asgeojson), {
+	      style: routeStyle
+	    }).addTo(module.exports.realtimeMap);
+    });
 };
 
 module.exports.deleteRoute = function (marker) {
-    if (!module.exports.activeRoute) return;
-    module.exports.realtimeMap.removeLayer(
-	module.exports.activeRoute
-    );
-    module.exports.activeRoute.clearLayers();
-    module.exports.activeRoute = null;
+  if (!module.exports.activeRoute) {
+    return;
+  }
+
+  module.exports.realtimeMap.removeLayer(module.exports.activeRoute);
+  module.exports.activeRoute.clearLayers();
+  module.exports.activeRoute = null;
 };
 
 /**
  * REALTIME FUNCTIONS
  */
 L.NumberedDivIcon = L.Icon.extend({
-  options: {
-  iconUrl: '',
-  number: '',
-//    iconSize: new L.Point(25, 41),
-//	iconAnchor: new L.Point(13, 41),
-//	popupAnchor: new L.Point(0, -33),
-  className: 'leaflet-div-icon',
-  divClass: 'number'
+    options: {
+    iconUrl: '',
+    number: '',
+    className: 'leaflet-div-icon',
+    divClass: 'number'
   },
+
   createIcon: function () {
     var div = document.createElement('div');
     var text = document.createElement('span');
     var img = this._createImg(this.options['iconUrl']);
     var numdiv = document.createElement('div');
+
     numdiv.setAttribute ( "class", this.options['divClass'] );
     text.innerHTML = this.options['number'] || '';
     numdiv.appendChild(text);
     img.setAttribute('style', 'max-width:' + this.options.iconSize[0] + 'px !important;' +
 		     'max-height:' + this.options.iconSize[1] + 'px !important');
     div.appendChild ( img );
+
     if (this.options['number']) {
       div.appendChild ( numdiv );
     }
+
     this._setIconStyles(div, 'icon');
+
     return div;
   }
 });
 
-L.Control.ToggleRealTime = L.Control.extend({
-    options: {
-        position: 'topright',
-    },
-
-    onAdd: function (map) {
-        var controlDiv = L.DomUtil.create('div', 'leaflet-control-realtime');
-        L.DomEvent
-            .addListener(controlDiv, 'click', L.DomEvent.stopPropagation)
-            .addListener(controlDiv, 'click', L.DomEvent.preventDefault)
-        .addListener(controlDiv, 'click', function () {
-	    if (!this.active) {
-		this.className += ' active';
-		this.active = true;
-	    } else {
-		this.className = this.className.split(' ').slice(0 ,2).join(' ');
-		this.active = false;
-	    }
-	    module.exports.toggleRealtime(map);
-	});
-
-        var button = L.DomUtil.create('a', 'leaflet-control-realtime-interior', controlDiv);
-	var busIcon = L.DomUtil.create('i', 'fa fa-fw fa-bus', button);
-	var rssIcon = L.DomUtil.create('i', 'fa fa-fw fa-rss', button);
-        button.title = 'Toggle Realtime';
-        return controlDiv;
+module.exports.findPoint = function (map, point) {
+  for (var i = 0; i < map.realtime.points.length; i++) {
+    if (map.realtime.points[i].id === point.id) {
+      return i;
     }
-});
+  }
 
-L.control.toggleRealTime = function (options) {
-    return new L.Control.ToggleRealTime(options);
+  return -1;
 };
 
-module.exports.getRouteId = function (point) {
-    var busId, routeId;
-
-    if (point.object_id.indexOf(' ') === -1) {
-      busId = point.object_id.split('-')[0];
-    } else {
-      busId = point.object_id.split(' ')[0];
-    }
-    busId = parseInt(busId);
-
-    if (module.exports.busPredictionData &&
-	module.exports.busPredictionData[busId] &&
-	module.exports.busPredictionData[busId].route_id
-    ) {
-      routeId = module.exports.busPredictionData[busId].route_id;
-    }
-    return routeId;
-}
+module.exports.hasVehicleMoved = function (oldPoint, newPoint) {
+  return oldPoint.lat !== newPoint.loc.lat && oldPoint.lon !== newPoint.loc.lon;
+};
 
 module.exports.addPoint = function (map, point) {
-    var routeId = module.exports.getRouteId(point),
+  var routeId = point.routeId,
+      iconUrl = 'assets/images/graphics/',
       line, newPoint;
 
-    line = L.polyline(
-        [
-            [parseFloat(point.latitude), parseFloat(point.longitude)],
-            [parseFloat(point.latitude), parseFloat(point.longitude)],
-        ],
-        {
-            className: "realtimemarker"
-        }
-
-    );
-
-    newPoint = {
-        id: point.object_id,
-        marker: L.animatedMarker(line.getLatLngs()).addTo(map)
-    };
-
-    if (parseFloat(point.speed) < 0.5) {
-        newPoint.marker.setIcon(new L.NumberedDivIcon({
-            iconUrl: 'assets/images/graphics/bus-gray.png',
-            iconSize: [40, 55],
-            iconAnchor: [20, 50],
-            popupAnchor:  [0, -50],
-            className: 'tint',
-	    number: routeId,
-	    divClass: 'number-inactive'
-        }));
-    } else {
-        newPoint.marker.setIcon(new L.NumberedDivIcon({
-            iconUrl: 'assets/images/graphics/bus-green.png',
-            iconSize: [40, 55],
-            iconAnchor: [20, 50],
-            popupAnchor:  [0, -50],
-            className: 'tint',
-	    number: routeId
-        }));
+  line = L.polyline(
+    [
+      [parseFloat(point.loc.lat), parseFloat(point.loc.lon)],
+      [parseFloat(point.loc.lat), parseFloat(point.loc.lon)],
+    ],
+    {
+      className: "realtimemarker"
     }
 
-    newPoint.marker.realtimeData = point;
-    newPoint.marker.bindPopup(module.exports.makePopup(point));
-    newPoint.marker.on('popupopen', function () {
-	// Workaround for bug where you can no longer
-	// click on start and end markers after opening
-	// a real-time popup
-	var zoomHideEl = document.querySelectorAll('svg.leaflet-zoom-hide')[0];
-	if (zoomHideEl) zoomHideEl.style.display = 'inherit';
-	module.exports.drawRoute(this);
-    });
-    newPoint.marker.on('popupclose', function () {
-	// Workaround counterpart
-	var zoomHideEl = document.querySelectorAll('path.realtimemarker');
-	console.log("zoomHideEl", zoomHideEl);
-	for (i in zoomHideEl) {
-	    var parent = zoomHideEl[i].parentNode;
-	}
-	module.exports.deleteRoute(this);
-    });
+  );
 
-    map.realtime.points.push(newPoint);
-};
+  newPoint = {
+    id: point.id,
+    lat: point.loc.lat,
+    lon: point.loc.lon,
+    marker: L.animatedMarker(line.getLatLngs()).addTo(map)
+  };
 
-module.exports.findPoint = function (map, point) {
-    for (var i = 0; i < module.exports.realtimeMap.realtime.points.length; i++) {
-        if (module.exports.realtimeMap.realtime.points[i].id === module.exports.realtimePoint.object_id) {
-            return i;
-        }
+  iconUrl += point.vehicleType === '0' ? 'tram-realtime.png' : 'bus-realtime.png';
+
+  newPoint.marker.setIcon(new L.NumberedDivIcon({
+    iconUrl: iconUrl,
+    iconSize: [47, 47],
+    iconAnchor: [20, 45],
+    popupAnchor:  [0, -50],
+    className: 'tint',
+    number: routeId
+  }));
+
+  newPoint.marker.realtimeData = point;
+  newPoint.marker.bindPopup(module.exports.makePopup(point));
+  newPoint.marker.on('popupopen', function () {
+    // Workaround for bug where you can no longer
+    // click on start and end markers after opening
+    // a real-time popup
+    var zoomHideEl = document.querySelectorAll('svg.leaflet-zoom-hide')[0];
+
+    if (zoomHideEl) {
+      zoomHideEl.style.display = 'inherit';
     }
 
-    return -1;
+    module.exports.drawRoute(this);
+  });
+
+  newPoint.marker.on('popupclose', function () {
+    // Workaround counterpart
+    var zoomHideEl = document.querySelectorAll('path.realtimemarker');
+    for (i in zoomHideEl) {
+      var parent = zoomHideEl[i].parentNode;
+    }
+    module.exports.deleteRoute(this);
+  });
+
+  map.realtime.points.push(newPoint);
 };
 
 module.exports.movePoint = function (map, point) {
-    var routeId = module.exports.getRouteId(point),
+  var routeId = point.routeId,
+      iconUrl = 'assets/images/graphics/',
       line, currentPoint;
 
-    currentPoint = map.realtime.points[module.exports.findPoint(point)];
-    line = L.polyline(
-        [
-            [currentPoint.marker.getLatLng().lat,
-             currentPoint.marker.getLatLng().lng],
-            [parseFloat(point.latitude),
-             parseFloat(point.longitude)]
-        ],
-        {
-            className: "realtimemarker"
-        }
-    );
-
-    if (parseFloat(point.speed) < 0.5) {
-        currentPoint.marker.setIcon(new L.NumberedDivIcon({
-            iconUrl: 'assets/images/graphics/bus-gray.png',
-            iconSize: [40, 55],
-            iconAnchor: [20, 50],
-            popupAnchor:  [0, -50],
-            className: 'tint',
-	    number: routeId,
-	    divClass: 'number-inactive'
-        }));
-    } else {
-        currentPoint.marker.setIcon(new L.NumberedDivIcon({
-            iconUrl: 'assets/images/graphics/bus-green.png',
-            iconSize: [40, 55],
-            iconAnchor: [20, 50],
-            popupAnchor:  [0, -50],
-            className: 'tint',
-	    number: routeId
-        }));
+  currentPoint = map.realtime.points[module.exports.findPoint(map, point)];
+  line = L.polyline(
+    [
+      [currentPoint.marker.getLatLng().lat, currentPoint.marker.getLatLng().lng],
+      [parseFloat(point.loc.lat), parseFloat(point.loc.lon)]
+    ],
+    {
+      className: "realtimemarker"
     }
+  );
 
-    currentPoint.marker.realtimeData = point;
-    currentPoint.marker.setLine(line.getLatLngs());
-    currentPoint.marker.setPopupContent(
-        module.exports.makePopup(point)
-    );
-    currentPoint.marker.animate();
+  iconUrl += point.vehicleType === '0' ? 'tram-realtime.png' : 'bus-realtime.png';
+
+  currentPoint.marker.setIcon(new L.NumberedDivIcon({
+    iconUrl: iconUrl,
+    iconSize: [47, 47],
+    iconAnchor: [20, 45],
+    popupAnchor:  [0, -50],
+    className: 'tint',
+    number: routeId
+  }));
+
+  currentPoint.marker.realtimeData = point;
+  currentPoint.marker.setLine(line.getLatLngs());
+  currentPoint.marker.setPopupContent(
+    module.exports.makePopup(point)
+  );
+  currentPoint.marker.animate();
 };
 
 module.exports.makePopup = function (point) {
-    var busId, string, routeId;
+  var routeName = point.routeName;
+  var buildRow = function (label, val) {
+    var openRow = '<tr class="popup-row"><td class="label">',
+        switchTd = ' </td><td class="value">',
+        closeRow = '</td></tr>';
+    return openRow + label + switchTd + val + closeRow;
+  };
 
-    if (point.object_id.indexOf(' ') === -1) {
-      busId = point.object_id.split('-')[0];
-    } else {
-      busId = point.object_id.split(' ')[0];
-    }
-    busId = parseInt(busId);
+  if (parseInt(routeName, 10) !== NaN && routeName.indexOf(' - ') !== -1) {
+    routeName = routeName.slice(routeName.indexOf(' - ') + 3);
+  }
 
-    string  =  '<div class="bus-popup">' +
-        '<div class="popup-header"><h5><i class="fa fa-bus"></i> ';
-    if (module.exports.busPredictionData &&
-	module.exports.busPredictionData[busId] &&
-	module.exports.busPredictionData[busId].route_id
-    ) {
-      routeId = module.exports.busPredictionData[busId].route_id;
-      string += routeId;
-      if (module.exports.busRoutesData &&
-	  module.exports.busRoutesData[routeId]
-      ) {
-        string += ': <a target="_blank" href="' +
-            module.exports.busRoutesData[routeId].schedules +'">' +
-            module.exports.busRoutesData[routeId].lineName + '</a>';
-      }
-      string += '</h5>';
-    }
-    string += '</div>';
+  var string = '<div class="bus-popup"><div class="popup-header">';
+  string += '<h5><i class="fa fa-bus"></i> ' + point.routeId + ': ';
+  string += '<a target="_blank" href="http://www.vta.org/routes/rt' + point.routeId + '">';
+  string += routeName + '</a></h5></div>';
 
-    string += '<div class="popup-body">';
-    string += '<table>';
-    string += '<tr class="popup-row">' +
-        '<td class="label">Longitude</td><td class="value">' +
-        point.longitude + '</td>' +
-        '</tr>';
-    string += '<tr class="popup-row">' +
-        '<td class="label">Latitude: </td><td class="value"> ' +
-        point.latitude + '</td>' +
-        '</tr>';
-    string += '<tr class="popup-row">' +
-        '<td class="label">Altitude: </td><td class="value"> ' +
-        point.altitude + '</td>' +
-        '</tr>';
+  string += '<div class="popup-body"><table>';
 
-    for (var attr in point) {
-        var value = point[attr];
+  string += buildRow('Vehicle:', point.id);
+  string += buildRow('Headsign:', point.headsign);
+  string += buildRow('Next Stop:', point.nextStopName);
 
-        if (attr === 'longitude' ||
-            attr === 'latitude' ||
-            attr === 'altitude' ||
-	    attr === 'satellite_fix' ||
-	    attr === 'object_id' ||
-	    attr === 'satellites' ||
-	    attr === 'climb' ||
-	    attr === 'track' ||
-	    attr === 'separation') {
-            continue;
-        }
+  string += '</table></div></div>';
 
-        if (attr === 'timestamp') {
-            var dt = (new Date(value * 1000)).toLocaleString();
-            value = dt.toString();
-        }
-
-        string += '<tr class="popup-row">' +
-            '<td class="label">' +
-            attr.charAt(0).toUpperCase() +
-            attr.slice(1) +
-            '</td><td class="value"> ' +
-            value + '</td>' +
-            '</tr>'
-    }
-    string += '</table>';
-    string += '</div>';
-    string += '</div>';
-
-    return string;
+  return string;
 };
 
 

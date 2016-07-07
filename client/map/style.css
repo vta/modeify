@@ -97,41 +97,45 @@
  * Custom popup style
  */
 
+.leaflet-popup a.leaflet-popup-close-button {
+  color: #455a71;
+}
+
 .leaflet-popup-content-wrapper {
-  background-color: rgb(200, 228, 236);
+  background-color: #303d49;
 }
 
 .leaflet-popup-content {
-  margin: 15px;
+  margin: 2px;
 }
 
 .leaflet-popup-tip-container .leaflet-popup-tip {
-  background-color: rgb(200, 228, 236);
+  background-color: #303d49;
 }
 
 .leaflet-popup-content .popup-header {
-  background-color: #00587b;
+  background-color: #EDEFF0;
   padding: 5px 10px;
   text-align: center;
-  border-radius: 3px;
+  border-radius: 10px;
 }
 
 .leaflet-popup-content .popup-header > h5 {
   margin: 0;
   font-weight: 600;
-  color: #fff;
+  color: #455a71;
 }
 
 .leaflet-popup-content .popup-header > h5 a {
-  color: #fff;
+  color: #455a71;
   font-weight: 400;
   font-size: 16px;
 }
 
 .leaflet-popup-content .popup-body {
   background-color: #fff;
-  margin-top: 7px;
-  border-radius: 3px;
+  margin-top: 4px;
+  border-radius: 10px;
 }
 
 .leaflet-popup-content .popup-body .popup-item {
@@ -162,37 +166,23 @@
 }
 
 .leaflet-popup-content .popup-body .popup-row:first-child td.label {
-  border-top-left-radius: 3px;
+  border-top-left-radius: 10px;
 }
 
 .leaflet-popup-content .popup-body .popup-row:last-child td.label {
-  border-bottom-left-radius: 3px;
+  border-bottom-left-radius: 10px;
 }
 
-.leaflet-marker-icon .number,
-.leaflet-marker-icon .number-inactive {
-  top: -25px;
+.leaflet-marker-icon .number {
+  top: -40px;
+  left: 7px;
   position: relative;
   font-weight: 700;
-  padding: 0 8px;
 }
 
 .leaflet-marker-icon .number > span {
-  background-color: #8EC449;
-  border: 1px solid #4B6A20;
-  color: #4B6A20;
-  font-size: 8px;
+  color: #455a71;
+  font-size: 14px;
   padding: 0;
   display: block;
-  border-radius: 3px;
-}
-
-.leaflet-marker-icon .number-inactive > span {
-  background-color: #EDEFF0;
-  border: 1px solid #303D49;
-  color: #303D49;
-  font-size: 8px;
-  padding: 0;
-  display: block;
-  border-radius: 3px;
 }

@@ -118,8 +118,9 @@
 
 .RouteCard > .simple > .minutes-column {
   padding-top: 8px;
-  float: left;
-  margin-left: 8px;
+  float: right;
+  text-align: right;
+  margin-right: 8px;
   margin-bottom: 8px;
   line-height: 18px;
   white-space: nowrap;

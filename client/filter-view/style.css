@@ -1,4 +1,105 @@
 
+.FilterView > .mode-filters, .FilterView > .bike-filters {
+  margin-top: 5px;
+  display: inline-block;
+}
+
+.FilterView > .mode-filters > button,
+.FilterView > .bike-filters > button {
+  box-shadow: none;
+  background-color: var(--vta-dark-blue);
+  color: var(--vta-light-gray);
+  padding: 0;
+  width: 44px;
+  height: 44px;
+  font-size: 28px;
+  transition-property: background;
+  transition-duration: 0.1s;
+  text-shadow: none;
+  position: relative;
+}
+
+.FilterView > .bike-filters > button { 
+  font-size: 15px;
+  height: 28px;
+  width: 60px;
+  padding: 0 15px 1px 0;
+}
+
+.mode-filters i, .bike-filters i {
+  font-size: 16px;
+  position: absolute;
+  top: 23px;
+  left: 27px;
+  color: var(--vta-light-blue);
+  text-shadow: 0px 1px 3px rgba(75, 106, 32, 0.4);
+  visibility: hidden;
+}
+
+.bike-filters i {
+  top: 5px;
+  left: 42px;
+}
+
+
+.mode-filters > button.active, .bike-filters > button.active {
+  background-color: var(--vta-dark-blue);
+  color: var(--vta-light-gray);
+
+  text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.3);
+}
+
+.mode-filters > button:hover, .bike-filters > button:hover,
+.mode-filters > button:focus, .bike-filters > button:focus {
+  background-color: var(--vta-middle-blue);
+  color: var(--vta-dark-gray);
+
+  text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.3);
+}
+
+.mode-filters > button.active > i,
+.bike-filters > button.active > i {
+  visibility: visible;
+}
+
+.FilterView > .bike-filters .title {
+  display: inline-block;
+  font-size: 13px;
+  background-color: var(--vta-dark-blue);
+  color: white;
+  padding: 5px 0 0 4px;
+  width: 88px;
+  height: 28px;
+  float: left;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+.submit {
+  margin-top: 5px;
+  margin-left: 4px;
+  width: 84px;
+  height: 44px;
+  font-size: 20px;
+  border: none;
+}
+
+.btn-default.icon-parknride {
+    background-image: url(/images/application/parknride_alpha.png);
+    background-size: 33px;
+    background-repeat: no-repeat;
+    background-position-x: 5px;
+    background-position-y: 7px;
+}
+
+.btn-default.icon-parknride:hover {
+    background-image: url(/images/application/parknride_alpha_dark.png);
+    background-size: 33px;
+    background-repeat: no-repeat;
+    background-position-x: 5px;
+    background-position-y: 7px;
+}
+
 .FilterView > .time-filters {
   white-space: nowrap;
   padding-bottom: 8px;
@@ -25,78 +126,54 @@
   margin-bottom: 3px;
 }
 
-.FilterView > .mode-filters {
-  margin-top: 5px;
-  display: inline-block;
-}
-
-.FilterView > .mode-filters > button {
-  box-shadow: none;
+.FilterView > .time-filters > .arrive-depart-btns {
   background-color: var(--vta-dark-blue);
-  color: var(--vta-light-gray);
-  padding: 0;
-  width: 44px;
-  height: 44px;
-  font-size: 28px;
-  transition-property: background;
-  transition-duration: 0.1s;
-  text-shadow: none;
-  position: relative;
+  border-radius: 3px;
+  padding: 4px;
+  margin: 5px 3px 0 0;
+  float: left;
 }
 
-.mode-filters i {
-  font-size: 16px;
-  position: absolute;
-  top: 23px;
-  left: 27px;
-  color: var(--vta-light-blue);
-  text-shadow: 0px 1px 3px rgba(75, 106, 32, 0.4);
-  visibility: hidden;
-}
-
-
-.mode-filters > button.active {
+.arrive-depart-btns > label {
+  width: 48px;
+  height: 30px;
+  font-size: 13px;
   background-color: var(--vta-dark-blue);
-  color: var(--vta-light-gray);
+  color: white;
+  padding: 6px 0 0 0;
+  border-radius: 0;
+}
+
+.arrive-depart-btns > label.active {
+  background-color: var(--vta-light-blue);
+  color: var(--vta-dark-blue);
 
   text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.3);
 }
 
-.mode-filters > button:hover,
-.mode-filters > button:focus {
-  background-color: var(--vta-middle-blue);
-  color: var(--vta-dark-gray);
+.arrive-depart-btns > label:hover,
+.arrive-depart-btns > label:focus {
+  background-color: var(--vta-light-blue);
+  color: var(--vta-dark-blue);
 
   text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.3);
 }
 
-.mode-filters > button.active > i {
-  visibility: visible;
+.FilterView > .time-filters > .date { 
+  width: 170px;
+  margin-top: 4px;
 }
 
-.submit {
-  margin-top: 5px;
-  margin-left: 4px;
-  width: 84px;
-  height: 44px;
-  font-size: 20px;
-  border: none;
+.FilterView > .time-filters > .date .form-control {
+  width: 138px;
+  height: 40px;
+  padding: 6px 4px;
+  font-size: 13px;
 }
 
-.btn-default.icon-parknride {
-    background-image: url(/images/application/parknride_alpha.png);
-    background-size: 33px;
-    background-repeat: no-repeat;
-    background-position-x: 5px;
-    background-position-y: 7px;
-}
-
-.btn-default.icon-parknride:hover {
-    background-image: url(/images/application/parknride_alpha_dark.png);
-    background-size: 33px;
-    background-repeat: no-repeat;
-    background-position-x: 5px;
-    background-position-y: 7px;
+.FilterView > .time-filters > .date .input-group-addon {
+  padding: 6px 10px;
+  font-size: 12px;
 }
 
 #datepicker {

@@ -64,6 +64,8 @@
 
 @custom-media --narrow-window screen and (max-width: 480px);
 
+@custom-media --tablet-window screen and (max-width: 768px);
+
 /**
  * Application Styling
  */

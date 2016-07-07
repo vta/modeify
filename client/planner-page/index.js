@@ -19,6 +19,7 @@ var view = require('view');
 var showWelcomeWizard = require('welcome-flow');
 var showPlannerWalkthrough = require('planner-walkthrough');
 var geocode = require('geocode');
+var dateTime = require('view/dateTime');
 
 var FROM = config.geocode().start_address;
 var TO = config.geocode().end_address;
@@ -79,24 +80,24 @@ module.exports = function(ctx, next) {
           var to = plan.to_ll();
           if (!plan.coordinateIsValid(from)) {
             plan.journey({
-          places: [
-            {
-              place_id: 'from',
-             place_lat: e.latlng.lat,
-              place_lon: e.latlng.lng,
-              place_name: 'From'
-           },
-            {
-              place_id: 'to',
-             place_lat: (plan.to_ll() ? plan.to_ll().lat : 0),
-              place_lon: (plan.to_ll() ? plan.to_ll().lng : 0),
-              place_name: 'To'
-            }
-          ]
-        });
-        plan.setAddress('from', e.latlng.lng + ',' + e.latlng.lat, function (err, res) {
-            plan.updateRoutes();
-        });
+              places: [
+                {
+                  place_id: 'from',
+                  place_lat: e.latlng.lat,
+                  place_lon: e.latlng.lng,
+                  place_name: 'From'
+                },
+                {
+                  place_id: 'to',
+                  place_lat: (plan.to_ll() ? plan.to_ll().lat : 0),
+                  place_lon: (plan.to_ll() ? plan.to_ll().lng : 0),
+                  place_name: 'To'
+                }
+              ]
+            });
+            plan.setAddress('from', e.latlng.lng + ',' + e.latlng.lat, function (err, res) {
+              plan.updateRoutes();
+            });
           } else if (!plan.coordinateIsValid(to)) {
         plan.journey({
           places: [
@@ -150,13 +151,13 @@ module.exports = function(ctx, next) {
     }
   });
 
-  plan.on('updating options', function() {
-    ctx.view.panelFooter.classList.add('hidden');
-  });
+  // plan.on('updating options', function() {
+  //   ctx.view.panelFooter.classList.add('hidden');
+  // });
 
-  plan.on('updating options complete', function(res) {
-    if (res && !res.err) ctx.view.panelFooter.classList.remove('hidden');
-  });
+  // plan.on('updating options complete', function(res) {
+  //   if (res && !res.err) ctx.view.panelFooter.classList.remove('hidden');
+  // });
 
   next();
 };
@@ -220,21 +221,36 @@ View.prototype.feedback = function(e) {
  */
 
 View.prototype.hideSidePanel = function (e) {
-  var sidePanel = $('.SidePanel');
-  var fullscreen = $('.fullscreen');
-  var width = sidePanel.width();
-  var map = showMapView.getMap();
+  var $sidePanelBottom = $('.SidePanel.bottom'),
+      $nav = $('nav'),
+      $mapWrap = $('.MapView'),
+      map = showMapView.getMap();
 
-  sidePanel.css({
+  var navHeight = $nav.height(),
+      topHeight = $(window).height() - navHeight - $mapWrap.height(),
+      bottomHeight = $sidePanelBottom.height();
+
+  $nav.css({
     'transition': 'transform 2s',
     '-webkit-transition': '-webkit-transform 2s',
-    'transform': 'translate3d(' + width + 'px, 0, 0)'
+    'transform': 'translate3d(0, -' + navHeight + 'px, 0)'
   });
 
-  fullscreen.css({
-    'transition': 'padding 2s',
-    'padding': '0'
+  $('.SidePanel.top').css({
+    'transition': 'transform 2s',
+    '-webkit-transition': '-webkit-transform 2s',
+    'transform': 'translate3d(0, ' + topHeight + 'px, 0)'
   });
+
+  $sidePanelBottom.fadeOut(2000);
+
+  $mapWrap.css({
+    'transition': 'height 2s',
+    'height': '100%',
+    'transition': 'transform 2s',
+    '-webkit-transition': '-webkit-transform 2s',
+    'transform': 'translate3d(0, -' + navHeight + 'px, 0)'
+  }).children('.hide-map').css('display', 'inline-block');
 
   setTimeout(function () {
     map.invalidateSize();
@@ -246,21 +262,36 @@ View.prototype.hideSidePanel = function (e) {
  */
 
 View.prototype.showSidePanel = function (e) {
-  var sidePanel = $('.SidePanel');
-  var fullscreen = $('.fullscreen');
-  var width = sidePanel.width();
-  var map = showMapView.getMap();
+  var $sidePanelTop = $('.SidePanel.top'),
+      $sidePanelBottom = $('.SidePanel.bottom'),
+      $nav = $('nav'),
+      $mapWrap = $('.MapView'),
+      map = showMapView.getMap();
 
-  sidePanel.css({
+  var navHeight = $nav.height(),
+      topHeight = $(window).height() - navHeight - $mapWrap.height();
+
+  $nav.css({
     'transition': 'transform 2s',
     '-webkit-transition': '-webkit-transform 2s',
     'transform': 'translate3d(0, 0, 0)'
   });
 
-  fullscreen.css({
-    'transition': 'padding 2s',
-    'padding-right': '320px'
+  $sidePanelTop.css({
+    'transition': 'transform 2s',
+    '-webkit-transition': '-webkit-transform 2s',
+    'transform': 'translate3d(0, 0, 0)'
   });
+
+  $sidePanelBottom.fadeIn(2000);
+
+  $mapWrap.css({
+    'transition': 'height 2s',
+    'height': '280px',
+    'transition': 'transform 2s',
+    '-webkit-transition': '-webkit-transform 2s',
+    'transform': 'translate3d(0, 0, 0)'
+  }).children('.hide-map').css('display', 'none');
 
   setTimeout(function () {
     var plan = session.plan();
@@ -291,6 +322,11 @@ function showQuery(query) {
   if (query.start_time !== undefined) plan.start_time(parseInt(query.start_time, 10));
   if (query.end_time !== undefined) plan.end_time(parseInt(query.end_time, 10));
   if (query.days !== undefined) plan.days(query.days);
+  if (query.date !== undefined) plan.date(query.date);
+  if (query.minute !== undefined) plan.minute(query.minute);
+
+  // set dateTimePicker to match query
+  dateTime.picker.setTime( dateTime.picker.generateMoment() );
 
   // If has valid coordinates, load
   if (plan.validCoordinates() && sameAddresses) {
@@ -300,23 +336,23 @@ function showQuery(query) {
     plan.updateRoutes();
 
   } else {
-      if (!plan.validCoordinates()) {
-	  plan.loading(false);
-	  return;
-      } else {
-    // Set addresses and update the routes
-    plan.setAddresses(from, to, function(err) {
-      if (err) {
-        log.error('%e', err);
-      } else {
-        plan.journey({
-          places: plan.generatePlaces()
-        });
-        plan.updateRoutes();
+    if (!plan.validCoordinates()) {
+      plan.loading(false);
+      return;
+    } else {
+      // Set addresses and update the routes
+      plan.setAddresses(from, to, function(err) {
+        if (err) {
+          log.error('%e', err);
+        } else {
+          plan.journey({
+            places: plan.generatePlaces()
+          });
+          plan.updateRoutes();
 
-      }
-    });
-}
+        }
+      });
+    }
   }
 }
 
@@ -332,9 +368,10 @@ function updateMapOnPlanChange(plan, map) {
   showMapView.cleanMarkerpoint();
   showMapView.cleanMarkerCollision();
   showMapView.marker_collision_group = [];
+  showMapView.clearExistingRoutes(); // remove old realtime & stop data from map
 
   var sesion_plan = JSON.parse(localStorage.getItem('dataplan'));
-    if (journey && !isMobile) {
+    if (journey) {
       try {
 
         if(!(sesion_plan === null)) {
@@ -349,22 +386,26 @@ function updateMapOnPlanChange(plan, map) {
 
 
 
+                var route;
+                map.routes = []; // empty the routes array
                 for (i = 0; i < itineraries.length; i++) {
                     for (ii=0; ii < itineraries[i].legs.length; ii++) {
-                      showMapView.drawRouteAmigo(itineraries[i].legs[ii], itineraries[i].legs[ii].mode, i);
+                      route = showMapView.drawRouteAmigo(itineraries[i].legs[ii], itineraries[i].legs[ii].mode, i);
+                      map.routes.push(route);
                     }
                 }
 
-
-                var lat_center_polyline = (sesion_plan.from.lat + sesion_plan.to.lat) / 2;
-                var lon_center_polyline = (sesion_plan.from.lon + sesion_plan.to.lon) / 2;
-                map.setView([lat_center_polyline, lon_center_polyline], 11);
+                // set zoom to encapuslate all routes
+                if (map.routes.length) {
+                  var routeBoundaries  = new L.featureGroup(map.routes);
+                  map.fitBounds(routeBoundaries.getBounds());
+                }
 
                 showMapView.drawMakerCollision();
             }
 
       } catch (e) {
-	    map.setView([center[1], center[0]], config.geocode().zoom);
+        map.setView([center[1], center[0]], config.geocode().zoom);
       }
 
     }

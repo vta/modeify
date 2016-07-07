@@ -22,7 +22,7 @@ module.exports = function (el) {
             amigoLogo: 'right',
             loadAmigoLayers: false,
             inertia: false,
-            zoomAnimation: $('.hide-map').css('display') !== 'none',
+            zoomAnimation: true,
             maxBounds: L.latLngBounds(southWest, northEast),
             minZoom: 8
         })).setView([center[1], center[0]], config.geocode().zoom);
@@ -56,9 +56,11 @@ module.exports = function (el) {
         map.layersControl.addOverlay(blurLayer);
         blurLayer.addTo(map);
 
+        map.routes = []; // array to hold all route objects
+
         module.exports.activeMap = map;
 
-        map.realtimeControl = L.control.toggleRealTime().addTo(map);
+        //map.realtimeControl = L.control.toggleRealTime().addTo(map);
 
         realtime = mapModule.realtime();
 
@@ -304,31 +306,44 @@ module.exports.marker_map_point = function (to, map, itineration) {
     }
 };
 
+module.exports.toggleMapElement = function (el, showHide) {
+    if (!el || !showHide) {
+        return;
+    }
+    $(el)[showHide]();
+};
+
 module.exports.drawRouteAmigo = function (legs, mode, itineration) {
     var route = legs.legGeometry.points;
     var circle_from = [legs.from.lat, legs.from.lon, legs.from.name];
     var circle_to = [legs.to.lat, legs.to.lon, legs.to.name];
-    var color = '#000000';
     var weight = 5;
     var classname = "iteration-" + itineration + " iteration-200";
 
-
     var dasharray = '';
 
-    if (mode == "CAR") {
-        color = '#9E9E9E';
+    var colors = {
+        'CAR': '#ffeda0',
+        'BICYCLE': '#f03b20',
+        'TRAM': '#74c476',
+        'RAIL': '#fe9929',
+        'WALK': '#3182bd',
+        'BUS': '#6baed6'
+    };
+    var color = colors[mode] ? colors[mode] : '#000000';
+
+    if (mode === "CAR") {
         dasharray = '6';
         weight = 3;
 
-    } else if (mode == "BICYCLE") {
-        color = '#FF0000';
+    } else if (mode === "BICYCLE") {
         if (!(legs.routeColor === undefined)) {
             color = "#" + legs.routeColor;
         }
-        dasharray = '6';
+        dasharray = '5,5';
         weight = 3;
 
-    } else if (mode == "SUBWAY" || mode == "RAIL") {
+    } else if (mode == "SUBWAY" || mode == "RAIL" || mode === "TRAM") {
         if (!(legs.routeColor === undefined)) {
             if (legs.routeColor != "" || legs.routeColor.length == 6) {
                 color = "#" + legs.routeColor;
@@ -340,11 +355,9 @@ module.exports.drawRouteAmigo = function (legs, mode, itineration) {
         this.marker_map_point(circle_to, this.activeMap, itineration);
 
     } else if (mode == "WALK") {
-        color = '#0BC8F4';
-        dasharray = '6';
+        dasharray = '5,5';
         weight = 3;
     } else if (mode == "BUS") {
-        //color = '#FEF0B5';
         if (!(legs.routeColor === undefined)) {
             if (legs.routeColor != "" || legs.routeColor.length == 6) {
                 color = "#" + legs.routeColor;
@@ -354,6 +367,12 @@ module.exports.drawRouteAmigo = function (legs, mode, itineration) {
         this.marker_map_point(circle_from, this.activeMap, itineration);
         this.marker_map_point(circle_to, this.activeMap, itineration);
     }
+    
+    // we don't want white ever
+    if (color == "#FFFFFF") {
+        color = "#fec44f";
+    }
+    
 
     var color_options;
     color_options = {
@@ -371,14 +390,19 @@ module.exports.drawRouteAmigo = function (legs, mode, itineration) {
     var boxes = L.RouteBoxer.box(route, 5);
     var boxpolys = new Array(boxes.length);
     route.addTo(this.activeMap);
+    return route;
 };
 
-module.exports.drawRouteStops = function (routeId, stops) {
+module.exports.drawRouteStops = function (routeId, stops, isBus) {
     var stopsGroup = L.featureGroup();
     var endPoint = 'http://api.transitime.org/api/v1/key/5ec0de94/agency/vta/command/predictions';
 
     for (var i = 0; i < stops.length; i++) {
         var class_name = 'stops-icon';
+
+        if (i === 0 || i === stops.length - 1) {
+            class_name += ' junction';
+        }
 
         var marker = L.marker({
             "lat": stops[i].lat,
@@ -398,41 +422,35 @@ module.exports.drawRouteStops = function (routeId, stops) {
             className: 'stop-popup'
         });
 
-        // Requesting stop prediction information here to avoid getting information ahead
         marker.on('click', function (e) {
             var popup = e.target.getPopup();
             popup.setContent('<div class="stop-loading"><i class="fa fa-circle-o-notch fa-spin"></i><div>');
             popup.update();
 
-            console.log(e.target.extra);
+            var rtiid = e.target.extra.code;
 
             $.get(endPoint, {
-                rs: routeId + '|' + e.target.extra.code,
+                rs: routeId + '|' + rtiid,
                 format: 'json'
             }).done(function (data) {
                 var stopInfo = data.predictions[0];
-                var prediction = data.predictions[0].dest[0].pred;
-                var string = '<div class="stop-popup-content">' +
-                        '<div class="popup-header"><h5>' +
-                        stopInfo.stopName + ' (' + stopInfo.stopId + ')' +
-                    '</h5></div>';
-                string += '<div class="popup-body">';
-                string += '<strong>Route:</strong> ';
-                string += stopInfo.routeShortName + '<br/>';
-                string += '<strong>Next Bus:</strong><br/>';
-                string += '<ul>';
+                var predictions = data.predictions[0].dest[0].pred;
 
-                for (var pred in prediction) {
-                    if (prediction[pred].sec < 60) {
-                        string += '<li>Arriving</li>';
+                var header = '<div class="popup-header">' + '<h5>' + stopInfo.stopName + '</h5></div>';
+                var rtiidStr = '<strong>RTIID:</strong> ' + rtiid;
+                var route = '<strong>Route:</strong> ' + stopInfo.routeId + ' - ';
+
+                for (var i = 0; i < predictions.length; i++) {
+                    route += predictions[i].min;
+                    if (i === predictions.length - 1) {
+                        route += predictions[i].min !== 1 ? 'mins' : 'min';
                     } else {
-                        string += '<li>' + prediction[pred].min + ' mins</li>';
+                        route += ', ';
                     }
                 }
 
-                string += '</ul>';
-                string += '</div>';
-                string += '</div>';
+                var string = '<div class="stop-popup-content">' + header + '<div class="popup-body">' +
+                             rtiidStr + '<br/>' + route + '</div></div>';
 
                 popup.setContent(string);
                 popup.update();
@@ -444,6 +462,16 @@ module.exports.drawRouteStops = function (routeId, stops) {
 
     this.addedRouteStops.push(stopsGroup);
     stopsGroup.addTo(this.activeMap);
+};
+
+module.exports.clearExistingRoutes = function () {
+    if (this.activeMap) {
+        if (this.addedRouteStops) {
+            this.removeRouteStops();
+        }
+        this.manageRealtime.removeRealtimeData(this.activeMap);
+        this.toggleMapElement('.leaflet-div-icon1', 'show');
+    }
 };
 
 module.exports.removeRouteStops = function () {
@@ -462,25 +490,62 @@ module.exports.removeRouteBuses = function () {
     this.addedRouteBuses = [];
 };
 
-module.exports.mapRouteStops = function (legs) {
-    module.exports.removeRouteStops();
+module.exports.manageRealtime = {
+    currRoutes: {},
 
-    for (var i = 0; i < legs.length; i++) {
-        if (legs[i].mode === 'BUS') {
-            module.exports.loadRouteStops(legs[i].routeId,
-                                          legs[i].from.stopCode,
-                                          legs[i].to.stopCode);
+    pushToCurrRoutes: function (id, direction) {
+        this.currRoutes[id] = direction;
+    },
+
+    removeRealtimeData: function (map) {
+        mapModule.currRoutes = this.currRoutes = {};
+        if (map.realtime && map.realtime.active) {
+            mapModule.toggleRealtime(map);
         }
+    },
+
+    renderRealtime: function () {
+        mapModule.currRoutes = this.currRoutes;
+        mapModule.toggleRealtime(module.exports.getMap());
+    },
+
+    toggleAsyncRealtime: function (apiCalls) {
+        $.when.apply($, apiCalls).done($.proxy(this.renderRealtime, this));
     }
 };
 
-module.exports.loadRouteStops = function (routeId, from, to) {
+module.exports.mapRouteStops = function (legs) {
+    var deferredRouteDetails = [],
+        vehicle = {};
+
+    module.exports.clearExistingRoutes();
+
+    for (var i = 0; i < legs.length; i++) {
+        vehicle = legs[i];
+        if (vehicle.mode === 'TRAM' || vehicle.mode === 'BUS') {
+            if (vehicle.routeId.length < 4) {
+                deferredRouteDetails.push(
+                    module.exports.loadRouteStops(
+                        vehicle.routeId,
+                        vehicle.from.stopCode,
+                        vehicle.to.stopCode,
+                        vehicle.mode === 'BUS'
+                    )
+                );
+            }
+        }
+    }
+
+    this.manageRealtime.toggleAsyncRealtime(deferredRouteDetails);
+};
+
+module.exports.loadRouteStops = function (routeId, from, to, isBus) {
     var endPoint = 'http://api.transitime.org/api/v1/key/5ec0de94/agency/vta/command/routesDetails';
 
-    $.get(endPoint, {
+    return $.get(endPoint, {
         r: routeId,
         format: 'json'
-    }).done(function (data) {
+    }).success(function (data) {
         var route = data.routes[0],
             foundFrom = false, foundTo = false,
             startAdding = false,
@@ -490,6 +555,9 @@ module.exports.loadRouteStops = function (routeId, from, to) {
         // detecting which direction we need to draw
         for (; i < route.directions.length; i++) {
             for (var j = 0; j < route.directions[i].stops.length; j++) {
+                if (foundFrom && foundTo) {
+                    break;
+                }
                 if (route.directions[i].stops[j].code + '' === from) {
                     foundFrom = true;
                 }
@@ -519,107 +587,14 @@ module.exports.loadRouteStops = function (routeId, from, to) {
             }
         }
 
-        module.exports.drawRouteStops(routeId, stops);
-        // module.exports.loadRouteBuses(routeId, stops, i);
+        module.exports.drawRouteStops(routeId, stops, isBus);
+        module.exports.toggleMapElement('.leaflet-div-icon1', 'hide');
+
+        return module.exports.manageRealtime.pushToCurrRoutes(
+            routeId,
+            i.toString() // i here matches the route direction and is always 1 or 0
+        );
+    }).fail(function (msg) {
+        console.log('Request returned with error msg:' + msg);
     });
-};
-
-module.exports.findBusInRoute = function (bus, stops, direction) {
-    for (var i = 0; i < stops.length; i++) {
-        if (stops[i].id === bus.nextStopId && bus.direction === direction) {
-            return true;
-        }
-    }
-
-    return false;
-};
-
-module.exports.loadRouteBuses = function (routeId, stops, direction) {
-    module.exports.removeRouteBuses();
-    var endPoint = 'http://api.transitime.org/api/v1/key/5ec0de94/agency/vta/command/vehiclesDetails';
-    direction = direction.toString();
-
-    $.get(endPoint, {
-        r: routeId,
-        format: 'json'
-    }).done(function (data) {
-        var buses = data.vehicles,
-            validBuses = [];
-        for (var i = 0; i < buses.length; i++) {
-            if (module.exports.findBusInRoute(buses[i], stops, direction)) {
-                validBuses.push(buses[i]);
-            }
-        }
-
-        console.log(validBuses);
-        module.exports.drawRouteBuses(validBuses);
-    });
-};
-
-module.exports.drawRouteBuses = function (buses) {
-    var busesGroup = L.featureGroup();
-    var endPoint = 'http://api.transitime.org/api/v1/key/5ec0de94/agency/vta/command/predictions';
-
-    for (var i = 0; i < buses.length; i++) {
-        var class_name = 'leaflet-div-bus';
-
-        var marker = L.marker({
-            "lat": buses[i].loc.lat,
-            "lng": buses[i].loc.lon
-        }, {
-            icon: L.divIcon({
-                className: class_name,
-                iconSize: [15, 15],
-                iconAnchor: [0, 0]
-            }),
-            interactive: false,
-            clickable: true
-        });
-
-        // marker.extra = stops[i];
-        // marker.bindPopup('<i class="fa fa-circle-o-notch fa-spin"></i>');
-
-        // Requesting stop prediction information here to avoid getting information ahead
-        // marker.on('click', function (e) {
-        //     var popup = e.target.getPopup();
-        //     popup.setContent('<i class="fa fa-circle-o-notch fa-spin"></i>');
-        //     popup.update();
-
-        //     console.log(e.target.extra);
-
-        //     $.get(endPoint, {
-        //         rs: routeId + '|' + e.target.extra.code,
-        //         format: 'json'
-        //     }).done(function (data) {
-        //         var stopInfo = data.predictions[0];
-        //         var prediction = data.predictions[0].dest[0].pred;
-        //         var string = '<div class="stop-popup">' +
-        //                 '<div class="popup-header"><h5>' +
-        //                 stopInfo.stopName + ' (' + stopInfo.stopId + ')' +
-        //             '</h5></div>';
-        //         string += '<div class="popup-body">';
-        //         string += '<strong>Route:</strong> ';
-        //         string += stopInfo.routeShortName + '<br/>';
-        //         string += '<strong>Predictions:</strong><br/>';
-        //         string += '<ul>';
-
-        //         for (var pred in prediction) {
-        //             string += '<li>' + prediction[pred].min + 'mins ' + prediction[pred].sec % 60 + 'secs</li>';
-        //         }
-
-        //         string += '</ul>';
-        //         string += '</div>';
-        //         string += '</div>';
-
-        //         popup.setContent(string);
-        //         popup.update();
-        //     });
-        // });
-
-        marker.addTo(busesGroup);
-    }
-
-    this.addedRouteBuses.push(busesGroup);
-    busesGroup.addTo(this.activeMap);
-    busesGroup.bringToFront();
 };

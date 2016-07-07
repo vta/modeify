@@ -1,27 +1,42 @@
 <div class="FilterView">
-<!--  <div class="time-filters">
-    <label class="date-text">On</label>
-    <select select-value="days">
-      <option value="M—F">Mon - Fri</option>
-      <option value="Sat">Saturday</option>
-      <option value="Sun">Sunday</option>
-    </select>
-    <label class="date-text">from</label>
-    <select select-value="start_time" select-options="startTimes" select-parse-value="parseInt"></select>
-    <label class="date-text">to</label>
-    <select select-value="end_time" select-options="endTimes" select-parse-value="parseInt"></select>
-  </div>
--->
   <div class="btn-group mode-filters">
     <button class="btn btn-default icon-train" data-active="train" title="Metro"><i class="fa fa-check-circle"></i></button>
     <button class="btn btn-default icon-bus" data-active="bus" title="Bus"><i class="fa fa-check-circle"></i></button>
-    <button class="btn btn-default icon-parknride" data-active="car" title="Park & Ride"><i class="fa fa-check-circle"></i></button>
-    <button class="btn btn-default icon-bike" data-active="bike" title="Bike"><i class="fa fa-check-circle"></i></button>
-<!--    <button class="btn btn-default icon-cabi" data-active="bikeShare" title="Capital Bikeshare"><i class="fa fa-check-circle"></i></button> -->
+    <button class="btn btn-default icon-parknride" data-active="parkRide" title="Park & Ride"><i class="fa fa-check-circle"></i></button>
+    <button class="btn btn-default icon-bike"
+            id="bikeModeToggle"
+            data-active="bike"
+            on-tap="toggleBikeFilters"
+            title="Bike"><i class="fa fa-check-circle"></i></button>
+   <!-- <button class="btn btn-default icon-car" data-active="car" title="Car"><i class="fa fa-check-circle"></i></button> -->
   </div>
 
   <button class="btn btn-default submit" title="Search">
     <i data-hidden="loading" class="fa fa-search"></i>
     <i data-visible="loading" class="fa fa-refresh fa-spin"></i>
   </button>
+
+  <div class="btn-group bike-filters hidden">
+    <div class="title">Bike Options:</div>
+    <button class="btn btn-default" data-active="fast" title="Fast">FAST<i class="fa fa-check-circle"></i></button>
+    <button class="btn btn-default" data-active="safe" title="Safe">SAFE<i class="fa fa-check-circle"></i></button>
+    <button class="btn btn-default" data-active="flat" title="Flat">FLAT<i class="fa fa-check-circle"></i></button>
+  </div>
+
+  <div class="time-filters clearfix">
+    <div class="arrive-depart-btns btn-group" data-toggle="buttons">
+      <label class="btn btn-primary active" for="option1">
+        <input name="arriveBy" type="radio" id="option1" data-arrive-by="false" checked>Depart
+      </label>
+      <label class="btn btn-primary" for="option2">
+        <input name="arriveBy" type="radio" id="option2" data-arrive-by="true">Arrive
+      </label>
+    </div>
+    <div class='input-group date' data-date-time="datepicker1">
+      <input type='text' class="form-control" />
+      <span class="input-group-addon">
+          <span class="glyphicon glyphicon-calendar"></span>
+      </span>
+    </div>
+  </div>
 </div>
