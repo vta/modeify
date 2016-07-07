@@ -5,6 +5,8 @@ var analytics = require('analytics');
 
 var View = module.exports = view(template, function(view, plan) {
   view.reactive.use(reactiveSelect);
+  view.bikeFilters = view.find('.bike-filters');
+  view.toggleBikeFilters(view.find('#bikeModeToggle'));
   view.on('active', function() {
     analytics.send_ga({
       category: 'filter',
@@ -33,6 +35,15 @@ View.prototype.startTimes = function() {
 
 View.prototype.endTimes = function() {
   return times.slice(1);
+};
+
+View.prototype.toggleBikeFilters = function (e) {
+  var view = this.reactive.view,
+      el = e.target ? e.target : e,
+      isHidden = view.model[el.getAttribute('data-active')](),
+      toggle = isHidden ? 'remove' : 'add';
+
+  view.bikeFilters.classList[toggle]('hidden');
 };
 
 View.prototype.parseInt = parseInt;

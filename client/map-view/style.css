@@ -38,9 +38,9 @@
 
 
 @-webkit-keyframes fade-out {
-0% { opacity: 0.80;}
-50% { opacity: 0.60;}
-100% {opacity:0.40;}
+  0% { opacity: 0.80;}
+  50% { opacity: 0.60;}
+  100% {opacity:0.40;}
 }
 
 .fade-out {
@@ -108,8 +108,8 @@
 }
 
 .stops-icon {
-  background: rgba(255, 255, 255, 0.5);
-  border:2px solid black;
+  background: rgba(255, 255, 255, 0.3);
+  border:1.5px solid #666;
   font-weight:bold;
   text-align:center;
   border-radius:50%;
@@ -118,13 +118,17 @@
   height: 15px;
 }
 
+.stops-icon.junction {
+  border:2px solid black;
+}
+
 
 .stop-popup .leaflet-popup-content-wrapper {
   border-radius: 5px;
 }
 
 .stop-popup .leaflet-popup-content-wrapper .leaflet-popup-content {
-  margin: 10px;
+  margin: 2px;
 }
 
 .stop-popup .leaflet-popup-content-wrapper .leaflet-popup-content .stop-loading {

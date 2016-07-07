@@ -32,7 +32,10 @@ var Plan = module.exports = model('Plan')
     bikeShare: false,
     bus: true,
     car: false,
+    parkRide: false,
     days: 'M—F',
+    date: moment().format('MM:DD:YYYY'),
+    arriveBy: false,
     end_time: (new Date()).getHours() + 4,
     from: '',
     from_valid: false,
@@ -42,17 +45,24 @@ var Plan = module.exports = model('Plan')
     query: new ProfileQuery(),
     scorer: new ProfileScorer(),
     start_time: (new Date()).getHours() - 1,
+    minute: moment().minute(),
     to: '',
     to_valid: false,
     train: true,
     tripsPerYear: 235,
-    walk: true
+    walk: true,
+    fast: true,
+    safe: true,
+    flat: true
   }))
   .attr('bike')
   .attr('bikeShare')
   .attr('bus')
   .attr('car')
+  .attr('parkRide')
   .attr('days')
+  .attr('date')
+  .attr('arriveBy')
   .attr('end_time')
   .attr('from')
   .attr('from_id')
@@ -64,13 +74,17 @@ var Plan = module.exports = model('Plan')
   .attr('query')
   .attr('scorer')
   .attr('start_time')
+  .attr('minute')
   .attr('to')
   .attr('to_id')
   .attr('to_ll')
   .attr('to_valid')
   .attr('train')
   .attr('tripsPerYear')
-  .attr('walk');
+  .attr('walk')
+  .attr('fast')
+  .attr('safe')
+  .attr('flat');
 
 /**
  * Expose `load`
@@ -314,6 +328,23 @@ Plan.prototype.setModes = function(csv) {
   this.car(modes.indexOf('CAR') !== -1);
 };
 
+Plan.prototype.triangulateBikeOptions = function () {
+  var totalOpts = 0,
+      opts = [this.flat(), this.safe(), this.fast()];
+
+  opts.forEach(function (opt) {
+    totalOpts += opt ? 1 : 0;
+  });
+
+  if (!totalOpts) {
+    return [0.333, 0.333, 0.334];
+  } else {
+    return opts.map(function (opt) {
+      return opt ? +(1 / totalOpts).toFixed(3) : 0;
+    });
+  }
+}
+
 /**
  * Generate Query Parameters for this plan
  */
@@ -325,32 +356,49 @@ Plan.prototype.generateQuery = function() {
   // Transit modes
   var modes = [];//['WALK'];
 
-  if (this.bikeShare()) modes.push('BICYCLE_RENT');
+  if (this.bikeShare()) {
+    modes.push('BICYCLE_RENT');
+  }
 
   if (this.car()) {
     modes.push('CAR');
   }
+
   if (this.bike()) {
     modes.push('BICYCLE');
   } else {
     modes.push('WALK');
   }
-  if (this.bus()) modes.push('BUSISH');
-  if (this.train()) modes.push('TRAINISH');
+
+  if (this.parkRide()) {
+    modes.push('CAR');
+    modes.push('BUSISH');
+    modes.push('TRAINISH');
+  } else {
+    if (this.bus()) {
+      modes.push('BUSISH');
+    }
+    if (this.train()) {
+      modes.push('TRAINISH');
+    }
+  }
+
   if (modes.length==0) modes.push('WALK');
 
   var startTime = this.start_time();
   var endTime = this.end_time();
   var scorer = this.scorer();
+  var arriveBy = this.arriveBy();
+  var triangleFactors = this.triangulateBikeOptions();
 
-  // Convert the hours into strings
-  startTime += ':00';
-  endTime = endTime === 24 ? '23:59' : endTime + ':00';
+  // Get correct hour, add minutes and convert to string
+  var time = arriveBy ? endTime : startTime;
+  time += ':' + this.minute()
 
   return {
     date: this.nextDate(),
     mode: modes.join(','),
-      time: startTime,
+      time: time,
       fromPlace: (from.lat + ',' + from.lng),
       toPlace: (to.lat + ',' + to.lng),
       numItineraries: 3,
@@ -365,10 +413,11 @@ Plan.prototype.generateQuery = function() {
 //      clampInitialWait: 60,
       maxTransfers: 5,
 //      waitAtBeginningFactor: 0.5,
-      triangleSafetyFactor: 0.9,
-      triangleSlopeFactor: 0.5,
-      triangleTimeFactor: 0.9,
-      optimize: 'QUICK'
+      triangleSlopeFactor: triangleFactors[0],
+      triangleSafetyFactor: triangleFactors[1],
+      triangleTimeFactor: (triangleFactors[2] === 0.333) ? triangleFactors[2] + 0.001 : triangleFactors[2], // must add to one
+      optimize: 'TRIANGLE',
+      arriveBy: arriveBy
   };
 };
 
@@ -450,6 +499,8 @@ Plan.prototype.generateQueryString = function() {
     modes: this.modesCSV(),
     start_time: this.start_time(),
     end_time: this.end_time(),
-    days: this.days()
+    days: this.days(),
+    date: this.date(),
+    minute: this.minute()
   });
 };

@@ -2,17 +2,14 @@
 .fullscreen {
   position: relative;
   height: 100%;
-  padding-right: var(--panel-width);
-
+  padding-left: var(--panel-width);
 }
 
 .SidePanel {
   position: absolute;
   background-color: color(var(--vta-light-blue) alpha(80%));
   z-index: 150;
-  top: 0;
-  bottom: 0;
-  right: 0;
+  left: 0;
   border: 0;
   width: var(--panel-width);
   overflow: hidden;
@@ -20,30 +17,88 @@
   padding-bottom: 44px;
 }
 
+.SidePanel.top {
+  margin-top: 70px;
+  top: 0;
+  overflow-y: scroll;
+  min-height: 300px;
+  height: 100%;
+  padding-bottom: 120px;
+}
+
+.SidePanel.bottom {
+  bottom: 0;
+}
+
+.MapView {
+  height: 100%;
+  width: 100%;
+}
+
 @media (--narrow-window) {
+  .fullscreen {
+    padding-left: 0;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .SidePanel {
     left: 0;
     width: 100%;
+    position: relative;
+  }
+
+  .SidePanel.top {
+    margin-top: 0;
+    overflow: visible;
+  }
+
+  .SidePanel .scrollable {
+    padding-top: 0;
+    overflow: visible;
+  }
+
+  .SidePanel .scrollable .Options {
+    padding-bottom: 60px;
+  }
+
+  .SidePanel.bottom {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    height: 36px;
+  }
+
+  .SidePanel.bottom .footer {
+    height: 36px;
+  }
+
+  .SidePanel.bottom .footer .btn {
+    font-size: 12px;
+    padding: 2px 6px;
+    margin: 6px 8px 14px 30px;
   }
 
   .SidePanel .footer .more-options {
-      display: none !important;
+    display: none !important;
   }
 
-  .SidePanel .footer .show-map {
-      display: inline-block !important;
+  .SidePanel.bottom .footer .show-map {
+    display: inline-block;
+    line-height: 36px;
+    height: 36px;
   }
 
-  .MapView .hide-map {
-      display: inline-block !important;
+  .MapView {
+    height: 280px;
+    width: 100%;
+    margin-top: 70px;
   }
 }
 
 .scrollable {
   overflow-y: scroll;
-
   height: 100%;
-  padding-top: 70px;
 }
 
 .scrollable::-webkit-scrollbar {
@@ -95,7 +150,6 @@
 .SidePanel .footer .btn.send-feedback{
   background-color: var(--vta-burgundy);
   color: #fff;
-  float: right;
   margin-left: 0;
   margin-right: 0;
 }
@@ -107,7 +161,7 @@
   display: inline-block;
   line-height: 44px;
   text-align: right;
-  padding: 0 12px 0 16px;
+  padding: 0 12px 0 0;
 }
 
 .SidePanel .footer .show-map {

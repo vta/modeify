@@ -154,11 +154,16 @@ View.prototype.showDetails = function (e) {
         this.mouseenter();
     }
 
+    var isTouchScreen = 'ontouchstart' in window;
+    if (isTouchScreen) {
+        this.mouseenter();
+    }
+
     var _this = this;
     optionsView.lastCardSelected = _this;
 
     e.preventDefault();
-    mapView.removeRouteStops();
+    mapView.clearExistingRoutes();
     var el = this.el;
     var expanded = document.querySelector('.option.expanded');
     if (expanded) expanded.classList.remove('expanded');
@@ -191,13 +196,20 @@ View.prototype.showDetails = function (e) {
 View.prototype.hideDetails = function (e) {
     optionsView.lastCardSelected = null;
     e.preventDefault();
+
+    var isTouchScreen = 'ontouchstart' in window;
+    if (isTouchScreen) {
+        this.isSelected = false;
+        this.mouseleave();
+    }
+
     var list = this.el.classList;
     if (list.contains('expanded')) {
         list.remove('expanded');
     }
 
     this.isSelected = false;
-    mapView.removeRouteStops();
+    mapView.clearExistingRoutes();
 };
 
 /**
