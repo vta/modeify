@@ -314,6 +314,15 @@ module.exports.drawRouteAmigo = function (legs, mode, itineration) {
 
 
     var dasharray = '';
+    var colors = {
+        'CAR': '#636363',
+        'BICYCLE': '#f03b20',
+        'TRAM': '#74c476',
+        'RAIL': '#fe9929',
+        'WALK': '#3182bd',
+        'BUS': '#6baed6'
+    };
+    var color = colors[mode] ? colors[mode] : '#000000';
 
     if (mode == "CAR") {
         color = '#9E9E9E';
