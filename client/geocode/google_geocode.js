@@ -115,7 +115,7 @@ GoogleSuggestions.prototype = {
     var endpoint = 'https://maps.googleapis.com/maps/api/geocode/json';
     var parameter = {
       'address': text,
-      'key': 'AIzaSyBVAsgwqc8IPQQy8gGtnQK-miGdmOgJHCI',
+      'key': 'AIzaSyBmJ2NvVf5Om1u1-YuA8lFKzEwZ2BHhd9U',
       'components': 'administrative_area:CA|country:US'
     };
 
