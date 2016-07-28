@@ -349,24 +349,25 @@ Profiler.prototype.convertOtpData = function(opts) {
         var pattern;
 	var matchingPatterns = [];
 	var findTripId = function (tripId, trips) {
+		console.log(tripId, trips);
 	    for (var i = 0; i < trips.length; i++) {
 		if (tripId === trips[i].id) return i;
             }
 	    return -1;
         }
         if (leg.transitLeg) {
-	    for (var attr in store.patterns) {
-		if (attr.indexOf(leg.agencyId + ':' + leg.routeId) !== -1) 
+	    for (var attr in store.allPatterns) {
+		if (attr.indexOf(leg.agencyId + ':' + leg.routeId) !== -1)
 		    matchingPatterns.push(attr);
 	    }
-
+	    
 	    for (var i = 0; i < matchingPatterns.length; i++) {
-		if (findTripId(leg.agencyId + ':' + leg.tripId, store.patterns[matchingPatterns[i]].trips) !== -1) {
-		    pattern = store.patterns[matchingPatterns[i]];
+		if (findTripId(leg.agencyId + ':' + leg.tripId, store.allPatterns[matchingPatterns[i]].trips) !== -1) {
+		    pattern = store.allPatterns[matchingPatterns[i]];
 		    break;
 		}
 	    }
-	    routePatterns[pattern.routeId] = pattern;
+	    //routePatterns[pattern.routeId] = pattern;
 
 	    var patterns = [];
 	    for(var routeId in routePatterns) {

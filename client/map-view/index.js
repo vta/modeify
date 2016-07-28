@@ -532,10 +532,10 @@ module.exports.mapRouteStops = function (legs) {
     for (var i = 0; i < legs.length; i++) {
         vehicle = legs[i];
         if (vehicle.mode === 'TRAM' || vehicle.mode === 'BUS') {
-            if (vehicle.routeId.length < 4) {
+            if (vehicle.route.length < 4) {
                 deferredRouteDetails.push(
                     module.exports.loadRouteStops(
-                        vehicle.routeId,
+                        vehicle.route,
                         vehicle.from.stopCode,
                         vehicle.to.stopCode,
                         vehicle.mode === 'BUS'

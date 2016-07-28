@@ -318,6 +318,8 @@ function showQuery(query) {
   var sameAddresses = from === plan.from() && to === plan.to();
 
   // Set plan from querystring
+  if (query.from !== undefined) plan.from(query.from);
+  if (query.to !== undefined) plan.to(query.to);
   if (query.modes) plan.setModes(query.modes);
   if (query.start_time !== undefined) plan.start_time(parseInt(query.start_time, 10));
   if (query.end_time !== undefined) plan.end_time(parseInt(query.end_time, 10));

@@ -53,10 +53,11 @@ View.prototype.blurInput = function(e) {
 
 	setTimeout(function() {
 		suggestionList.innerHTML = '';
-	}, 500);
+        }, 500);
 
 	inputGroup.classList.remove('highlight');
 	this.save(e.target);
+	this.scrollDown(0);
 };
 
 /**
@@ -205,8 +206,9 @@ View.prototype.scrollDown = function (num) {
  */
 
 View.prototype.focusInput = function(e) {
-  this.scrollDown(100);
+  this.scrollDown(330);
 	e.target.parentNode.classList.add('highlight');
+  console.log($(e.target).offset());
 };
 
 /**

@@ -54,7 +54,8 @@ Modal.prototype.submit = function(e) {
     };
     var url = config.feedback_write_url() + 
       '?token=' + config.feedback_write_token();
-    if (location.host.indexOf(config.ignore_events_from()) !== -1) {
+    // added && false to pass restriction from ignore events
+    if (location.host.indexOf(config.ignore_events_from()) !== -1 && false) {
       alerts.appendChild(Alert({
         type: 'success',
         text: 'Thanks! We appreciate the feedback!'
