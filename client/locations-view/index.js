@@ -197,7 +197,8 @@ View.prototype.save = function(el) {
  * Scroll down a certain number of pixels
  */
 
-View.prototype.scrollDown = function (num, duration=250) {
+View.prototype.scrollDown = function (num, duration) {
+  duration = duration || 200;
   console.log('scroll down', num)
   $('.fullscreen').animate({
     scrollTop: num
