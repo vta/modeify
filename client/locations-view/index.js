@@ -7,6 +7,7 @@ var mouse = require('mouse-position');
 var textModal = require('text-modal');
 var view = require('view');
 var analytics = require('analytics');
+var ua = require('user-agent');
 
 /**
  * Expose `View`
@@ -210,11 +211,17 @@ View.prototype.scrollDown = function (num, duration) {
  */
 
 View.prototype.focusInput = function(e) {
-  var wrapper = $('.fullscreen')[0];
-  var offsetTop = $(wrapper).scrollTop() + $(e.target).offset().top;
-  console.log( $(wrapper).scrollTop(), offsetTop );
-
-  this.scrollDown(offsetTop);
+  var $wrapper = $('.fullscreen');
+  var offsetTop = $wrapper.scrollTop() + $(e.target).offset().top;
+  console.log( $wrapper.scrollTop(), offsetTop, e.target );
+  if (!!e && e.scrollIntoView) {
+    e.target.scrollIntoView()
+    $(e.target).blur()
+    $(e.target).focus()
+  }
+  if (ua.os.name === 'Android' && ua.browser.name === 'Chrome'){
+    this.scrollDown(offsetTop-20);
+  }
   e.target.parentNode.classList.add('highlight');
 };
 
