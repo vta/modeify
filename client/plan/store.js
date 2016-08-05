@@ -15,6 +15,8 @@ module.exports = storePlan;
 
 function storePlan(plan) {
   log('--> storing plan');
+  // FIXME: temporary solution, disabling localstorage!
+  return;
   if (!localStorageSupported) return;
 
   // convert to "JSON", remove routes & patterns
