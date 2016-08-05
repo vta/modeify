@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/vta/modeify.png?label=ready&title=Ready)](https://waffle.io/vta/modeify)
 # Modeify
 
 [![Build status][travis-image]][travis-url]
