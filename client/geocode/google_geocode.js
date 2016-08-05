@@ -72,7 +72,6 @@ GoogleSuggestions.prototype = {
     var getMapSpecs = function() {
       var map = getCurrMap();
       var mapBoundNorthEast = map.getBounds().getNorthEast();
-	console.log('using google places API');
       return {
 	radius: 17000,
 	location: {lat: 37.303626, lng: -121.884750}
