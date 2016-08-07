@@ -7,6 +7,7 @@ var mouse = require('mouse-position');
 var textModal = require('text-modal');
 var view = require('view');
 var analytics = require('analytics');
+var ua = require('user-agent');
 
 /**
  * Expose `View`
@@ -41,6 +42,7 @@ View.prototype.blurInput = function(e) {
 
 	var highlight = this.find('.suggestion.highlight');
 	if (highlight) {
+		console.log('highlighting');
 		e.target.value = highlight.textContent || '';
 		if (highlight.dataset.lat) {
 			e.target.lat = highlight.dataset.lat;
@@ -57,7 +59,7 @@ View.prototype.blurInput = function(e) {
 
 	inputGroup.classList.remove('highlight');
 	this.save(e.target);
-	this.scrollDown(0);
+//	this.scrollDown(0, 0);
 };
 
 /**
@@ -73,6 +75,7 @@ View.prototype.keydownInput = function(e) {
 
 	switch (key) {
 		case 13: // enter key
+			console.log('enter key');
 			e.preventDefault();
 			this.blurInput(e);
 			break;
@@ -195,10 +198,12 @@ View.prototype.save = function(el) {
  * Scroll down a certain number of pixels
  */
 
-View.prototype.scrollDown = function (num) {
+View.prototype.scrollDown = function (num, duration) {
+  duration = duration || 200;
+  console.log('scroll down', num)
   $('.fullscreen').animate({
     scrollTop: num
-  }, 250);
+  }, duration);
 };
 
 /**
@@ -206,9 +211,18 @@ View.prototype.scrollDown = function (num) {
  */
 
 View.prototype.focusInput = function(e) {
-  this.scrollDown(330);
-	e.target.parentNode.classList.add('highlight');
-  console.log($(e.target).offset());
+  var $wrapper = $('.fullscreen');
+  var offsetTop = $wrapper.scrollTop() + $(e.target).offset().top;
+  console.log( $wrapper.scrollTop(), offsetTop, e.target );
+  if (!!e && e.scrollIntoView) {
+    e.target.scrollIntoView()
+    $(e.target).blur()
+    $(e.target).focus()
+  }
+  if (ua.os.name === 'Android' && ua.browser.name === 'Chrome'){
+    this.scrollDown(offsetTop-20);
+  }
+  e.target.parentNode.classList.add('highlight');
 };
 
 /**
@@ -423,6 +437,7 @@ View.prototype.clear = function(e) {
 
 function setCursor(node, pos) {
   node = (typeof node === "string" || node instanceof String) ? document.getElementById(node) : node;
+console.log('set cursor');
 
   if (!node) return;
 

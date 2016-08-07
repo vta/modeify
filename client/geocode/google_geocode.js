@@ -6,6 +6,9 @@ var mapView = require('map-view');
  * in index.js
  */
 
+window.modeify.config['geocode_bounds'] = {}
+window.modeify.config['geocode_bounds']['center'] = [37.303626, -121.884750];
+
 /*
  * Utils
  */
@@ -70,8 +73,11 @@ GoogleSuggestions.prototype = {
       var map = getCurrMap();
       var mapBoundNorthEast = map.getBounds().getNorthEast();
       return {
-        radius: mapBoundNorthEast.distanceTo(map.getCenter()),
-        location: map.getCenter()
+	radius: 17000,
+	location: {lat: 37.303626, lng: -121.884750}
+	// TODO: make this part of a global configuration, using the following as defaults
+        // radius: mapBoundNorthEast.distanceTo(map.getCenter()),
+        // location: map.getCenter()
       };
     };
     var specs = getMapSpecs();
