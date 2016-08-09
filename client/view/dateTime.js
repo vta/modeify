@@ -40,9 +40,16 @@ module.exports.plugin = function (reactive) {
   reactive.bind('data-date-time', function (el, name) {
     var view = this.reactive.view, picker;
 
+    //if (true){ // if mobile
+      // $(el).find('input').attr('disabled',true)
+    //}
+    
     // picker is extracted as a separate method so that it can be accessed elsewhere in app (planner-page)
     picker = module.exports.picker = $(el).datetimepicker({
       allowInputToggle: true,
+      defaultDate : new Date(),
+      focusOnShow : false,
+      ignoreReadonly : true,
       widgetPositioning: { horizontal: 'right' }
     }).on('dp.hide', function (e) {
       // when the datetimepicker is closed, update models with current dates and emit event
@@ -52,6 +59,7 @@ module.exports.plugin = function (reactive) {
 
       view.emit('active', 'days', time.day);
       view.emit('active', time.endOrStartTime, time.hour);
+
     });
 
     $.extend(picker, {
@@ -107,12 +115,13 @@ module.exports.plugin = function (reactive) {
           }
         });
 
-        // if time/date in datetimepicker matches current time, autoupdate datetimepicker each minute
-        if (this.isCurrTime(moment)) {
-          this.autoUpdate();
-        } else {
-          this.stopAutoUpdate();
-        }
+	// unnecessary
+        // // if time/date in datetimepicker matches current time, autoupdate datetimepicker each minute
+        // if (this.isCurrTime(moment)) {
+        //   this.autoUpdate();
+        // } else {
+        //   this.stopAutoUpdate();
+        // }
 
         // set datetimepicker value
         this.data('DateTimePicker').date(moment);
