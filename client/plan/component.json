@@ -16,7 +16,7 @@
     "convert",
     "geocode",
     "journey",
-    "localstorage-supported",
+    "webstorage-supported",
     "location",
     "log",
     "messages",

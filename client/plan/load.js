@@ -1,5 +1,5 @@
 var d3 = require('d3');
-var localStorageSupported = require('localstorage-supported')();
+var localStorageSupported = require('webstorage-supported')();
 var log = require('./client/log')('plan:load');
 var ProfileScorer = require('otp-profile-score');
 var session = require('session');

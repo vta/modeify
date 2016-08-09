@@ -1,4 +1,4 @@
-var localStorageSupported = require('localstorage-supported')();
+var localStorageSupported = require('webstorage-supported')();
 var log = require('./client/log')('plan:store');
 var session = require('session');
 var store = require('store');
