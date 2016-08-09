@@ -1,7 +1,6 @@
 module.exports = function() {
   var testKey = 'test';
-  return false; // disabled... don't want this!
-  var storage = window.localStorage;
+  var storage = window.sessionStorage;
   try {
     storage.setItem(testKey, '1');
     storage.removeItem(testKey);

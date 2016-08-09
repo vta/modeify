@@ -25,7 +25,7 @@ var View = module.exports = view(require('./template.html'), function (view, mod
             return;
         }
         clearTimeout();
-        var itineration = JSON.parse(localStorage.getItem('itineration'));
+        var itineration = JSON.parse(sessionStorage.getItem('itineration'));
         for (var i = 0; i < itineration.length; i++) {
             var r3 = d3.selectAll(".iteration-" + i);
             if (i != model.index) {
@@ -73,7 +73,7 @@ var View = module.exports = view(require('./template.html'), function (view, mod
             return;
         }
 
-        var itineration = JSON.parse(localStorage.getItem('itineration'));
+        var itineration = JSON.parse(sessionStorage.getItem('itineration'));
         for (var i = 0; i < itineration.length; i++) {
             var rec2 = d3.selectAll(".circle-fade-" + i);
             rec2.attr('class', 'leaflet-marker-icon leaflet-div-icon1 circle-fade-' + i + ' leaflet-zoom-hide');
