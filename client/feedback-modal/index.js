@@ -28,6 +28,7 @@ Modal.prototype.submit = function(e) {
   var input = this.find('input');
   var feedback = textarea.value + '';
   var email = input.value + '';
+  var ua = require('user-agent');
   var results = this.model.toJSON ? this.model.toJSON() : {};
   var self = this;
   var changeset = {
@@ -50,6 +51,7 @@ Modal.prototype.submit = function(e) {
       results: JSON.stringify(results),
       timestamp: (new Date()).toISOString(), 
       email: email,
+      user_agent: ua.ua,
       url: location.href
     };
     var url = config.feedback_write_url() + 
