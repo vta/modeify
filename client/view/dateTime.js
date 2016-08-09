@@ -40,8 +40,8 @@ module.exports.plugin = function (reactive) {
   reactive.bind('data-date-time', function (el, name) {
     var view = this.reactive.view, picker;
 
-    //if (true){ // if mobile
-      // $(el).find('input').attr('disabled',true)
+    //if (true){ // FIXME: only if mobile
+    //  $(el).find('input').attr('disabled',true)
     //}
     
     // picker is extracted as a separate method so that it can be accessed elsewhere in app (planner-page)
@@ -56,10 +56,22 @@ module.exports.plugin = function (reactive) {
       e.stopPropagation();
 
       var time = picker.setTime(e.date);
-
       view.emit('active', 'days', time.day);
       view.emit('active', time.endOrStartTime, time.hour);
+    });
 
+    // if a touch/click is detected outside of the datetime picker, close it.
+    $('#main').mouseup(function (e) {
+      var container = $(el)
+      var is_open = false
+      if (!is_open){
+        return
+      }
+      if (!container.is(e.target) // if the target of the click isn't the container...
+        && container.has(e.target).length === 0) // ... nor a descendant of the container
+      {
+        container.hide();
+      }
     });
 
     $.extend(picker, {
