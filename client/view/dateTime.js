@@ -54,24 +54,26 @@ module.exports.plugin = function (reactive) {
     }).on('dp.hide', function (e) {
       // when the datetimepicker is closed, update models with current dates and emit event
       e.stopPropagation();
-
+      $('#main').off('mouseup');
       var time = picker.setTime(e.date);
       view.emit('active', 'days', time.day);
       view.emit('active', time.endOrStartTime, time.hour);
-    });
-
-    // if a touch/click is detected outside of the datetime picker, close it.
-    $('#main').mouseup(function (e) {
-      var container = $(el)
-      var is_open = false
-      if (!is_open){
-        return
-      }
-      if (!container.is(e.target) // if the target of the click isn't the container...
-        && container.has(e.target).length === 0) // ... nor a descendant of the container
-      {
-        container.hide();
-      }
+    }).on('dp.show', function(e){
+      // if a touch/click is detected outside of the datetime picker, close it.
+      window.setTimeout(function(){
+        $('#main').on('mouseup', function (e) {
+          var container = $(".bootstrap-datetimepicker-widget ul")
+          var is_open = container.is(":visible")
+          if (!is_open){
+            return
+          }
+          if (!container.is(e.target) // if the target of the click isn't the container...
+            && container.has(e.target).length === 0) // ... nor a descendant of the container
+          {
+            picker.find(".input-group-addon").click();  // lulz, wut? at least it works.
+          }
+        });
+      }, 90);
     });
 
     $.extend(picker, {
