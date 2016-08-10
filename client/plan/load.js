@@ -1,5 +1,5 @@
 var d3 = require('d3');
-var localStorageSupported = require('localstorage-supported')();
+var sessionStorageSupported = require('webstorage-supported')();
 var log = require('./client/log')('plan:load');
 var ProfileScorer = require('otp-profile-score');
 var session = require('session');
@@ -43,7 +43,7 @@ function loadPlan(Plan) {
 
   // check if we have a stored plan
   var opts = {};
-  if (localStorageSupported)
+  if (sessionStorageSupported)
     opts = store('plan') || {};
   if (session.isLoggedIn() && session.commuter())
     opts = loadCommuter(opts);

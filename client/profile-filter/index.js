@@ -7,9 +7,9 @@ var THIRTY_MINUTES = 30 * 60;
  */
 
 module.exports = function profileFilter(options, scorer) {
-  var FILTER_RESULTS = window.localStorage
-    ? window.localStorage.getItem('filterResults') !== 'false'
-    : true;
+  var FILTER_RESULTS = window.sessionStorage
+    ? window.sessionStorage.getItem('filterResults') !== 'false'
+    : true
 
   options.forEach(function(o, i) {
     o = profileFormatter.option(o);
