@@ -95,13 +95,13 @@ module.exports.load = function(ctx, next) {
 };
 
 /**
- * Sync plans with localStorage
+ * Sync plans with sessionStorage
  */
 
 Plan.on('change', function(plan, name, val) {
   log('plan.%s changed to %s', name, val);
 
-  // Store in localStorage & track the change
+  // Store in sessionStorage & track the change
   if (name !== 'options' && name !== 'journey' && name !== 'loading') plan.store();
 });
 
@@ -430,7 +430,7 @@ Plan.prototype.store = debounce(function() {
 }, DEBOUNCE_UPDATES);
 
 /**
- * Clear localStorage
+ * Clear sessionStorage
  */
 
 Plan.prototype.clearStore = store.clear;

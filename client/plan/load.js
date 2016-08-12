@@ -28,7 +28,7 @@ function load(Plan, ctx, next) {
   // Get the plan from the session
   ctx.plan = session.plan();
 
-  // If no plan is in session, load it from localStorage or the server
+  // If no plan is in session, load it from sessionStorage or the server
   if (!ctx.plan) ctx.plan = loadPlan(Plan);
 
   next();
@@ -70,7 +70,7 @@ function loadCommuter(opts) {
 
   // if the stored plan is not the logged in commuters, change
   if (opts._commuter !== commuter._id()) {
-    log('load plan from the commuter instead of localStorage');
+    log('load plan from the commuter instead of sessionStorage');
 
     opts = commuter.opts();
     var org = commuter._organization();

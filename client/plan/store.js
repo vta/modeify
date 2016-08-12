@@ -34,7 +34,7 @@ function storePlan(plan) {
     //commuter.save();
   }
 
-  // save in local storage
+  // save in session storage
   try {
     store('plan', json);
     log('<-- stored plan');
