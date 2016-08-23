@@ -372,7 +372,7 @@ function updateMapOnPlanChange(plan, map) {
   showMapView.marker_collision_group = [];
   showMapView.clearExistingRoutes(); // remove old realtime & stop data from map
 
-  var sesion_plan = JSON.parse(localStorage.getItem('dataplan'));
+  var sesion_plan = JSON.parse(sessionStorage.getItem('dataplan'));
     if (journey) {
       try {
 

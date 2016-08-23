@@ -75,14 +75,14 @@ function updateRoutes(plan, opts, callback) {
         itineraries = data.plan.itineraries;
         module.exports.dataplan = data.options;
 
-        var sesion_plan = JSON.parse(localStorage.getItem('dataplan'));
+        var sesion_plan = JSON.parse(sessionStorage.getItem('dataplan'));
         if (!(sesion_plan === null)) {
-            localStorage.removeItem('dataplan');
-            localStorage.removeItem('itineration');
+            sessionStorage.removeItem('dataplan');
+            sessionStorage.removeItem('itineration');
         }
 
-        localStorage.setItem('itineration', JSON.stringify({"length":itineraries.length}));
-        localStorage.setItem('dataplan', JSON.stringify(data.options));
+        sessionStorage.setItem('itineration', JSON.stringify({"length":itineraries.length}));
+        sessionStorage.setItem('dataplan', JSON.stringify(data.options));
 
           // Track the commute
           analytics.track('Found Route', {
