@@ -92,6 +92,12 @@ function milesToString(miles) {
   }
 }
 
+
+
+exports.dateToHumanTime = function (date){
+  return ((date.getHours() ) % 12) + ':' + ((date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes())) + (date.getHours() > 11 ? 'PM' : 'AM');
+}
+
 /**
  * TODO: this should be aliased in CSS
  */

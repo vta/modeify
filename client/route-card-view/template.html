@@ -8,7 +8,9 @@
 
   <div class="simple clearfix">
     <div class="segments" data-html="segments"></div>
-
+    <div class="times-column">
+      <div class="startstoptimes"><span>{planStartTime}</span> - <span>{planEndTime}</span></div>
+    </div>
     <div class="minutes-column">
       <div class="heading"><strong>{average}</strong> mins</div>
 
@@ -21,6 +23,7 @@
         <div class="distance" data-visible="bikeDistances">{bikeDistances} mi biking</div>
         <div class="distance" data-visible="walkDistances">{walkDistances} mi walking</div>
       </div>
+      
     </div>
 
 <!--    <button class="btn btn-default select-button" on-tap="selectOption">select</button> -->
