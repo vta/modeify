@@ -3,7 +3,7 @@
  */
 
 var evnt = require('event')
-
+var ua = require('user-agent');
 /**
  * Utils
  */
@@ -40,9 +40,12 @@ module.exports.plugin = function (reactive) {
   reactive.bind('data-date-time', function (el, name) {
     var view = this.reactive.view, picker
 
-    // if (true){ // FIXME: only if mobile
-    //  $(el).find('input').attr('disabled',true)
-    // }
+    //if (ua.os.name === 'Android' || ua.os.name === 'iOS' ){
+    if (true){
+     // $(el).find('input').attr('disabled',true)
+     $(el).find('input').attr('type','datetime-local')
+     console.log('mobile!')
+    }
 
     // picker is extracted as a separate method so that it can be accessed elsewhere in app (planner-page)
     picker = module.exports.picker = $(el).datetimepicker({

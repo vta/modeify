@@ -173,7 +173,7 @@
 
 .FilterView > .time-filters > .date .input-group-addon {
   padding: 6px 10px;
-  font-size: 12px;
+  font-size: 1.5em;
 }
 
 #datepicker {
