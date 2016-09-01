@@ -95,7 +95,10 @@ function milesToString(miles) {
 
 
 exports.dateToHumanTime = function (date){
-  return ((date.getHours() ) % 12) + ':' + ((date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes())) + (date.getHours() > 11 ? 'PM' : 'AM');
+  var hh = date.getHours() % 12 === 0 ? '12' : (date.getHours() % 12);
+  var mm = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()
+  var ampm = date.getHours() > 11 ? 'PM' : 'AM'
+  return hh + ':' + mm + ampm;
 }
 
 /**
