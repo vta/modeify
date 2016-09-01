@@ -141,3 +141,8 @@
   border-left: 1px solid var(--gray);
   border-right: 1px solid var(--gray);
 }
+
+.Locations > .input-group > .currentLocation {
+  right:0;
+  top: 0;
+}
