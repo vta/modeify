@@ -22,6 +22,8 @@ View.prototype.to = function() {
   return session.plan().to().split(',')[0];
 };
 
+
+
 /**
  * Details, details
  */
@@ -43,6 +45,15 @@ View.prototype.directions = function() {
     function isTransit(mode) {
         return (mode !== 'WALK' && mode !== 'CAR' && mode !== 'BICYCLE');
     }
+
+  function sstimes(leg){
+    var res = ['<div class="start_stop_times"><span>'];
+    res.push(convert.dateToHumanTime(new Date(leg.startTime)))
+    res.push('</span> - <span>');
+    res.push(convert.dateToHumanTime(new Date(leg.startTime)))
+    res.push('</span></div>');
+    return res.join('');
+  }
 
     if (!isTransit(legs[0].mode)) {
 	details += narrativeDirectionsForSteps(legs[i].steps, legs[0].mode);
@@ -68,7 +79,7 @@ View.prototype.directions = function() {
 
                 addDetail({
                     color: color,
-                    description: 'Take ' + (legs[i].routeShortName || legs[i].routeLongName),
+                    description: 'Take ' + (legs[i].routeShortName || legs[i].routeLongName) + sstimes(legs[i]),
                     segment: true
                 });
 
@@ -87,7 +98,7 @@ View.prototype.directions = function() {
 
                 addDetail({
                     color: color,
-                    description: 'Take ' + (legs[i].routeShortName || legs[i].routeLongName),
+                    description: 'Take ' + (legs[i].routeShortName || legs[i].routeLongName) + sstimes(legs[i]),
                     segment: true
                 });
 
@@ -96,7 +107,7 @@ View.prototype.directions = function() {
                     description: strong(legs[i].to.name),
                     transfer: 'transfer alight'
                 });
-	}
+        }
         i++;
         lastColor = color;
     }

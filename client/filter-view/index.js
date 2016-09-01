@@ -6,13 +6,7 @@ var analytics = require('analytics');
 var View = module.exports = view(template, function(view, plan) {
   view.reactive.use(reactiveSelect);
   view.bikeFilters = view.find('.bike-filters');
-  
-  if (!plan.attrs['bike']){
-    // check the default/starting state for 'bike'
-    // then sync the bike options accordingly
-    view.bikeFilters.classList["add"]('hidden')
-  }
-
+  //view.toggleBikeFilters(view.find('#bikeModeToggle'));
   view.on('active', function() {
     analytics.send_ga({
       category: 'filter',
@@ -51,8 +45,9 @@ View.prototype.toggleBikeFilters = function (e) {
   } else {
      el = e.target;
   }
+  var isHidden = !view.model[el.getAttribute('data-active')](),
+      toggle = isHidden ? 'remove' : 'add';
 
-  var toggle = view.model[el.getAttribute('data-active')]() ? 'add' : 'remove';
   view.bikeFilters.classList[toggle]('hidden');
 };
 
