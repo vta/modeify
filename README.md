@@ -19,7 +19,7 @@ Deliver personalized commute information to travelers. Supported by the [Mobilit
 
 The VTA and Amigocloud have been working together to make our own update of [CarFreeAtoZ](http://www.carfreeatoz.com/).  
 
-[Here](tripplanner.vta.org) is our Beta site.  [Here](tripplanner.vta.org) is our dev site.
+[Here](http://tripplanner.vta.org) is our Beta site.  [Here](http://devplanner.vta.org) is our dev site.
 
 ## Documentation
 This deployment and development documentation is now inaccurate.
