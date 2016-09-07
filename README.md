@@ -1,5 +1,9 @@
 [![Stories in Ready](https://badge.waffle.io/vta/modeify.png?label=ready&title=Ready)](https://waffle.io/vta/modeify)
-# Modeify
+# Multimodal Tripplanner 
+##### This is the AmgoCloud's version based of Conveyal Modeify. The changes include
+- Ported to OTP /plan API 
+- Modified UI
+- Added realtime transit time prediction
 
 [![Build status][travis-image]][travis-url]
 [![Test coverage][coveralls-image]][coveralls-url]
