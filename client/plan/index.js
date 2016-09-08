@@ -44,7 +44,7 @@ var Plan = module.exports = model('Plan')
     dataplan: [],
     query: new ProfileQuery(),
     scorer: new ProfileScorer(),
-    start_time: (new Date()).getHours() - 1,
+    start_time: (new Date()).getHours(),
     minute: moment().minute(),
     to: '',
     to_valid: false,
