@@ -8,6 +8,7 @@ var textModal = require('text-modal');
 var view = require('view');
 var analytics = require('analytics');
 var ua = require('user-agent');
+var sessionStorageSupported = require('webstorage-supported')();
 
 /**
  * Expose `View`
@@ -470,6 +471,19 @@ View.prototype.clear = function(e) {
     this.model.attrs.to_ll = null
   }
   // ^ seriously, wat!?
+  if (sessionStorageSupported) {
+    var p = JSON.parse(sessionStorage.getItem('plan'));
+    if (input.name === 'from'){
+      p['from'] = "";
+      delete p['from_ll']
+      p['from_valid'] = false
+    } else {
+      p['to'] = "";
+      delete p['to_ll']
+      p['to_valid'] = false
+    }
+    sessionStorage.setItem("plan", JSON.stringify(p));
+  }
   console.log(input.name, this.model[input.name]())
   this.resetIcons();
 };
