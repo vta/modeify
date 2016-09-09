@@ -1,31 +1,21 @@
 # Deployment
 
-Install & configure the [aws](http://docs.aws.amazon.com/cli/latest/reference/) CLI tool.
+The easiest way to deploy **modified-tripplanner** is to use [Docker](https://www.docker.com/).
+The [tripplanner-docker](https://github.com/amigocloud/tripplanner-docker "Docker setup") project includes Docker configuration files for **tripplanner**, **otp**, and **nginx** containers.
 
-## S3
+**tripplanner** container:
+ 
+- Install [Node.JS](https://nodejs.org), [NPM](https://www.npmjs.com/), and [MongoDB](https://www.mongodb.com/).
+- Clone [**modified-tripplanner**](https://github.com/amigocloud/tripplanner-docker).
+- Copy [config.yaml](/docs/config.yaml.md) - the main configuration file for the tripplanner. It has all the URLs and API keys for external services. 
 
-Configure your S3 buckets per environment in `deployment/config.yaml`.
+**otp** container:
 
-```bash
-modeify $ bin/deploy-assets staging
-```
+- Install **Java 8**.
+- Install prebuilt binary of [Open Trip Planner](http://www.opentripplanner.org/).
+- Clone [GTFS Manager](https://github.com/amigocloud/gtfs-manager) for merging GTFS updates.
+- Configure a cron job for daily updates of the GTFS feeds.
+- Copy **load_data.sh** - script that downloads OSM map data, and using [GTFS Manager](https://github.com/amigocloud/gtfs-manager) downloads, 
+and merges GTFS feeds for all the involved transit agencies.
 
-This builds the client files for staging & syncs the `assets` folder with your specified S3 bucket.
-
-## OpsWorks
-
-Setup an OpsWorks Node.JS application and configure in `deployment/config.yaml`. The OpsWorks application will need to have all the environment variables set up that are in `deployment/env`.
-
-**NOTE** This is dependent on files that get deployed to S3.
-
-```bash
-modeify $ bin/deploy-server staging
-```
-
-## Environment
-
-Short hand to deploy all at once:
-
-```bash
-modeify $ bin/deploy staging
-```
+**nginx** container has configuration for Nginx server.
