@@ -156,6 +156,16 @@ Route.prototype.freeflowTime = function() {
   }
 };
 
+Route.prototype.planStartTime = function(){
+  var d = new Date(this.plan().startTime)
+  return convert.dateToHumanTime(d)
+}
+
+Route.prototype.planEndTime = function(){
+  var d = new Date(this.plan().endTime)
+  return convert.dateToHumanTime(d)
+}
+
 /**
  * Time in transit
  */
@@ -541,3 +551,4 @@ function findKeyValuePair(array, key, value) {
     }
     return false;
 };
+

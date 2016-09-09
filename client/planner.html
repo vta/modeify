@@ -17,10 +17,13 @@
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
 <!--    <link href="https://api.tiles.mapbox.com/mapbox.js/v2.1.5/mapbox.css" rel="stylesheet"> -->
-    <link href="http://www.amigocloud.com/static/amigocloud-1.0.3/amigocloud-1.0.3.css" rel="stylesheet">
+    <link href="https://www.amigocloud.com/static/amigocloud-1.0.3/amigocloud-1.0.3.css" rel="stylesheet">
 
     <link href="{{static_url}}/build/planner-app/build.css?v={{version}}" rel="stylesheet">
-
+    <style>
+    .browsehappy {color:#ffffff;text-align:center;font-size:1.2em;}
+    .browsehappy a {color:#599de6;}
+    </style>
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -40,25 +43,22 @@
     {{/segmentio_key}}
   </head>
   <body>
+    <!--[if lt IE 10]>
+    <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
     <div id="main"></div>
 
     <noscript>
       <h1 style="text-align:center;">JavaScript must be enabled to use this website.</h1>
     </noscript>
 
-    <script type="text/javascript">
-      if (!document.body.classList) {
-        window.alert('Please use a modern browser or this website will not run correctly.\n Modern browsers include Google Chrome, Mozilla Firefox, and Microsoft Internet Explorer (version 10 or better).');
-      }
-    </script>
-
-    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="https://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://api.tiles.mapbox.com/mapbox.js/v2.1.5/mapbox.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBmJ2NvVf5Om1u1-YuA8lFKzEwZ2BHhd9U&libraries=places"></script>
-    <script src="http://www.amigocloud.com/static/amigocloud-1.0.3/amigocloud-1.0.3.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCy3D65qSh0YJt3gtMi_zk3hOGRxikC3k4&libraries=places"></script>
+    <script src="https://www.amigocloud.com/static/amigocloud-1.0.3/amigocloud-1.0.3.js"></script>
     <script src="{{static_url}}/build/messages/en.js?v={{version}}"></script>
     <script src="{{static_url}}/build/planner-app/build.js?v={{version}}"></script>
   </body>

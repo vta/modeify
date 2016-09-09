@@ -30,3 +30,5 @@ lib-cov
 
 coverage
 deployment
+
+assets/robots.txt

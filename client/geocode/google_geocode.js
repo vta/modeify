@@ -1,4 +1,5 @@
 var mapView = require('map-view');
+var config = require('config');
 
 /* 
  * This code is pulled into separate file b/c the mapping makes it unecessarily complicated.
@@ -73,9 +74,9 @@ GoogleSuggestions.prototype = {
       var map = getCurrMap();
       var mapBoundNorthEast = map.getBounds().getNorthEast();
       return {
-	radius: 17000,
-	location: {lat: 37.303626, lng: -121.884750}
-	// TODO: make this part of a global configuration, using the following as defaults
+        radius: 17000,
+        location: {lat: 37.303626, lng: -121.884750}
+        // TODO: make this part of a global configuration, using the following as defaults
         // radius: mapBoundNorthEast.distanceTo(map.getCenter()),
         // location: map.getCenter()
       };
@@ -121,7 +122,7 @@ GoogleSuggestions.prototype = {
     var endpoint = 'https://maps.googleapis.com/maps/api/geocode/json';
     var parameter = {
       'address': text,
-      'key': 'AIzaSyBmJ2NvVf5Om1u1-YuA8lFKzEwZ2BHhd9U',
+      'key': config.google_api_key(),
       'components': 'administrative_area:CA|country:US'
     };
 
@@ -202,7 +203,7 @@ GoogleReverse.prototype = {
   getParameter: function () {
     return {
       latlng: this.ll[1] + ', ' + this.ll[0],
-      'key': 'AIzaSyBmJ2NvVf5Om1u1-YuA8lFKzEwZ2BHhd9U'
+      'key': config.google_api_key()
     }
   }
 };
