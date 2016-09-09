@@ -2,7 +2,7 @@ var Batch = require('batch');
 var debounce = require('debounce');
 var geocode = require('geocode');
 var Journey = require('journey');
-
+var Location = require('location')
 var log = require('./client/log')('plan');
 var defaults = require('model-defaults');
 var model = require('model');
@@ -190,7 +190,6 @@ Plan.prototype.validCoordinates = function() {
 /**
  * Set Address
  */
-
 Plan.prototype.setAddress = function(name, address, callback, extra) {
   callback = callback || function() {}; // noop callback
   var plan = this;
@@ -199,57 +198,88 @@ Plan.prototype.setAddress = function(name, address, callback, extra) {
 
   if (!address || address.length < 1) return callback();
 
-    if (isCoordinate) {
+  if (isCoordinate) {
+    var callbackAmigo = function (err, reverse) {
+      var changes = {};
+      if (reverse) {
+        var geocode_features = reverse.features;
+        changes[name] = name;
+        if (isCoordinate) {
+          if (!(extra === undefined)) {
+            changes[name] = extra.properties.label;
+          } else {
+            changes[name] = geocode_features[0].properties.label;
+          }
+        } else {
+          if (!(extra === undefined)) {
+            changes[name] = extra.properties.label;
+          } else {
+            changes[name] = geocode_features[0].properties.label;
+          }
+        }
+        changes[name + '_ll'] = {lat: parseFloat(geocode_features[0].geometry.coordinates[1]), lng: parseFloat(geocode_features[0].geometry.coordinates[0])};
+        changes[name + '_id'] = geocode_features[0].properties.id;
+        changes[name + '_valid'] = true;
 
-      var callbackAmigo = function (err, reverse) {
-        var changes = {};
-            if (reverse) {
-              var geocode_features = reverse.features;
-              changes[name] = name;
-              if (isCoordinate) {
-                if (!(extra === undefined)) {
-                    changes[name] = extra.properties.label;
-                }else {
-                    changes[name] = geocode_features[0].properties.label;
-                }
-
-              }else {
-                if (!(extra === undefined)) {
-                    changes[name] = extra.properties.label;
-                }else {
-                    changes[name] = geocode_features[0].properties.label;
-                }
-
-              }
-
-
-              changes[name + '_ll'] = {lat: parseFloat(geocode_features[0].geometry.coordinates[1]), lng: parseFloat(geocode_features[0].geometry.coordinates[0])};
-              changes[name + '_id'] = geocode_features[0].properties.id;
-              changes[name + '_valid'] = true;
-
-              plan.set(changes);
-              callback(null, reverse);
-
-            } else {
-
-              if (isCoordinate) {
-                changes[name] = extra.properties.label;
-                changes[name + '_ll'] = { lat: parseFloat(c[1]),lng: parseFloat(c[0])};
-                changes[name + '_valid'] = true;
-                plan.set(changes);
-                callback(null, extra);
-              } else {
-                callback(err);
-              }
-
-            }
-        };
-
-        geocode.reverseAmigo(c, callbackAmigo);
-    }else {
-      plan.setAddress('', '', callback);
-    }
+        plan.set(changes);
+        callback(null, reverse);
+      } else {
+        if (isCoordinate) {
+          changes[name] = extra.properties.label;
+          changes[name + '_ll'] = { lat: parseFloat(c[1]),lng: parseFloat(c[0])};
+          changes[name + '_valid'] = true;
+          plan.set(changes);
+          callback(null, extra);
+        } else {
+          callback(err);
+        }
+      }
+    };
+    geocode.reverseAmigo(c, callbackAmigo);
+  } else {
+    plan.setAddress('', '', callback);
+  }
 };
+//Plan.prototype.setAddress = function (name, address, callback) {
+//  callback = callback || function () {} // noop callback
+//  if (!address || address.length < 1) return callback()
+//
+//  var location = new Location()
+//  var plan = this
+//  var c = address.split(',')
+//  var isCoordinate = c.length === 2 && !isNaN(parseFloat(c[0])) && !isNaN(parseFloat(c[1]))
+//
+//  if (isCoordinate) {
+//    location.coordinate({
+//      lat: parseFloat(c[1]),
+//      lng: parseFloat(c[0])
+//    })
+//  } else {
+//    location.address(address)
+//  }
+//
+//  location.save(function (err, res) {
+//    if (err) {
+//      callback(err)
+//    } else {
+//      var changes = {}
+//      if (isCoordinate) {
+//        changes[name] = res.body.address
+//        if (res.body.city) changes[name] += ', ' + res.body.city
+//        if (res.body.state) changes[name] += ', ' + res.body.state
+//      } else {
+//        changes[name] = address
+//      }
+//
+//      changes[name + '_ll'] = res.body.coordinate
+//      changes[name + '_id'] = res.body._id
+//      changes[name + '_valid'] = true
+//
+//      plan.set(changes)
+//      callback(null, res.body)
+//    }
+//  })
+//}
 
 /**
  * Set both addresses

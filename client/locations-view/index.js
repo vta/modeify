@@ -14,57 +14,57 @@ var ua = require('user-agent');
  */
 
 var View = module.exports = view(require('./template.html'), function(view, plan) {
-		view.on('rendered', function() {
+    view.on('rendered', function() {
       
       // Reset the icons
       view.resetIcons();
 
       // On form submission
-			closest(view.el, 'form').onsubmit = function(e) {
-			e.preventDefault();
+      closest(view.el, 'form').onsubmit = function(e) {
+      e.preventDefault();
 
-			plan.setAddresses(view.find('.from input').value, view.find('.to input').value, function(err) {
-				if (err) {
-				log.error('%e', err);
-				} else {
-				plan.updateRoutes();
-				}
-				});
-			};
-			});
-		});
+      plan.setAddresses(view.find('.from input').value, view.find('.to input').value, function(err) {
+        if (err) {
+        log.error('%e', err);
+        } else {
+        plan.updateRoutes();
+        }
+        });
+      };
+      });
+    });
 
 /**
  * Address Changed
  */
 
 View.prototype.blurInput = function(e) {
-	log('input blurred, saving changes');
+  log('input blurred, saving changes');
 
-	var inputGroup = e.target.parentNode;
-	var suggestionList = inputGroup.getElementsByTagName('ul')[0];
-	inputGroup.classList.remove('suggestions-open');
+  var inputGroup = e.target.parentNode;
+  var suggestionList = inputGroup.getElementsByTagName('ul')[0];
+  inputGroup.classList.remove('suggestions-open');
 
-	var highlight = this.find('.suggestion.highlight');
-	if (highlight) {
-		console.log('highlighting');
-		e.target.value = highlight.textContent || '';
-		if (highlight.dataset.lat) {
-			e.target.lat = highlight.dataset.lat;
-			e.target.lng = highlight.dataset.lng;
-			e.target.address = highlight.addressData;
-		}
-	}
+  var highlight = this.find('.suggestion.highlight');
+  if (highlight) {
+    console.log('highlighting');
+    e.target.value = highlight.textContent || '';
+    if (highlight.dataset.lat) {
+      e.target.lat = highlight.dataset.lat;
+      e.target.lng = highlight.dataset.lng;
+      e.target.address = highlight.addressData;
+    }
+  }
 
-	suggestionList.classList.add('empty');
+  suggestionList.classList.add('empty');
 
-	setTimeout(function() {
-		suggestionList.innerHTML = '';
-        }, 500);
+  setTimeout(function() {
+    suggestionList.innerHTML = '';
+  }, 500);
 
-	inputGroup.classList.remove('highlight');
-	this.save(e.target);
-//	this.scrollDown(0, 0);
+  inputGroup.classList.remove('highlight');
+  this.save(e.target);
+//  this.scrollDown(0, 0);
 };
 
 /**
@@ -72,30 +72,30 @@ View.prototype.blurInput = function(e) {
  */
 
 View.prototype.keydownInput = function(e) {
-	var el = e.target;
-	var key = e.keyCode;
+  var el = e.target;
+  var key = e.keyCode;
 
-	// Currently highlighted suggestion
-	var highlightedSuggestion = this.find('.suggestion.highlight');
+  // Currently highlighted suggestion
+  var highlightedSuggestion = this.find('.suggestion.highlight');
 
-	switch (key) {
-		case 13: // enter key
-			console.log('enter key');
-			e.preventDefault();
-			this.blurInput(e);
-			break;
-		case 38: // up key
-		case 40: // down key
-			if (key === 38) {
-				this.pressUp(highlightedSuggestion, el);
-			} else {
-				this.pressDown(highlightedSuggestion, el);
-			}
+  switch (key) {
+    case 13: // enter key
+      console.log('enter key');
+      e.preventDefault();
+      this.blurInput(e);
+      break;
+    case 38: // up key
+    case 40: // down key
+      if (key === 38) {
+        this.pressUp(highlightedSuggestion, el);
+      } else {
+        this.pressDown(highlightedSuggestion, el);
+      }
 
-			var newHighlight = this.find('.suggestion.highlight');
-			if (newHighlight) el.value = newHighlight.textContent || '';
-			break;
-	}
+      var newHighlight = this.find('.suggestion.highlight');
+      if (newHighlight) el.value = newHighlight.textContent || '';
+      break;
+  }
 };
 
 /**
@@ -103,17 +103,17 @@ View.prototype.keydownInput = function(e) {
  */
 
 View.prototype.pressUp = function(highlightedSuggestion, el) {
-	if (highlightedSuggestion) {
-		var aboveHighlightedSuggestion = highlightedSuggestion.previousElementSibling;
+  if (highlightedSuggestion) {
+    var aboveHighlightedSuggestion = highlightedSuggestion.previousElementSibling;
 
-		if (aboveHighlightedSuggestion) {
-			aboveHighlightedSuggestion.classList.add('highlight');
-		} else {
-			el.value = this.currentLocation || '';
-			setCursor(el, el.value.length);
-		}
-		highlightedSuggestion.classList.remove('highlight');
-	}
+    if (aboveHighlightedSuggestion) {
+      aboveHighlightedSuggestion.classList.add('highlight');
+    } else {
+      el.value = this.currentLocation || '';
+      setCursor(el, el.value.length);
+    }
+    highlightedSuggestion.classList.remove('highlight');
+  }
 };
 
 /**
@@ -121,85 +121,107 @@ View.prototype.pressUp = function(highlightedSuggestion, el) {
  */
 
 View.prototype.pressDown = function(highlightedSuggestion, el) {
-	if (!highlightedSuggestion) {
-		var suggestion = this.find('.suggestion');
-		if (suggestion) suggestion.classList.add('highlight');
-	} else if (highlightedSuggestion.nextElementSibling) {
-		highlightedSuggestion.nextElementSibling.classList.add('highlight');
-		highlightedSuggestion.classList.remove('highlight');
-	}
+  if (!highlightedSuggestion) {
+    var suggestion = this.find('.suggestion');
+    if (suggestion) suggestion.classList.add('highlight');
+  } else if (highlightedSuggestion.nextElementSibling) {
+    highlightedSuggestion.nextElementSibling.classList.add('highlight');
+    highlightedSuggestion.classList.remove('highlight');
+  }
 };
 
 /**
  * Geocode && Save
  */
 
-View.prototype.save = function(el) {
+View.prototype.save = function (el) {
+  var plan = this.model
+  var name = el.name
+  var val = el.value
 
-	var plan = this.model;
-	var name = el.name;
-	var val = el.value;
+  console.log('plan has value: ' + plan[name]() +' in the '+name+' field and el.value="'+val+'"')
 
-	if (!val || plan[name]() === val) return;
+  //var other = (name === 'from') ? 'to' : 'from';
+  //var other_value = this.find('.'+other+' input').value
+  //if (!other_value || other_value.length < 1) {
+  //  console.log("There is no address in the other field. no ejecuta nada");
+  //  this.resetIcons()
+  //  return
+  //}
+ 
 
 
-	if (el.lat) {
-		this.model.setAddress(name, el.lng + ',' + el.lat, function(err, location) {
+  //if (val && plan[name]() !== val) {
+  //  console.log('save has a val of ', val)
+  //  //val = (el.lat) ? el.lng + ',' + el.lat : val;
+  //  //console.log('save now has a val of ', val)
+  //  analytics.track('Location Found', {
+  //    address: val,
+  //    type: name
+  //  })
+  //  this.model.setAddress(name, val, function (err, location) {
+  //    if (err) {
+  //      log.error('%e', err)
+  //      textModal('Invalid address.')
+  //    } else if (location) {
+  //      plan.updateRoutes()
+  //    } else {
+  //      console.log("no ejecuta nada");
+  //    }
+  //  })
+  //}
 
-            if (err) {
-                log.error('%e', err);
-                analytics.send_ga({
-                    category: 'geocoder',
-                    action: 'change address invalid',
-                    label: val,
-                    value: 0
-                    });
+   if (!val || plan[name]() === val) return;
 
-				    textModal('Invalid address.');
+  if (el.lat) {
+    this.model.setAddress(name, el.lng + ',' + el.lat, function(err, location) {
+      if (err) {
+        log.error('%e', err);
+        analytics.send_ga({
+          category: 'geocoder',
+          action: 'change address invalid',
+          label: val,
+          value: 0
+        });
+        textModal('Invalid address.');
+      } else if (location && plan.validCoordinates()) {
+        analytics.send_ga({
+          category: 'geocoder',
+          action: 'change address success',
+          label: val,
+          value: 0
+        });
+        plan.updateRoutes();
+      } else {
+        console.log("no ejecuta nada");
+      }
+    }, el.address);
+  } else {
+    this.model.setAddress(name, val, function(err, location) {
+      if (err) {
+        log.error('%e', err);
+        analytics.send_ga({
+          category: 'geocoder',
+          action: 'change address invalid',
+          label: val,
+          value: 0
+        });
 
-				} else if (location && plan.validCoordinates()) {
+        textModal('Invalid address.');
+      } else if (location && plan.validCoordinates()) {
+        analytics.send_ga({
+          category: 'geocoder',
+          action: 'change address success',
+          label: val,
+          value: 0
+        });
+        plan.updateRoutes();
+      }
+    });
+  }
 
-                    analytics.send_ga({
-                        category: 'geocoder',
-                        action: 'change address success',
-                        label: val,
-                        value: 0
-                    });
-
-				    plan.updateRoutes();
-
-				}else {
-				    console.log("no ejecuta nada");
-				}
-		}, el.address);
-    } else {
-
-	    this.model.setAddress(name, val, function(err, location) {
-			if (err) {
-                log.error('%e', err);
-                analytics.send_ga({
-                    category: 'geocoder',
-                    action: 'change address invalid',
-                    label: val,
-                    value: 0
-                });
-
-			textModal('Invalid address.');
-			} else if (location && plan.validCoordinates()) {
-                analytics.send_ga({
-                    category: 'geocoder',
-                    action: 'change address success',
-                    label: val,
-                    value: 0
-                });
-			    plan.updateRoutes();
-
-			}
-
-		});
-    }
-    this.resetIcons();
-};
+  this.resetIcons()
+}
 
 /**
  * Scroll down a certain number of pixels
@@ -380,13 +402,13 @@ View.prototype.suggest = function(e) {
           for (var i = 0; i < suggestions.length; i++) {
               if (!suggestions[i].text) {
                  if(suggestions[i].address) {
-	           suggestions[i].text = getAddress(suggestions[i].address);
+             suggestions[i].text = getAddress(suggestions[i].address);
                  } else {
                    suggestions[i].text = suggestions[i].display_name;
                  }
               }
-	      suggestions[i].index = i;
-	  }
+        suggestions[i].index = i;
+    }
         suggestions = suggestions.slice(0, 5);
 
         suggestionList.innerHTML = suggestionsTemplate.render({
@@ -394,7 +416,7 @@ View.prototype.suggest = function(e) {
         });
 
         each(view.findAll('.suggestion'), function(li) {
-	    li.addressData = suggestions[li.dataset.index];
+      li.addressData = suggestions[li.dataset.index];
 
           li.onmouseover = function(e) {
             li.classList.add('highlight');
@@ -435,7 +457,20 @@ View.prototype.clear = function(e) {
   var inputGroup = e.target.parentNode;
   var input = inputGroup.getElementsByTagName('input')[0];
   input.value = '';
+  input.removeAttribute('value')
   input.focus();
+  this.model.setAddress(input.name, '')
+  if (input.name === 'from'){
+    this.model.attrs.from = ''
+    this.model.attrs.from_id = ''
+    this.model.attrs.from_ll = null
+  } else {
+    this.model.attrs.to = ''
+    this.model.attrs.to_id = ''
+    this.model.attrs.to_ll = null
+  }
+  // ^ seriously, wat!?
+  console.log(input.name, this.model[input.name]())
   this.resetIcons();
 };
 
@@ -473,11 +508,8 @@ View.prototype.currentLocation = function(e) {
 };
 
 View.prototype.resetIcons = function (e) {
-  showClearOrCurrentLocation(this, 'from')
-  showClearOrCurrentLocation(this, 'to')
 
-  function showClearOrCurrentLocation (view, name) {
-    var selector = '.' + name
+  function showClearOrCurrentLocation (view, selector) {
     var value = view.find(selector + ' input').value
     var refresh = view.find(selector + ' .findingCurrentLocation')
     var clear = view.find(selector + ' .clear')
@@ -493,6 +525,9 @@ View.prototype.resetIcons = function (e) {
       location.classList.add('hidden')
     }
   }
+
+  showClearOrCurrentLocation(this, '.from')
+  showClearOrCurrentLocation(this, '.to')
 }
 
 /**

@@ -142,7 +142,7 @@
   border-right: 1px solid var(--gray);
 }
 
-.Locations > .input-group > .currentLocation {
+.Locations > .input-group > .currentLocation, .Locations > .input-group > .findingCurrentLocation {
   right:0;
   top: 0;
 }
