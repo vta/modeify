@@ -4,6 +4,10 @@
 
 var evnt = require('event')
 var ua = require('user-agent');
+
+var is_mobile = (ua.os.name === 'Android' || ua.os.name === 'iOS');
+
+
 /**
  * Utils
  */
@@ -32,28 +36,13 @@ function getEndOrStartTime (view) {
   return getModel(view, 'arriveBy') ? 'end_time' : 'start_time'
 }
 
-/**
- * Expose `plugin`
- */
-
-module.exports.plugin = function (reactive) {
-  reactive.bind('data-date-time', function (el, name) {
-    var view = this.reactive.view, picker
-
-    //if (ua.os.name === 'Android' || ua.os.name === 'iOS' ){
-    if (true){
-     // $(el).find('input').attr('disabled',true)
-     $(el).find('input').attr('type','datetime-local')
-     console.log('mobile!')
-    }
-
-    // picker is extracted as a separate method so that it can be accessed elsewhere in app (planner-page)
-    picker = module.exports.picker = $(el).datetimepicker({
+function initDesktopPicker(view, el){
+  picker = $(el).datetimepicker({
       // allowInputToggle: true,
       defaultDate: new Date(),
       // focusOnShow: false,
       // ignoreReadonly: true,
-      format: (true ? 'LT' : false), // TODO: make it true if on mobile
+      format: (is_mobile ? 'LT' : false), // TODO: make it true if on mobile
       widgetPositioning: { horizontal: 'right' }
     }).on('dp.hide', function (e) {
       // when the datetimepicker is closed, update models with current dates and emit event
@@ -79,6 +68,51 @@ module.exports.plugin = function (reactive) {
       //  })
       // }, 90)
     })
+    return picker;
+}
+
+function initMobilePicker(view, el){
+  var dtp = $(el).find('input')
+  dtp.attr('type','datetime-local')
+
+  dtp.change(function(){
+    var selected_date = new Date(dtp.val())
+    console.log('date changed to ', selected_date)
+    var time = dtp.setTime(moment(selected_date))
+      view.emit('active', 'days', time.day)
+      view.emit('active', time.endOrStartTime, time.hour)
+  });
+
+  $(el).find('.input-group-addon').bind('click touchend', function(e){
+    dtp.focus();  // cause the datetime-local input to open on iOS
+  })
+  return dtp
+}
+
+/**
+ * Expose `plugin`
+ */
+
+module.exports.plugin = function (reactive) {
+  reactive.bind('data-date-time', function (el, name) {
+    var view = this.reactive.view, picker
+
+
+    //is_mobile = false // debug only
+    console.log((is_mobile ? 'is':'not')+' mobile!')
+
+
+    // picker is extracted as a separate method so that it can be accessed elsewhere in app (planner-page)
+    // adheres to the followind:
+    //   setTime (function())
+    //   generateMoment (function())
+
+    // var picker = null
+    if (is_mobile){
+      picker = module.exports.picker = initMobilePicker(view, el)
+    } else {
+      picker = module.exports.picker = initDesktopPicker(view, el)
+    }
 
     $.extend(picker, {
       generateMoment: function () {
@@ -141,8 +175,14 @@ module.exports.plugin = function (reactive) {
         //   this.stopAutoUpdate()
         // }
 
-        // set datetimepicker value
-        this.data('DateTimePicker').date(moment)
+        // set datetimepicker
+        if (is_mobile){
+          if (ua.browser.name !== 'Mobile Safari'){
+            picker.val(moment.format('YYYY-MM-DDTH:mm'))
+          }
+        } else {
+           this.data('DateTimePicker').date(moment)
+        }
 
         // return these model values so they can be emitted as events and page refreshed
         return {
