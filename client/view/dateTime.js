@@ -76,7 +76,12 @@ function initMobilePicker(view, el){
   dtp.attr('type','datetime-local')
 
   dtp.change(function(){
-    var selected_date = new Date(dtp.val())
+    var val = dtp.val()
+    if (!val || val.length < 1){
+      return;
+    }
+    var selected_date = new Date(val)
+    selected_date.setHours(val.split('T')[1].split(':')[0]) // WTF Safari, seriously.
     console.log('date changed to ', selected_date)
     var time = dtp.setTime(moment(selected_date))
       view.emit('active', 'days', time.day)
@@ -177,9 +182,11 @@ module.exports.plugin = function (reactive) {
 
         // set datetimepicker
         if (is_mobile){
+          console.log('setTime picker val (A): '+picker.val())
           if (ua.browser.name !== 'Mobile Safari'){
             picker.val(moment.format('YYYY-MM-DDTH:mm'))
           }
+          console.log('setTime picker val (B): '+picker.val())
         } else {
            this.data('DateTimePicker').date(moment)
         }
