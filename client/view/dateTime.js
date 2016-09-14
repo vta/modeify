@@ -37,6 +37,7 @@ function getEndOrStartTime (view) {
 }
 
 function initDesktopPicker(view, el){
+
   picker = $(el).datetimepicker({
       // allowInputToggle: true,
       defaultDate: new Date(),
@@ -67,6 +68,27 @@ function initDesktopPicker(view, el){
       //  })
       // }, 90)
     })
+
+    var picker_input = $(el).find('input');
+    picker_input.on('blur', function(){
+      var val = picker_input.val()
+      if (!val || val.length < 1){
+        return;
+      }
+      var selected_date = new Date(val)
+      console.log('date changed to ', selected_date)
+      var time = picker.setTime(moment(selected_date))
+        view.emit('active', 'days', time.day)
+        view.emit('active', time.endOrStartTime, time.hour)
+    });
+    picker_input.keyup(function (event) {
+        var key = event.keyCode || event.which;
+        if (key === 13) {
+            this.blur();
+        }
+        return false;
+    })
+
     return picker;
 }
 
