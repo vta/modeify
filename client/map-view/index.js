@@ -406,7 +406,7 @@ module.exports.drawRouteAmigo = function (legs, mode, itineration) {
 
 module.exports.drawRouteStops = function (routeId, stops, isBus) {
     var stopsGroup = L.featureGroup();
-    var endPoint = 'https://vta2.amigocloud.com/api/transitime/predictions';
+    var endPoint = '/api/transitime/predictions';
 
     for (var i = 0; i < stops.length; i++) {
         var class_name = 'stops-icon';
@@ -551,7 +551,7 @@ module.exports.mapRouteStops = function (legs) {
 };
 
 module.exports.loadRouteStops = function (routeId, from, to, isBus) {
-    var endPoint = 'https://vta2.amigocloud.com/api/transitime/routeDetails';
+    var endPoint = '/api/transitime/routeDetails';
 
     return $.get(endPoint, {
         r: routeId,
