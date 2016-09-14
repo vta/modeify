@@ -56,6 +56,8 @@ module.exports = function (el) {
         map.layersControl.addOverlay(blurLayer);
         blurLayer.addTo(map);
 
+        L.control.locate().addTo(map);
+
         map.routes = []; // array to hold all route objects
 
         module.exports.activeMap = map;
@@ -404,7 +406,7 @@ module.exports.drawRouteAmigo = function (legs, mode, itineration) {
 
 module.exports.drawRouteStops = function (routeId, stops, isBus) {
     var stopsGroup = L.featureGroup();
-    var endPoint = 'http://api.transitime.org/api/v1/key/5ec0de94/agency/vta/command/predictions';
+    var endPoint = 'https://vta2.amigocloud.com/api/transitime/predictions';
 
     for (var i = 0; i < stops.length; i++) {
         var class_name = 'stops-icon';
@@ -549,7 +551,7 @@ module.exports.mapRouteStops = function (legs) {
 };
 
 module.exports.loadRouteStops = function (routeId, from, to, isBus) {
-    var endPoint = 'http://api.transitime.org/api/v1/key/5ec0de94/agency/vta/command/routesDetails';
+    var endPoint = 'https://vta2.amigocloud.com/api/transitime/routeDetails';
 
     return $.get(endPoint, {
         r: routeId,
