@@ -40,8 +40,7 @@ function initDesktopPicker(view, el){
   picker = $(el).datetimepicker({
       // allowInputToggle: true,
       defaultDate: new Date(),
-      // focusOnShow: false,
-      // ignoreReadonly: true,
+      collapse: false,
       format: (is_mobile ? 'LT' : false), // TODO: make it true if on mobile
       widgetPositioning: { horizontal: 'right' }
     }).on('dp.hide', function (e) {

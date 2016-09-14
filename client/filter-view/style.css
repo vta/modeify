@@ -101,7 +101,6 @@
 }
 
 .FilterView > .time-filters {
-  white-space: nowrap;
   padding-bottom: 8px;
   font-size: 15px;
 }
