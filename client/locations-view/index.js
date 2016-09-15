@@ -8,58 +8,63 @@ var textModal = require('text-modal');
 var view = require('view');
 var analytics = require('analytics');
 var ua = require('user-agent');
+var session = require('session');
 
 /**
  * Expose `View`
  */
 
 var View = module.exports = view(require('./template.html'), function(view, plan) {
-		view.on('rendered', function() {
-			closest(view.el, 'form').onsubmit = function(e) {
-			e.preventDefault();
+    view.on('rendered', function() {
+      console.log(view.find('.from input').value);
+      if (view.find('.from input').value) {
 
-			plan.setAddresses(view.find('.from input').value, view.find('.to input').value, function(err) {
-				if (err) {
-				log.error('%e', err);
-				} else {
-				plan.updateRoutes();
-				}
-				});
-			};
-			});
-		});
+      }
+      closest(view.el, 'form').onsubmit = function(e) {
+      e.preventDefault();
+
+      plan.setAddresses(view.find('.from input').value, view.find('.to input').value, function(err) {
+        if (err) {
+        log.error('%e', err);
+        } else {
+        plan.updateRoutes();
+        }
+        });
+      };
+      });
+    });
 
 /**
  * Address Changed
  */
 
 View.prototype.blurInput = function(e) {
-	log('input blurred, saving changes');
+  log('input blurred, saving changes');
 
-	var inputGroup = e.target.parentNode;
-	var suggestionList = inputGroup.getElementsByTagName('ul')[0];
-	inputGroup.classList.remove('suggestions-open');
+  var inputGroup = e.target.parentNode;
+  var suggestionList = inputGroup.getElementsByTagName('ul')[0];
+  inputGroup.classList.remove('suggestions-open');
 
-	var highlight = this.find('.suggestion.highlight');
-	if (highlight) {
-		console.log('highlighting');
-		e.target.value = highlight.textContent || '';
-		if (highlight.dataset.lat) {
-			e.target.lat = highlight.dataset.lat;
-			e.target.lng = highlight.dataset.lng;
-			e.target.address = highlight.addressData;
-		}
-	}
+  var highlight = this.find('.suggestion.highlight');
+  if (highlight) {
+    console.log('highlighting');
+    e.target.value = highlight.textContent || '';
+    if (highlight.dataset.lat) {
+      e.target.lat = highlight.dataset.lat;
+      e.target.lng = highlight.dataset.lng;
+      e.target.address = highlight.addressData;
+    }
+  }
 
-	suggestionList.classList.add('empty');
+  suggestionList.classList.add('empty');
 
-	setTimeout(function() {
-		suggestionList.innerHTML = '';
+  setTimeout(function() {
+    suggestionList.innerHTML = '';
         }, 500);
 
-	inputGroup.classList.remove('highlight');
-	this.save(e.target);
-//	this.scrollDown(0, 0);
+  inputGroup.classList.remove('highlight');
+  this.save(e.target);
+//  this.scrollDown(0, 0);
 };
 
 /**
@@ -67,30 +72,30 @@ View.prototype.blurInput = function(e) {
  */
 
 View.prototype.keydownInput = function(e) {
-	var el = e.target;
-	var key = e.keyCode;
+  var el = e.target;
+  var key = e.keyCode;
 
-	// Currently highlighted suggestion
-	var highlightedSuggestion = this.find('.suggestion.highlight');
+  // Currently highlighted suggestion
+  var highlightedSuggestion = this.find('.suggestion.highlight');
 
-	switch (key) {
-		case 13: // enter key
-			console.log('enter key');
-			e.preventDefault();
-			this.blurInput(e);
-			break;
-		case 38: // up key
-		case 40: // down key
-			if (key === 38) {
-				this.pressUp(highlightedSuggestion, el);
-			} else {
-				this.pressDown(highlightedSuggestion, el);
-			}
+  switch (key) {
+    case 13: // enter key
+      console.log('enter key');
+      e.preventDefault();
+      this.blurInput(e);
+      break;
+    case 38: // up key
+    case 40: // down key
+      if (key === 38) {
+        this.pressUp(highlightedSuggestion, el);
+      } else {
+        this.pressDown(highlightedSuggestion, el);
+      }
 
-			var newHighlight = this.find('.suggestion.highlight');
-			if (newHighlight) el.value = newHighlight.textContent || '';
-			break;
-	}
+      var newHighlight = this.find('.suggestion.highlight');
+      if (newHighlight) el.value = newHighlight.textContent || '';
+      break;
+  }
 };
 
 /**
@@ -98,17 +103,17 @@ View.prototype.keydownInput = function(e) {
  */
 
 View.prototype.pressUp = function(highlightedSuggestion, el) {
-	if (highlightedSuggestion) {
-		var aboveHighlightedSuggestion = highlightedSuggestion.previousElementSibling;
+  if (highlightedSuggestion) {
+    var aboveHighlightedSuggestion = highlightedSuggestion.previousElementSibling;
 
-		if (aboveHighlightedSuggestion) {
-			aboveHighlightedSuggestion.classList.add('highlight');
-		} else {
-			el.value = this.currentLocation || '';
-			setCursor(el, el.value.length);
-		}
-		highlightedSuggestion.classList.remove('highlight');
-	}
+    if (aboveHighlightedSuggestion) {
+      aboveHighlightedSuggestion.classList.add('highlight');
+    } else {
+      el.value = this.currentLocation || '';
+      setCursor(el, el.value.length);
+    }
+    highlightedSuggestion.classList.remove('highlight');
+  }
 };
 
 /**
@@ -116,13 +121,13 @@ View.prototype.pressUp = function(highlightedSuggestion, el) {
  */
 
 View.prototype.pressDown = function(highlightedSuggestion, el) {
-	if (!highlightedSuggestion) {
-		var suggestion = this.find('.suggestion');
-		if (suggestion) suggestion.classList.add('highlight');
-	} else if (highlightedSuggestion.nextElementSibling) {
-		highlightedSuggestion.nextElementSibling.classList.add('highlight');
-		highlightedSuggestion.classList.remove('highlight');
-	}
+  if (!highlightedSuggestion) {
+    var suggestion = this.find('.suggestion');
+    if (suggestion) suggestion.classList.add('highlight');
+  } else if (highlightedSuggestion.nextElementSibling) {
+    highlightedSuggestion.nextElementSibling.classList.add('highlight');
+    highlightedSuggestion.classList.remove('highlight');
+  }
 };
 
 /**
@@ -131,15 +136,15 @@ View.prototype.pressDown = function(highlightedSuggestion, el) {
 
 View.prototype.save = function(el) {
 
-	var plan = this.model;
-	var name = el.name;
-	var val = el.value;
+  var plan = this.model;
+  var name = el.name;
+  var val = el.value;
 
-	if (!val || plan[name]() === val) return;
+  if (!val || plan[name]() === val) return;
 
 
-	if (el.lat) {
-		this.model.setAddress(name, el.lng + ',' + el.lat, function(err, location) {
+  if (el.lat) {
+    this.model.setAddress(name, el.lng + ',' + el.lat, function(err, location) {
 
             if (err) {
                 log.error('%e', err);
@@ -150,9 +155,9 @@ View.prototype.save = function(el) {
                     value: 0
                     });
 
-				    textModal('Invalid address.');
+            textModal('Invalid address.');
 
-				} else if (location && plan.validCoordinates()) {
+        } else if (location && plan.validCoordinates()) {
 
                     analytics.send_ga({
                         category: 'geocoder',
@@ -161,16 +166,16 @@ View.prototype.save = function(el) {
                         value: 0
                     });
 
-				    plan.updateRoutes();
+            plan.updateRoutes();
 
-				}else {
-				    console.log("no ejecuta nada");
-				}
-		}, el.address);
+        }else {
+            console.log("no ejecuta nada");
+        }
+    }, el.address);
     } else {
 
-	    this.model.setAddress(name, val, function(err, location) {
-			if (err) {
+      this.model.setAddress(name, val, function(err, location) {
+      if (err) {
                 log.error('%e', err);
                 analytics.send_ga({
                     category: 'geocoder',
@@ -179,18 +184,18 @@ View.prototype.save = function(el) {
                     value: 0
                 });
 
-			textModal('Invalid address.');
-			} else if (location && plan.validCoordinates()) {
+      textModal('Invalid address.');
+      } else if (location && plan.validCoordinates()) {
                 analytics.send_ga({
                     category: 'geocoder',
                     action: 'change address success',
                     label: val,
                     value: 0
                 });
-			    plan.updateRoutes();
+          plan.updateRoutes();
 
-			}
-		});
+      }
+    });
     }
 };
 
@@ -234,9 +239,9 @@ var suggestionTimeout;
 
 function getAddress(s) {
   var city = '';
-  if(s.city) 
+  if(s.city)
     city = s.city;
-  else if(s.town) 
+  else if(s.town)
     city = s.town;
   else if(s.village)
     city = s.village;
@@ -256,15 +261,15 @@ function getAddress(s) {
     street = s.cycleway;
 
   var number = '';
-  if(s.house_number) 
+  if(s.house_number)
     number = s.house_number;
   else if(s.parking)
     number = s.parking;
 
   var place = '';
-  if(s.aerodrome) 
+  if(s.aerodrome)
     place = s.aerodrome + ', ' + city;
-  else if(s.stadium) 
+  else if(s.stadium)
     place = s.stadium + ', ' + city;
   else if(s.school)
     place = s.school + ', ' + city;
@@ -275,7 +280,7 @@ function getAddress(s) {
   else if(s.cafe)
     place = s.cafe + ', ' + street + ', ' + city;
   else if(s.pub)
-    place = s.pub + ', ' + street + ', ' + city;  
+    place = s.pub + ', ' + street + ', ' + city;
   else if(s.bar)
     place = s.bar + ', ' + street + ', ' + city;
   else if(s.fast_food)
@@ -285,8 +290,8 @@ function getAddress(s) {
 
   if(place.length > 0)
     return place;
-  else 
-    return $.grep([number, street, city, s.state], Boolean).join(", ")  
+  else
+    return $.grep([number, street, city, s.state], Boolean).join(", ")
 }
 
 /**
@@ -302,6 +307,16 @@ View.prototype.suggest = function(e) {
   var suggestionList = inputGroup.getElementsByTagName('ul')[0];
   var view = this;
   var suggestionsData = [];
+  var clearBtn = inputGroup.getElementsByTagName('i')[0];
+  var locateMeBtn = inputGroup.getElementsByTagName('i')[1];
+
+  if (text === '') {
+    clearBtn.style.display = 'none';
+    locateMeBtn.style.display = 'block';
+  } else {
+    clearBtn.style.display = 'block';
+    locateMeBtn.style.display = 'none';
+  }
 
   var resultsCallbackAmigo = function(err, suggestions) {
 
@@ -373,13 +388,13 @@ View.prototype.suggest = function(e) {
           for (var i = 0; i < suggestions.length; i++) {
               if (!suggestions[i].text) {
                  if(suggestions[i].address) {
-	           suggestions[i].text = getAddress(suggestions[i].address);
+             suggestions[i].text = getAddress(suggestions[i].address);
                  } else {
                    suggestions[i].text = suggestions[i].display_name;
                  }
               }
-	      suggestions[i].index = i;
-	  }
+        suggestions[i].index = i;
+    }
         suggestions = suggestions.slice(0, 5);
 
         suggestionList.innerHTML = suggestionsTemplate.render({
@@ -387,7 +402,7 @@ View.prototype.suggest = function(e) {
         });
 
         each(view.findAll('.suggestion'), function(li) {
-	    li.addressData = suggestions[li.dataset.index];
+      li.addressData = suggestions[li.dataset.index];
 
           li.onmouseover = function(e) {
             li.classList.add('highlight');
@@ -427,9 +442,46 @@ View.prototype.clear = function(e) {
   e.preventDefault();
   var inputGroup = e.target.parentNode;
   var input = inputGroup.getElementsByTagName('input')[0];
+  var clearBtn = inputGroup.getElementsByTagName('i')[0];
+  var locateMeBtn = inputGroup.getElementsByTagName('i')[1];
   input.value = '';
+  clearBtn.style.display = 'none';
+  locateMeBtn.style.display = 'block';
   input.focus();
 };
+
+View.prototype.locateMe = function (e) {
+  e.preventDefault();
+  var inputGroup = e.target.parentNode;
+  var input = inputGroup.getElementsByTagName('input')[0];
+  var clearBtn = inputGroup.getElementsByTagName('i')[0];
+  var locateMeBtn = inputGroup.getElementsByTagName('i')[1];
+  var loadingBtn = inputGroup.getElementsByTagName('i')[2];
+
+  loadingBtn.style.display = 'block';
+  locateMeBtn.style.display = 'none';
+  if (navigator.geolocation) {
+
+    navigator.geolocation.getCurrentPosition(function (position) {
+      var plan = session.plan();
+      var target = input.id.indexOf('from') !== -1 ? 'from' : 'to';
+
+      plan.setAddress(target, position.coords.longitude + ',' + position.coords.latitude, function (err, rees) {
+        plan.updateRoutes();
+        clearBtn.style.display = 'block';
+        loadingBtn.style.display = 'none';
+        locateMeBtn.style.display = 'none';
+      });
+    }, null, {
+        enableHighAccuracy: true,
+        maximumAge: 10000,
+        timeout: 30000
+    });
+  } else {
+    loadingBtn.style.display = 'none';
+    locateMeBtn.style.display = 'block';
+  }
+}
 
 /**
  * Set cursor
