@@ -60,6 +60,15 @@
   right: 0;
   top: 0;
   font-size: 16px;
+  display: none;
+}
+
+.Locations > .input-group > .locate-me {
+  display: block;
+}
+
+.Locations > .input-group > .locate-me-loading {
+  display: none;
 }
 
 .Locations input:focus {
