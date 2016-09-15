@@ -75,7 +75,7 @@ if (config.map_provider() === 'AmigoCloud') {
 module.exports.getRealtimeVehicles = function (validVehicles) {
   var currRoutes = module.exports.currRoutes,
       requests = [],
-      endpoint = 'http://api.transitime.org/api/v1/key/5ec0de94/agency/vta/command/vehiclesDetails';
+      endpoint = '/api/transitime/vehiclesDetails';
 
   $.each(currRoutes, function (routeId, direction) {
     // currRoutes is on obj containing current route legs stored as:
