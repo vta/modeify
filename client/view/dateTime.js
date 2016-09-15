@@ -96,13 +96,24 @@ function initMobilePicker(view, el){
   var dtp = $(el).find('input')
   dtp.attr('type','datetime-local')
 
-  dtp.change(function(){
+  dtp.on('blur', function(){
     var val = dtp.val()
     if (!val || val.length < 1){
       return;
     }
     var selected_date = new Date(val)
-    selected_date.setHours(val.split('T')[1].split(':')[0]) // WTF Safari, seriously.
+    if (ua.browser.name === 'Mobile Safari'){
+       // WTF Safari, seriously.
+       // Mobile Safari does not honor the local time input as local time,
+       // and instead uses UTC as the time zone
+       var date_parts = val.split('T')[0].split('-')
+       var time = val.split('T')[1]
+       selected_date.setFullYear(date_parts[0])
+       selected_date.setMonth(date_parts[1])
+       selected_date.setDate(date_parts[2])
+       selected_date.setHours(time.split(':')[0])
+    }
+    
     console.log('date changed to ', selected_date)
     var time = dtp.setTime(moment(selected_date))
       view.emit('active', 'days', time.day)
