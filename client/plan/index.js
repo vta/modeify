@@ -28,7 +28,7 @@ var LIMIT = 2;
 
 var Plan = module.exports = model('Plan')
   .use(defaults({
-    bike: true,
+    bike: false,
     bikeShare: false,
     bus: true,
     car: false,

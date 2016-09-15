@@ -106,6 +106,10 @@
   border-bottom: 1px solid var(--light-blue);
   cursor: pointer;
   color: var(--black);
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .Locations .suggestion:last-of-type {

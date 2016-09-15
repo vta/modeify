@@ -15,7 +15,17 @@
 <!--[david-image]: http://img.shields.io/david/conveyal/modeify.svg?style=flat-square-->
 <!--[david-url]: https://david-dm.org/conveyal/modeify-->
 
-Deliver personalized commute information to travelers. Supported by the [Mobility Lab](http://mobilitylab.org/) [Transit Tech Initiative](http://mobilitylab.org/tech/transit-tech-initiative/).
+# Intermodal Tripplanner 
+
+###The AmigoCloud version of Conveyal's Modeify. 
+
+####The changes include
+- Ported to OTP /plan API 
+- Modified UI
+- Added real-time locations of vehicles
+
+![screenshot 1](http://i.imgur.com/spSp3nX.png "VTA Multimodal Tripplanner")
+
 
 The VTA and Amigocloud have been working together to make our own update of [CarFreeAtoZ](http://www.carfreeatoz.com/).  
 

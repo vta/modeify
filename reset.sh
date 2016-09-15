@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-
-git pull
-sudo rm server.log
-echo "" > server.log
+rm server.log
+touch server.log
 sudo killall -9 node
 npm start
