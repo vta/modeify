@@ -58,7 +58,7 @@ module.exports = function (el) {
         map.layersControl.addOverlay(blurLayer);
         blurLayer.addTo(map);
 
-        L.control.locate().addTo(map);
+        //L.control.locate().addTo(map);
 
         map.routes = []; // array to hold all route objects
 
