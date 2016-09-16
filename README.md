@@ -32,6 +32,6 @@ The VTA and Amigocloud have been working together to make our own update of [Car
 [Here](http://tripplanner.vta.org) is our Beta site.  [Here](http://devplanner.vta.org) is our dev site.
 
 ## Documentation
-This deployment and development documentation is now inaccurate.
+
 * [Development](/docs/Development.md)
 * [Deployment](/docs/Deployment.md)
