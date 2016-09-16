@@ -101,7 +101,6 @@
 }
 
 .FilterView > .time-filters {
-  white-space: nowrap;
   padding-bottom: 8px;
   font-size: 15px;
 }
@@ -160,20 +159,21 @@
 }
 
 .FilterView > .time-filters > .date { 
-  width: 170px;
+  width: 17rem;
   margin-top: 4px;
 }
 
 .FilterView > .time-filters > .date .form-control {
-  width: 138px;
+  max-width: 17rem;
   height: 40px;
   padding: 6px 4px;
   font-size: 13px;
+  background-color:#fff;
 }
 
 .FilterView > .time-filters > .date .input-group-addon {
   padding: 6px 10px;
-  font-size: 12px;
+  font-size: 1.5em;
 }
 
 #datepicker {

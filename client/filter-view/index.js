@@ -27,15 +27,15 @@ var View = module.exports = view(template, function(view, plan) {
   });
 });
 
-var times = hourOptions();
+// var times = hourOptions();
 
-View.prototype.startTimes = function() {
-  return times.slice(0, -1);
-};
+// View.prototype.startTimes = function() {
+//   return times;
+// };
 
-View.prototype.endTimes = function() {
-  return times.slice(1);
-};
+// View.prototype.endTimes = function() {
+//   return times;
+// };
 
 View.prototype.toggleBikeFilters = function (e) {
   var view = this.reactive.view;
@@ -55,24 +55,24 @@ var toggleBikeFilters = View.prototype.toggleBikeFilters;
 
 View.prototype.parseInt = parseInt;
 
-function hourOptions() {
-  var times = [];
-  for (var i = 0; i <= 24; i++) {
-    times.push(toOption(i));
-  }
-  return times;
-}
+// function hourOptions() {
+//   var times = [];
+//   for (var i = 0; i < 24; i++) {
+//     times.push(toOption(i));
+//   }
+//   return times;
+// }
 
-function toOption(n) {
-  var opt = {
-    name: '',
-    value: n
-  };
+// function toOption(n) {
+//   var opt = {
+//     name: '',
+//     value: n
+//   };
 
-  if (n > 23 || n === 0) opt.name = 'Midnight';
-  else if (n > 12) opt.name = n - 12 + ':00 pm';
-  else if (n === 12) opt.name = 'Noon';
-  else opt.name = n + ':00 am';
+//   if (n > 23 || n === 0) opt.name = 'Midnight';
+//   else if (n > 12) opt.name = n - 12 + ':00 pm';
+//   else if (n === 12) opt.name = 'Noon';
+//   else opt.name = n + ':00 am';
 
-  return opt;
-}
+//   return opt;
+// }

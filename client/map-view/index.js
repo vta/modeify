@@ -15,6 +15,8 @@ if (config.map_provider && config.map_provider() !== 'AmigoCloud') {
 module.exports = function (el) {
     var map, realtime, southWest, northEast, blurLayer;
     localStorage.removeItem('dataplan');
+    sessionStorage.removeItem('dataplan');
+
     if (config.map_provider && config.map_provider() === 'AmigoCloud') {
         southWest = L.latLng(35.946877085397, -123.480610897013);
         northEast = L.latLng(40.763279543715, -118.789317362500);
@@ -56,7 +58,7 @@ module.exports = function (el) {
         map.layersControl.addOverlay(blurLayer);
         blurLayer.addTo(map);
 
-        L.control.locate().addTo(map);
+        //L.control.locate().addTo(map);
 
         map.routes = []; // array to hold all route objects
 

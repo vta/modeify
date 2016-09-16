@@ -1,0 +1,6 @@
+{
+  "name": "webstorage-supported",
+  "scripts": [
+    "index.js"
+  ]
+}

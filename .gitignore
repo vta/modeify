@@ -26,6 +26,9 @@ lib-cov
 **/contextify/build
 **/kerberos/build
 **/weak/build
+/node_modules/*
 
 coverage
 deployment
+
+assets/robots.txt

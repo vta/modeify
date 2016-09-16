@@ -64,6 +64,8 @@
   border-radius: 0;
 }
 
+.RouteCard .times-column { float:left; display:inline-block;margin: 0.7rem;}
+
 .Options .details-buttons {
   position: absolute;
   bottom: 0;

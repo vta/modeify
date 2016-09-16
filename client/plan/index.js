@@ -28,12 +28,11 @@ var LIMIT = 2;
 
 var Plan = module.exports = model('Plan')
   .use(defaults({
-    bike: true,
+    bike: false,
     bikeShare: false,
     bus: true,
     car: false,
     parkRide: false,
-    days: 'M—F',
     date: moment().format('MM:DD:YYYY'),
     arriveBy: false,
     end_time: (new Date()).getHours() + 4,
@@ -44,12 +43,11 @@ var Plan = module.exports = model('Plan')
     dataplan: [],
     query: new ProfileQuery(),
     scorer: new ProfileScorer(),
-    start_time: (new Date()).getHours() - 1,
+    start_time: (new Date()).getHours(),
     minute: moment().minute(),
     to: '',
     to_valid: false,
     train: true,
-    tripsPerYear: 235,
     walk: true,
     fast: true,
     safe: true,
@@ -95,13 +93,13 @@ module.exports.load = function(ctx, next) {
 };
 
 /**
- * Sync plans with localStorage
+ * Sync plans with sessionStorage
  */
 
 Plan.on('change', function(plan, name, val) {
   log('plan.%s changed to %s', name, val);
 
-  // Store in localStorage & track the change
+  // Store in sessionStorage & track the change
   if (name !== 'options' && name !== 'journey' && name !== 'loading') plan.store();
 });
 
@@ -199,56 +197,47 @@ Plan.prototype.setAddress = function(name, address, callback, extra) {
 
   if (!address || address.length < 1) return callback();
 
-    if (isCoordinate) {
+  if (isCoordinate) {
+    var callbackAmigo = function (err, reverse) {
+      var changes = {};
+      if (reverse) {
+        var geocode_features = reverse.features;
+        changes[name] = name;
+        if (isCoordinate) {
+          if (!(extra === undefined)) {
+            changes[name] = extra.properties.label;
+          } else {
+            changes[name] = geocode_features[0].properties.label;
+          }
+        } else {
+          if (!(extra === undefined)) {
+            changes[name] = extra.properties.label;
+          } else {
+            changes[name] = geocode_features[0].properties.label;
+          }
+        }
+        changes[name + '_ll'] = {lat: parseFloat(geocode_features[0].geometry.coordinates[1]), lng: parseFloat(geocode_features[0].geometry.coordinates[0])};
+        changes[name + '_id'] = geocode_features[0].properties.id;
+        changes[name + '_valid'] = true;
 
-      var callbackAmigo = function (err, reverse) {
-        var changes = {};
-            if (reverse) {
-              var geocode_features = reverse.features;
-              changes[name] = name;
-              if (isCoordinate) {
-                if (!(extra === undefined)) {
-                    changes[name] = extra.properties.label;
-                }else {
-                    changes[name] = geocode_features[0].properties.label;
-                }
-
-              }else {
-                if (!(extra === undefined)) {
-                    changes[name] = extra.properties.label;
-                }else {
-                    changes[name] = geocode_features[0].properties.label;
-                }
-
-              }
-
-
-              changes[name + '_ll'] = {lat: parseFloat(geocode_features[0].geometry.coordinates[1]), lng: parseFloat(geocode_features[0].geometry.coordinates[0])};
-              changes[name + '_id'] = geocode_features[0].properties.id;
-              changes[name + '_valid'] = true;
-
-              plan.set(changes);
-              callback(null, reverse);
-
-            } else {
-
-              if (isCoordinate) {
-                changes[name] = extra.properties.label;
-                changes[name + '_ll'] = { lat: parseFloat(c[1]),lng: parseFloat(c[0])};
-                changes[name + '_valid'] = true;
-                plan.set(changes);
-                callback(null, extra);
-              } else {
-                callback(err);
-              }
-
-            }
-        };
-
-        geocode.reverseAmigo(c, callbackAmigo);
-    }else {
-      plan.setAddress('', '', callback);
-    }
+        plan.set(changes);
+        callback(null, reverse);
+      } else {
+        if (isCoordinate) {
+          changes[name] = extra.properties.label;
+          changes[name + '_ll'] = { lat: parseFloat(c[1]),lng: parseFloat(c[0])};
+          changes[name + '_valid'] = true;
+          plan.set(changes);
+          callback(null, extra);
+        } else {
+          callback(err);
+        }
+      }
+    };
+    geocode.reverseAmigo(c, callbackAmigo);
+  } else {
+    plan.setAddress('', '', callback);
+  }
 };
 
 /**
@@ -430,7 +419,7 @@ Plan.prototype.store = debounce(function() {
 }, DEBOUNCE_UPDATES);
 
 /**
- * Clear localStorage
+ * Clear sessionStorage
  */
 
 Plan.prototype.clearStore = store.clear;
