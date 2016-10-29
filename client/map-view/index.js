@@ -447,7 +447,7 @@ module.exports.drawRouteStops = function (routeId, stops, isBus) {
                 format: 'json'
             }).done(function (data) {
                 var stopInfo = data.predictions[0];
-                var predictions = data.predictions[0].dest[0].pred;
+                var predictions = data.predictions[0].destinations[0].predictions;
 
                 var header = '<div class="popup-header">' + '<h5>' + stopInfo.stopName + '</h5></div>';
                 var rtiidStr = '<strong>RTIID:</strong> ' + rtiid;
