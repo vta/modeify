@@ -450,7 +450,8 @@ module.exports.drawRouteStops = function (routeId, stops, isBus) {
                 var predictions = data.predictions[0].destinations[0].predictions;
 
                 var header = '<div class="popup-header">' + '<h5>' + stopInfo.stopName + '</h5></div>';
-                var rtiidStr = '<strong>RTIID:</strong> ' + rtiid;
+                // var rtiidStr = '<strong>RTIID:</strong> ' + rtiid;
+                var rtiidStr = '<strong>Stop Number:</strong> ' + stopInfo.stopId;
                 var route = '<strong>Route:</strong> ' + stopInfo.routeId + ' - ';
 
                 for (var i = 0; i < predictions.length; i++) {
