@@ -16,10 +16,11 @@ var session = require('session');
 
 var View = module.exports = view(require('./template.html'), function(view, plan) {
   view.on('rendered', function() {
-    console.log(view.find('.from input').value);
-    if (view.find('.from input').value) {
-
-    }
+    var self = this;
+    window.setTimeout(function(){
+      self.resetIcons();
+    }, 200);
+    
     closest(view.el, 'form').onsubmit = function(e) {
       e.preventDefault();
 
@@ -30,6 +31,7 @@ var View = module.exports = view(require('./template.html'), function(view, plan
           plan.updateRoutes();
         }
       });
+
     };
   });
 });
@@ -135,7 +137,6 @@ View.prototype.pressDown = function(highlightedSuggestion, el) {
  */
 
 View.prototype.save = function(el) {
-
   var plan = this.model;
   var name = el.name;
   var val = el.value;
@@ -197,6 +198,7 @@ View.prototype.save = function(el) {
       }
     });
   }
+  this.resetIcons();
 };
 
 /**
@@ -299,7 +301,6 @@ function getAddress(s) {
  */
 
 View.prototype.suggest = function(e) {
-
   var input = e.target;
   var text = input.value || '';
   var name = input.name;
@@ -307,16 +308,8 @@ View.prototype.suggest = function(e) {
   var suggestionList = inputGroup.getElementsByTagName('ul')[0];
   var view = this;
   var suggestionsData = [];
-  var clearBtn = inputGroup.getElementsByTagName('i')[0];
-  var locateMeBtn = inputGroup.getElementsByTagName('i')[1];
 
-  if (text === '') {
-    clearBtn.style.display = 'none';
-    locateMeBtn.style.display = 'block';
-  } else {
-    clearBtn.style.display = 'block';
-    locateMeBtn.style.display = 'none';
-  }
+  this.resetIcons();
 
   var resultsCallbackAmigo = function(err, suggestions) {
 
@@ -440,25 +433,26 @@ View.prototype.clear = function(e) {
   e.preventDefault();
   var inputGroup = e.target.parentNode;
   var input = inputGroup.getElementsByTagName('input')[0];
-  var clearBtn = inputGroup.getElementsByTagName('i')[0];
-  var locateMeBtn = inputGroup.getElementsByTagName('i')[1];
   input.value = '';
-  clearBtn.style.display = 'none';
-  locateMeBtn.style.display = 'block';
+  this.resetIcons();
   input.focus();
 };
 
 View.prototype.locateMe = function(e) {
   e.preventDefault();
+  var self = this;
   var inputGroup = e.target.parentNode;
   var input = inputGroup.getElementsByTagName('input')[0];
-  var clearBtn = inputGroup.getElementsByTagName('i')[0];
-  var locateMeBtn = inputGroup.getElementsByTagName('i')[1];
-  var loadingBtn = inputGroup.getElementsByTagName('i')[2];
 
-  loadingBtn.style.display = 'block';
-  locateMeBtn.style.display = 'none';
+  this.resetIcons();
   if (navigator.geolocation) {
+
+    var clear_btn = inputGroup.querySelector('.fa-times')
+    var loading_btn = inputGroup.querySelector('.fa-spin')
+    var location_me_btn = inputGroup.querySelector('.fa-location-arrow')
+    clear_btn.classList.add('hidden')
+    loading_btn.classList.remove('hidden')
+    location_me_btn.classList.add('hidden')
 
     navigator.geolocation.getCurrentPosition(function(position) {
       var plan = session.plan();
@@ -466,9 +460,7 @@ View.prototype.locateMe = function(e) {
 
       plan.setAddress(target, position.coords.longitude + ',' + position.coords.latitude, function(err, rees) {
         plan.updateRoutes();
-        clearBtn.style.display = 'block';
-        loadingBtn.style.display = 'none';
-        locateMeBtn.style.display = 'none';
+        self.resetIcons();
       });
     }, null, {
       enableHighAccuracy: true,
@@ -476,8 +468,32 @@ View.prototype.locateMe = function(e) {
       timeout: 30000
     });
   } else {
-    loadingBtn.style.display = 'none';
-    locateMeBtn.style.display = 'block';
+    this.resetIcons();
+  }
+}
+
+View.prototype.resetIcons = function (e) {
+  showClearOrCurrentLocation(this, 'from')
+  showClearOrCurrentLocation(this, 'to')
+
+  function showClearOrCurrentLocation (view, name) {
+    var selector = '.' + name
+    var value = view.find(selector + ' input').value
+    var clear_btn = view.find(selector + ' .fa-times')
+    var loading_btn = view.find(selector + ' .fa-spin')
+    var location_me_btn = view.find(selector + ' .fa-location-arrow')
+
+    if (!value || !value.trim || value.trim().length === 0) {
+      console.log('hiding clear btn')
+      clear_btn.classList.add('hidden')
+      loading_btn.classList.add('hidden')
+      location_me_btn.classList.remove('hidden')
+    } else {
+      console.log('showing clear btn')
+      clear_btn.classList.remove('hidden')
+      loading_btn.classList.add('hidden')
+      location_me_btn.classList.add('hidden')
+    }
   }
 }
 

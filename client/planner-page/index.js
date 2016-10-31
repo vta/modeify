@@ -75,59 +75,52 @@ module.exports = function(ctx, next) {
 
     updateMapOnPlanChange(plan, map);
 
-    map.on('click', function (e) {
-          var from = plan.from_ll();
-          var to = plan.to_ll();
-          if (!plan.coordinateIsValid(from)) {
-            plan.journey({
-              places: [
-                {
-                  place_id: 'from',
-                  place_lat: e.latlng.lat,
-                  place_lon: e.latlng.lng,
-                  place_name: 'From'
-                },
-                {
-                  place_id: 'to',
-                  place_lat: (plan.to_ll() ? plan.to_ll().lat : 0),
-                  place_lon: (plan.to_ll() ? plan.to_ll().lng : 0),
-                  place_name: 'To'
-                }
-              ]
-            });
-            plan.setAddress('from', e.latlng.lng + ',' + e.latlng.lat, function (err, res) {
-              plan.updateRoutes();
-            });
-          } else if (!plan.coordinateIsValid(to)) {
+    map.on('click', function(e) {
+      var from = plan.from_ll();
+      var to = plan.to_ll();
+      if (!plan.coordinateIsValid(from)) {
         plan.journey({
-          places: [
-            {
-              place_id: 'from',
-              place_lat: plan.from_ll().lat,
-             place_lon: plan.from_ll().lng,
-              place_name: 'From'
-            },
-           {
-              place_id: 'to',
-              place_lat: e.latlng.lat,
-              place_lon: e.latlng.lng,
-              place_name: 'To'
-            }
-          ]
+          places: [{
+            place_id: 'from',
+            place_lat: e.latlng.lat,
+            place_lon: e.latlng.lng,
+            place_name: 'From'
+          }, {
+            place_id: 'to',
+            place_lat: (plan.to_ll() ? plan.to_ll().lat : 0),
+            place_lon: (plan.to_ll() ? plan.to_ll().lng : 0),
+            place_name: 'To'
+          }]
         });
-        plan.setAddress('to', e.latlng.lng + ',' + e.latlng.lat, function (err, res) {
-            plan.updateRoutes();
+        plan.setAddress('from', e.latlng.lng + ',' + e.latlng.lat, function(err, res) {
+          plan.updateRoutes();
         });
-          }
+      } else if (!plan.coordinateIsValid(to)) {
+        plan.journey({
+          places: [{
+            place_id: 'from',
+            place_lat: plan.from_ll().lat,
+            place_lon: plan.from_ll().lng,
+            place_name: 'From'
+          }, {
+            place_id: 'to',
+            place_lat: e.latlng.lat,
+            place_lon: e.latlng.lng,
+            place_name: 'To'
+          }]
+        });
+        plan.setAddress('to', e.latlng.lng + ',' + e.latlng.lat, function(err, res) {
+          plan.updateRoutes();
+        });
+      }
     });
 
 
 
-
     // Clear plan & cookies for now, plan will re-save automatically on save
-      var from = plan.from_ll();
-      var to = plan.to_ll();
-      //plan.clearStore();
+    var from = plan.from_ll();
+    var to = plan.to_ll();
+    //plan.clearStore();
 
     // If it's a shared URL or welcome is complete skip the welcome screen
     if ((query.from && query.to)) {
@@ -136,17 +129,17 @@ module.exports = function(ctx, next) {
 
 
       if (plan.coordinateIsValid(from) && plan.coordinateIsValid(to)) {
-          plan.setAddresses(
-            from.lng + ',' + from.lat, // from
-            to.lng + ',' + to.lat, // to
-            function (err, res) {
-              plan.updateRoutes();
+        plan.setAddresses(
+          from.lng + ',' + from.lat, // from
+          to.lng + ',' + to.lat, // to
+          function(err, res) {
+            plan.updateRoutes();
 
-            }
-          );
-          plan.updateRoutes();
+          }
+        );
+        plan.updateRoutes();
       } else {
-          plan.loading(false);
+        plan.loading(false);
       }
     }
   });
@@ -220,15 +213,15 @@ View.prototype.feedback = function(e) {
  * Hide Side Panel
  */
 
-View.prototype.hideSidePanel = function (e) {
+View.prototype.hideSidePanel = function(e) {
   var $sidePanelBottom = $('.SidePanel.bottom'),
-      $nav = $('nav'),
-      $mapWrap = $('.MapView'),
-      map = showMapView.getMap();
+    $nav = $('nav'),
+    $mapWrap = $('.MapView'),
+    map = showMapView.getMap();
 
   var navHeight = $nav.height(),
-      topHeight = $(window).height() - navHeight - $mapWrap.height(),
-      bottomHeight = $sidePanelBottom.height();
+    topHeight = $(window).height() - navHeight - $mapWrap.height(),
+    bottomHeight = $sidePanelBottom.height();
 
   $nav.css({
     'transition': 'transform 2s',
@@ -252,7 +245,7 @@ View.prototype.hideSidePanel = function (e) {
     'transform': 'translate3d(0, -' + navHeight + 'px, 0)'
   }).children('.hide-map').css('display', 'inline-block');
 
-  setTimeout(function () {
+  setTimeout(function() {
     map.invalidateSize();
   }, 2100)
 };
@@ -261,15 +254,15 @@ View.prototype.hideSidePanel = function (e) {
  * Show Side Panel
  */
 
-View.prototype.showSidePanel = function (e) {
+View.prototype.showSidePanel = function(e) {
   var $sidePanelTop = $('.SidePanel.top'),
-      $sidePanelBottom = $('.SidePanel.bottom'),
-      $nav = $('nav'),
-      $mapWrap = $('.MapView'),
-      map = showMapView.getMap();
+    $sidePanelBottom = $('.SidePanel.bottom'),
+    $nav = $('nav'),
+    $mapWrap = $('.MapView'),
+    map = showMapView.getMap();
 
   var navHeight = $nav.height(),
-      topHeight = $(window).height() - navHeight - $mapWrap.height();
+    topHeight = $(window).height() - navHeight - $mapWrap.height();
 
   $nav.css({
     'transition': 'transform 2s',
@@ -293,7 +286,7 @@ View.prototype.showSidePanel = function (e) {
     'transform': 'translate3d(0, 0, 0)'
   }).children('.hide-map').css('display', 'none');
 
-  setTimeout(function () {
+  setTimeout(function() {
     var plan = session.plan();
     map.invalidateSize();
 
@@ -328,7 +321,7 @@ function showQuery(query) {
   if (query.minute !== undefined) plan.minute(query.minute);
 
   // set dateTimePicker to match query
-  dateTime.picker.setTime( dateTime.picker.generateMoment() );
+  dateTime.picker.setTime(dateTime.picker.generateMoment());
 
   // If has valid coordinates, load
   if (plan.validCoordinates() && sameAddresses) {
@@ -365,46 +358,45 @@ function showQuery(query) {
 function updateMapOnPlanChange(plan, map) {
 
   plan.on('change journey', function(journey) {
-  showMapView.cleanPolyline();
-  showMapView.cleanMarker();
-  showMapView.cleanMarkerpoint();
-  showMapView.cleanMarkerCollision();
-  showMapView.marker_collision_group = [];
-  showMapView.clearExistingRoutes(); // remove old realtime & stop data from map
+    showMapView.cleanPolyline();
+    showMapView.cleanMarker();
+    showMapView.cleanMarkerpoint();
+    showMapView.cleanMarkerCollision();
+    showMapView.marker_collision_group = [];
+    showMapView.clearExistingRoutes(); // remove old realtime & stop data from map
 
-  var sesion_plan = JSON.parse(sessionStorage.getItem('dataplan'));
+    var sesion_plan = JSON.parse(sessionStorage.getItem('dataplan'));
     if (journey) {
       try {
 
-        if(!(sesion_plan === null)) {
-                sesion_plan = sesion_plan.plan;
+        if (!(sesion_plan === null)) {
+          sesion_plan = sesion_plan.plan;
 
-                var itineraries = sesion_plan.itineraries;
+          var itineraries = sesion_plan.itineraries;
 
-                showMapView.marker_map(
-                        [sesion_plan.from.lat,sesion_plan.from.lon],
-                        [sesion_plan.to.lat,sesion_plan.to.lon]
-                );
-
+          showMapView.marker_map(
+            [sesion_plan.from.lat, sesion_plan.from.lon], [sesion_plan.to.lat, sesion_plan.to.lon]
+          );
 
 
-                var route;
-                map.routes = []; // empty the routes array
-                for (i = 0; i < itineraries.length; i++) {
-                    for (ii=0; ii < itineraries[i].legs.length; ii++) {
-                      route = showMapView.drawRouteAmigo(itineraries[i].legs[ii], itineraries[i].legs[ii].mode, i);
-                      map.routes.push(route);
-                    }
-                }
 
-                // set zoom to encapuslate all routes
-                if (map.routes.length) {
-                  var routeBoundaries  = new L.featureGroup(map.routes);
-                  map.fitBounds(routeBoundaries.getBounds());
-                }
-
-                showMapView.drawMakerCollision();
+          var route;
+          map.routes = []; // empty the routes array
+          for (i = 0; i < itineraries.length; i++) {
+            for (ii = 0; ii < itineraries[i].legs.length; ii++) {
+              route = showMapView.drawRouteAmigo(itineraries[i].legs[ii], itineraries[i].legs[ii].mode, i);
+              map.routes.push(route);
             }
+          }
+
+          // set zoom to encapuslate all routes
+          if (map.routes.length) {
+            var routeBoundaries = new L.featureGroup(map.routes);
+            map.fitBounds(routeBoundaries.getBounds());
+          }
+
+          showMapView.drawMakerCollision();
+        }
 
       } catch (e) {
         map.setView([center[1], center[0]], config.geocode().zoom);
@@ -415,46 +407,46 @@ function updateMapOnPlanChange(plan, map) {
 }
 
 
-function get_data_route(new_plan){
-    var itineraries = new_plan.plan.itineraries;
-    var timeInTransit = 0;
-    var bikeTime = 0;
-    var bikeDistance = 0;
-    var walkTime = 0;
-    var walkDistance = 0;
+function get_data_route(new_plan) {
+  var itineraries = new_plan.plan.itineraries;
+  var timeInTransit = 0;
+  var bikeTime = 0;
+  var bikeDistance = 0;
+  var walkTime = 0;
+  var walkDistance = 0;
 
-    for (var i = 0; i < itineraries.length; i++) {
-        for (var j = 0; j < itineraries[i].legs.length; j++) {
-            var fare = (itineraries[i].fare ? itineraries[i].fare.fare.regular.cents : 0);
-            if (itineraries[i].legs[j].transitLeg) {
-                timeInTransit += itineraries[i].legs[j].duration;
-            } else {
-                  if (itineraries[i].legs[j].mode === 'BICYCLE') {
-                    bikeTime += itineraries[i].legs[j].duration;
-                    bikeDistance += itineraries[i].legs[j].distance;
-                  } else if (itineraries[i].legs[j].mode === 'WALK') {
-                    walkTime += itineraries[i].legs[j].duration;
-                    walkDistance += itineraries[i].legs[j].distance;
-                  }
-            }
-
-            data = {
-                from: new_plan.plan.from.name,
-                to: new_plan.plan.to.name,
-                time: timeInTransit + bikeTime + walkTime,
-                timeInTransit: timeInTransit / 60,
-                cost: fare / 100,
-                transitCost: fare / 100,
-                bikeTime: bikeTime,
-                bikeDistance: bikeDistance,
-                walkDistance: walkDistance,
-                walkTime: walkTime,
-                plan: itineraries[i]
-            }
-
-
+  for (var i = 0; i < itineraries.length; i++) {
+    for (var j = 0; j < itineraries[i].legs.length; j++) {
+      var fare = (itineraries[i].fare ? itineraries[i].fare.fare.regular.cents : 0);
+      if (itineraries[i].legs[j].transitLeg) {
+        timeInTransit += itineraries[i].legs[j].duration;
+      } else {
+        if (itineraries[i].legs[j].mode === 'BICYCLE') {
+          bikeTime += itineraries[i].legs[j].duration;
+          bikeDistance += itineraries[i].legs[j].distance;
+        } else if (itineraries[i].legs[j].mode === 'WALK') {
+          walkTime += itineraries[i].legs[j].duration;
+          walkDistance += itineraries[i].legs[j].distance;
         }
+      }
+
+      data = {
+        from: new_plan.plan.from.name,
+        to: new_plan.plan.to.name,
+        time: timeInTransit + bikeTime + walkTime,
+        timeInTransit: timeInTransit / 60,
+        cost: fare / 100,
+        transitCost: fare / 100,
+        bikeTime: bikeTime,
+        bikeDistance: bikeDistance,
+        walkDistance: walkDistance,
+        walkTime: walkTime,
+        plan: itineraries[i]
+      }
+
 
     }
-    return data
+
+  }
+  return data
 }
