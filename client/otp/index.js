@@ -3,7 +3,6 @@ var config = require('config');
 var fmt = require('fmt');
 var log = require('./client/log')('otp');
 var Profiler = require('otp-profiler');
-var qs = require('querystring');
 var superagent = require('superagent');
 
 
