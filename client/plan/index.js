@@ -236,7 +236,16 @@ Plan.prototype.setAddress = function(name, address, callback, extra) {
     };
     geocode.reverseAmigo(c, callbackAmigo);
   } else {
-    plan.setAddress('', '', callback);
+    var cb_amigo =  function(err, suggestions){ 
+      if (suggestions && suggestions.length > 0){
+        var lat_lng = suggestions[0].geometry.coordinates[0]+','+suggestions[0].geometry.coordinates[1];
+        plan.setAddress(name, lat_lng, callback);
+      } else {
+        console.log('no ejecuta nada', {'err':err,'suggestions':suggestions})
+        plan.setAddress('', '', callback);
+      }
+    }
+    geocode.suggestAmigo(address, cb_amigo);
   }
 };
 
