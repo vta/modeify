@@ -123,7 +123,7 @@ module.exports = function(ctx, next) {
     //plan.clearStore();
 
     // If it's a shared URL or welcome is complete skip the welcome screen
-    if ((query.from && query.to)) {
+    if (query.from && query.to) {
       showQuery(query);
     } else {
 
@@ -331,23 +331,17 @@ function showQuery(query) {
     plan.updateRoutes();
 
   } else {
-    if (!plan.validCoordinates()) {
-      plan.loading(false);
-      return;
-    } else {
-      // Set addresses and update the routes
-      plan.setAddresses(from, to, function(err) {
-        if (err) {
-          log.error('%e', err);
-        } else {
-          plan.journey({
-            places: plan.generatePlaces()
-          });
-          plan.updateRoutes();
+    plan.setAddresses(from, to, function(err) {
+      if (err) {
+        log.error('%e', err);
+      } else {
+        plan.journey({
+          places: plan.generatePlaces()
+        });
+        plan.updateRoutes();
 
-        }
-      });
-    }
+      }
+    });
   }
 }
 
