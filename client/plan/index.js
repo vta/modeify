@@ -35,7 +35,7 @@ var Plan = module.exports = model('Plan')
     parkRide: false,
     date: moment().format('MM:DD:YYYY'),
     arriveBy: false,
-    end_time: (new Date()).getHours() + 4,
+    end_time: false,
     from: '',
     from_valid: false,
     loading: true,
