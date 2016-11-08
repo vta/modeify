@@ -49,7 +49,7 @@ var Plan = module.exports = model('Plan')
     to_valid: false,
     train: true,
     walk: true,
-    fast: true,
+    fast: false,
     safe: true,
     flat: true
   }))
