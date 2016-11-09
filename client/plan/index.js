@@ -401,7 +401,7 @@ Plan.prototype.generateQuery = function() {
       toPlace: (to.lat + ',' + to.lng),
       numItineraries: 3,
       maxWalkDistance: 5000,
-      bikeSpeed: 10,
+      bikeSpeed: 4.9,
 //      bikeBoardCost: 15,
 //      walkReluctance: 10,
 //      clampInitialWait: 60,
