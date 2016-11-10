@@ -239,14 +239,11 @@ module.exports.plugin = function (reactive) {
     evnt.bind(el, 'click', function (e) {
       e.stopPropagation()
 
+      console.log('arrive or depart was clicked', e)
+
       var el = e.target
       var val = el.getAttribute('data-arrive-by')
       var attr = 'arriveBy'
-
-      while (el && (val === undefined || val === null)) {
-        el = el.parentNode
-        val = el && el.getAttribute('data-arrive-by')
-      }
 
       var boolVal = (val === 'true')
       if (view.model[attr]) {
