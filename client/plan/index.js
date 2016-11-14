@@ -33,9 +33,6 @@ var Plan = module.exports = model('Plan')
     bus: true,
     car: false,
     parkRide: false,
-    date: moment().format('MM:DD:YYYY'),
-    arriveBy: false,
-    end_time: false,
     from: '',
     from_valid: false,
     loading: true,
@@ -43,7 +40,9 @@ var Plan = module.exports = model('Plan')
     dataplan: [],
     query: new ProfileQuery(),
     scorer: new ProfileScorer(),
-    start_time: (new Date()).getHours(),
+    arriveBy: false,
+    date: moment().format('MM:DD:YYYY'),
+    hour: moment().hour(),
     minute: moment().minute(),
     to: '',
     to_valid: false,
@@ -59,9 +58,6 @@ var Plan = module.exports = model('Plan')
   .attr('car')
   .attr('parkRide')
   .attr('days')
-  .attr('date')
-  .attr('arriveBy')
-  .attr('end_time')
   .attr('from')
   .attr('from_id')
   .attr('from_ll')
@@ -71,7 +67,9 @@ var Plan = module.exports = model('Plan')
   .attr('options')
   .attr('query')
   .attr('scorer')
-  .attr('start_time')
+  .attr('arriveBy')
+  .attr('date')
+  .attr('hour')
   .attr('minute')
   .attr('to')
   .attr('to_id')
@@ -103,16 +101,15 @@ Plan.on('change', function(plan, name, val) {
   if (name !== 'options' && name !== 'journey' && name !== 'loading') plan.store();
 });
 
-/**
- * Keep start/end times in sync
- */
 
-Plan.on('change start_time', function(plan, val, prev) {
-  if (val >= plan.end_time()) plan.end_time(val + 1);
+Plan.on('change hour', function(plan, val, prev) {
+  // window.console.log('"change hour" event fired', {'val':val, 'prev':prev})
 });
-
-Plan.on('change end_time', function(plan, val, prev) {
-  if (val <= plan.start_time()) plan.start_time(val - 1);
+Plan.on('change minute', function(plan, val, prev) {
+  // window.console.log('"change minute" event fired', {'val':val, 'prev':prev})
+});
+Plan.on('change arriveBy', function(plan, val, prev) {
+  // window.console.log('"change arriveBy" event fired', {'val':val, 'prev':prev})
 });
 
 /**
@@ -383,15 +380,12 @@ Plan.prototype.generateQuery = function() {
 
   if (modes.length==0) modes.push('WALK');
 
-  var startTime = this.start_time();
-  var endTime = this.end_time();
   var scorer = this.scorer();
   var arriveBy = this.arriveBy();
   var triangleFactors = this.triangulateBikeOptions();
 
   // Get correct hour, add minutes and convert to string
-  var time = arriveBy ? endTime : startTime;
-  time += ':' + this.minute()
+  var time = this.hour() + ':' + this.minute()
 
   return {
     date: this.nextDate(),
@@ -494,10 +488,10 @@ Plan.prototype.generateQueryString = function() {
     from: this.from(),
     to: this.to(),
     modes: this.modesCSV(),
-    start_time: this.start_time(),
-    end_time: this.end_time(),
     days: this.days(),
+    arriveBy : this.arriveBy(),
     date: this.date(),
+    hour: this.hour(),
     minute: this.minute()
   });
 };

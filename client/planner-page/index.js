@@ -314,11 +314,11 @@ function showQuery(query) {
   if (query.from !== undefined) plan.from(query.from);
   if (query.to !== undefined) plan.to(query.to);
   if (query.modes) plan.setModes(query.modes);
-  if (query.start_time !== undefined) plan.start_time(parseInt(query.start_time, 10));
-  if (query.end_time !== undefined) plan.end_time(parseInt(query.end_time, 10));
   if (query.days !== undefined) plan.days(query.days);
+  if (query.arriveBy !== undefined) plan.arriveBy(query.arriveBy === 'true');
   if (query.date !== undefined) plan.date(query.date);
-  if (query.minute !== undefined) plan.minute(query.minute);
+  if (query.hour !== undefined) plan.hour(parseInt(query.hour, 10));
+  if (query.minute !== undefined) plan.minute(parseInt(query.minute, 10));
 
   // set dateTimePicker to match query
   dateTime.picker.setTime(dateTime.picker.generateMoment());
