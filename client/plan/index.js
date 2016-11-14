@@ -35,7 +35,7 @@ var Plan = module.exports = model('Plan')
     parkRide: false,
     date: moment().format('MM:DD:YYYY'),
     arriveBy: false,
-    end_time: (new Date()).getHours() + 4,
+    end_time: false,
     from: '',
     from_valid: false,
     loading: true,
@@ -49,7 +49,7 @@ var Plan = module.exports = model('Plan')
     to_valid: false,
     train: true,
     walk: true,
-    fast: true,
+    fast: false,
     safe: true,
     flat: true
   }))
@@ -236,7 +236,16 @@ Plan.prototype.setAddress = function(name, address, callback, extra) {
     };
     geocode.reverseAmigo(c, callbackAmigo);
   } else {
-    plan.setAddress('', '', callback);
+    var cb_amigo =  function(err, suggestions){ 
+      if (suggestions && suggestions.length > 0){
+        var lat_lng = suggestions[0].geometry.coordinates[0]+','+suggestions[0].geometry.coordinates[1];
+        plan.setAddress(name, lat_lng, callback);
+      } else {
+        console.log('no ejecuta nada', {'err':err,'suggestions':suggestions})
+        plan.setAddress('', '', callback);
+      }
+    }
+    geocode.suggestAmigo(address, cb_amigo);
   }
 };
 
@@ -392,14 +401,13 @@ Plan.prototype.generateQuery = function() {
       toPlace: (to.lat + ',' + to.lng),
       numItineraries: 3,
       maxWalkDistance: 5000,
-      bikeSpeed: 10,
+      bikeSpeed: 4.9,
 //      bikeBoardCost: 15,
-//      walkReluctance: 10,
 //      clampInitialWait: 60,
 //      bikeBoardCost: 40,
-//      walkBoardCost: 30,
-      walkReluctance: 15,
-//      clampInitialWait: 60,
+      // walkBoardCost: 30,
+      walkReluctance: 0,
+     // clampInitialWait: 60,
       maxTransfers: 5,
 //      waitAtBeginningFactor: 0.5,
       triangleSlopeFactor: triangleFactors[0],

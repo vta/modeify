@@ -15,24 +15,26 @@ var session = require('session');
  */
 
 var View = module.exports = view(require('./template.html'), function(view, plan) {
-    view.on('rendered', function() {
-      console.log(view.find('.from input').value);
-      if (view.find('.from input').value) {
-
-      }
-      closest(view.el, 'form').onsubmit = function(e) {
+  view.on('rendered', function() {
+    var self = this;
+    window.setTimeout(function(){
+      self.resetIcons();
+    }, 200);
+    
+    closest(view.el, 'form').onsubmit = function(e) {
       e.preventDefault();
 
       plan.setAddresses(view.find('.from input').value, view.find('.to input').value, function(err) {
         if (err) {
-        log.error('%e', err);
+          log.error('%e', err);
         } else {
-        plan.updateRoutes();
+          plan.updateRoutes();
         }
-        });
-      };
       });
-    });
+
+    };
+  });
+});
 
 /**
  * Address Changed
@@ -60,11 +62,11 @@ View.prototype.blurInput = function(e) {
 
   setTimeout(function() {
     suggestionList.innerHTML = '';
-        }, 500);
+  }, 500);
 
   inputGroup.classList.remove('highlight');
   this.save(e.target);
-//  this.scrollDown(0, 0);
+  //  this.scrollDown(0, 0);
 };
 
 /**
@@ -135,7 +137,6 @@ View.prototype.pressDown = function(highlightedSuggestion, el) {
  */
 
 View.prototype.save = function(el) {
-
   var plan = this.model;
   var name = el.name;
   var val = el.value;
@@ -146,64 +147,65 @@ View.prototype.save = function(el) {
   if (el.lat) {
     this.model.setAddress(name, el.lng + ',' + el.lat, function(err, location) {
 
-            if (err) {
-                log.error('%e', err);
-                analytics.send_ga({
-                    category: 'geocoder',
-                    action: 'change address invalid',
-                    label: val,
-                    value: 0
-                    });
-
-            textModal('Invalid address.');
-
-        } else if (location && plan.validCoordinates()) {
-
-                    analytics.send_ga({
-                        category: 'geocoder',
-                        action: 'change address success',
-                        label: val,
-                        value: 0
-                    });
-
-            plan.updateRoutes();
-
-        }else {
-            console.log("no ejecuta nada");
-        }
-    }, el.address);
-    } else {
-
-      this.model.setAddress(name, val, function(err, location) {
       if (err) {
-                log.error('%e', err);
-                analytics.send_ga({
-                    category: 'geocoder',
-                    action: 'change address invalid',
-                    label: val,
-                    value: 0
-                });
+        log.error('%e', err);
+        analytics.send_ga({
+          category: 'geocoder',
+          action: 'change address invalid',
+          label: val,
+          value: 0
+        });
 
-      textModal('Invalid address.');
+        textModal('Invalid address.');
+
       } else if (location && plan.validCoordinates()) {
-                analytics.send_ga({
-                    category: 'geocoder',
-                    action: 'change address success',
-                    label: val,
-                    value: 0
-                });
-          plan.updateRoutes();
+
+        analytics.send_ga({
+          category: 'geocoder',
+          action: 'change address success',
+          label: val,
+          value: 0
+        });
+
+        plan.updateRoutes();
+
+      } else {
+        console.log("no ejecuta nada");
+      }
+    }, el.address);
+  } else {
+
+    this.model.setAddress(name, val, function(err, location) {
+      if (err) {
+        log.error('%e', err);
+        analytics.send_ga({
+          category: 'geocoder',
+          action: 'change address invalid',
+          label: val,
+          value: 0
+        });
+
+        textModal('Invalid address.');
+      } else if (location && plan.validCoordinates()) {
+        analytics.send_ga({
+          category: 'geocoder',
+          action: 'change address success',
+          label: val,
+          value: 0
+        });
+        plan.updateRoutes();
 
       }
     });
-    }
+  }
+  this.resetIcons();
 };
 
 /**
  * Scroll down a certain number of pixels
  */
 
-View.prototype.scrollDown = function (num, duration) {
+View.prototype.scrollDown = function(num, duration) {
   duration = duration || 200;
   console.log('scroll down', num)
   $('.fullscreen').animate({
@@ -218,14 +220,14 @@ View.prototype.scrollDown = function (num, duration) {
 View.prototype.focusInput = function(e) {
   var $wrapper = $('.fullscreen');
   var offsetTop = $wrapper.scrollTop() + $(e.target).offset().top;
-  console.log( $wrapper.scrollTop(), offsetTop, e.target );
+  console.log($wrapper.scrollTop(), offsetTop, e.target);
   if (!!e && e.scrollIntoView) {
     e.target.scrollIntoView()
     $(e.target).blur()
     $(e.target).focus()
   }
-  if (ua.os.name === 'Android' && ua.browser.name === 'Chrome'){
-    this.scrollDown(offsetTop-20);
+  if (ua.os.name === 'Android' && ua.browser.name === 'Chrome') {
+    this.scrollDown(offsetTop - 20);
   }
   e.target.parentNode.classList.add('highlight');
 };
@@ -239,56 +241,56 @@ var suggestionTimeout;
 
 function getAddress(s) {
   var city = '';
-  if(s.city)
+  if (s.city)
     city = s.city;
-  else if(s.town)
+  else if (s.town)
     city = s.town;
-  else if(s.village)
+  else if (s.village)
     city = s.village;
-  else if(s.hamlet)
+  else if (s.hamlet)
     city = s.hamlet;
 
   var street = '';
-  if(s.road)
+  if (s.road)
     street = s.road;
-  else if(s.pedestrian)
+  else if (s.pedestrian)
     street = s.pedestrian;
-  else if(s.footway)
+  else if (s.footway)
     street = s.footway;
-  else if(s.industrial)
+  else if (s.industrial)
     street = s.industrial;
-  else if(s.cycleway)
+  else if (s.cycleway)
     street = s.cycleway;
 
   var number = '';
-  if(s.house_number)
+  if (s.house_number)
     number = s.house_number;
-  else if(s.parking)
+  else if (s.parking)
     number = s.parking;
 
   var place = '';
-  if(s.aerodrome)
+  if (s.aerodrome)
     place = s.aerodrome + ', ' + city;
-  else if(s.stadium)
+  else if (s.stadium)
     place = s.stadium + ', ' + city;
-  else if(s.school)
+  else if (s.school)
     place = s.school + ', ' + city;
-  else if(s.museum)
+  else if (s.museum)
     place = s.museum + ', ' + city;
-  else if(s.restaurant)
+  else if (s.restaurant)
     place = s.restaurant + ', ' + street + ', ' + city;
-  else if(s.cafe)
+  else if (s.cafe)
     place = s.cafe + ', ' + street + ', ' + city;
-  else if(s.pub)
+  else if (s.pub)
     place = s.pub + ', ' + street + ', ' + city;
-  else if(s.bar)
+  else if (s.bar)
     place = s.bar + ', ' + street + ', ' + city;
-  else if(s.fast_food)
+  else if (s.fast_food)
     place = s.fast_food + ', ' + street + ', ' + city;
-  else if(s.place_of_worship)
+  else if (s.place_of_worship)
     place = s.place_of_worship + ', ' + street + ', ' + city;
 
-  if(place.length > 0)
+  if (place.length > 0)
     return place;
   else
     return $.grep([number, street, city, s.state], Boolean).join(", ")
@@ -299,7 +301,6 @@ function getAddress(s) {
  */
 
 View.prototype.suggest = function(e) {
-
   var input = e.target;
   var text = input.value || '';
   var name = input.name;
@@ -307,74 +308,64 @@ View.prototype.suggest = function(e) {
   var suggestionList = inputGroup.getElementsByTagName('ul')[0];
   var view = this;
   var suggestionsData = [];
-  var clearBtn = inputGroup.getElementsByTagName('i')[0];
-  var locateMeBtn = inputGroup.getElementsByTagName('i')[1];
 
-  if (text === '') {
-    clearBtn.style.display = 'none';
-    locateMeBtn.style.display = 'block';
-  } else {
-    clearBtn.style.display = 'block';
-    locateMeBtn.style.display = 'none';
-  }
+  this.resetIcons();
 
   var resultsCallbackAmigo = function(err, suggestions) {
 
     if (err) {
       log.error('%e', err);
     } else {
-        if (suggestions && suggestions.length > 0) {
-            var filter_label = {};
-            for (var i = 0; i < suggestions.length; i++) {
+      if (suggestions && suggestions.length > 0) {
+        var filter_label = {};
+        for (var i = 0; i < suggestions.length; i++) {
 
-                var item_suggestions = suggestions[i].properties;
+          var item_suggestions = suggestions[i].properties;
 
-                if (item_suggestions.country_a == "USA" && item_suggestions.region_a == "CA")  {
+          if (item_suggestions.country_a == "USA" && item_suggestions.region_a == "CA") {
 
-                    var item_geometry = suggestions[i].geometry;
-                    var suggestion_obj = {
-                        "index" : i,
-                        "text" : item_suggestions.label,
-                        "lat" : item_geometry.coordinates[1],
-                        "lon" : item_geometry.coordinates[0],
-                        "magicKey": ""
-                    };
+            var item_geometry = suggestions[i].geometry;
+            var suggestion_obj = {
+              "index": i,
+              "text": item_suggestions.label,
+              "lat": item_geometry.coordinates[1],
+              "lon": item_geometry.coordinates[0],
+              "magicKey": ""
+            };
 
-                    if (filter_label[item_suggestions.label] === undefined){
-                        filter_label[item_suggestions.label] = true;
-                        suggestionsData.push(suggestion_obj);
-                    }
-
-                }
-
+            if (filter_label[item_suggestions.label] === undefined) {
+              filter_label[item_suggestions.label] = true;
+              suggestionsData.push(suggestion_obj);
             }
 
-            suggestionsData = suggestionsData.slice(0, 8);
-            suggestionList.innerHTML = suggestionsTemplate.render({
-                suggestions: suggestionsData
-            });
-            /*******************/
-                each(view.findAll('.suggestion'), function(li) {
-                    li.addressData = suggestions[li.dataset.index];
+          }
 
-                      li.onmouseover = function(e) {
-                        li.classList.add('highlight');
-                      };
-
-                      li.onmouseout = function(e) {
-                        li.classList.remove('highlight');
-                      };
-                });
-
-                suggestionList.classList.remove('empty');
-                inputGroup.classList.add('suggestions-open');
-            /*******************/
         }
 
-        else {
-            suggestionList.classList.add('empty');
-            inputGroup.classList.remove('suggestions-open');
-        }
+        suggestionsData = suggestionsData.slice(0, 8);
+        suggestionList.innerHTML = suggestionsTemplate.render({
+          suggestions: suggestionsData
+        });
+        /*******************/
+        each(view.findAll('.suggestion'), function(li) {
+          li.addressData = suggestions[li.dataset.index];
+
+          li.onmouseover = function(e) {
+            li.classList.add('highlight');
+          };
+
+          li.onmouseout = function(e) {
+            li.classList.remove('highlight');
+          };
+        });
+
+        suggestionList.classList.remove('empty');
+        inputGroup.classList.add('suggestions-open');
+        /*******************/
+      } else {
+        suggestionList.classList.add('empty');
+        inputGroup.classList.remove('suggestions-open');
+      }
     }
   };
 
@@ -385,16 +376,16 @@ View.prototype.suggest = function(e) {
     } else {
       if (suggestions && suggestions.length > 0) {
 
-          for (var i = 0; i < suggestions.length; i++) {
-              if (!suggestions[i].text) {
-                 if(suggestions[i].address) {
-             suggestions[i].text = getAddress(suggestions[i].address);
-                 } else {
-                   suggestions[i].text = suggestions[i].display_name;
-                 }
-              }
-        suggestions[i].index = i;
-    }
+        for (var i = 0; i < suggestions.length; i++) {
+          if (!suggestions[i].text) {
+            if (suggestions[i].address) {
+              suggestions[i].text = getAddress(suggestions[i].address);
+            } else {
+              suggestions[i].text = suggestions[i].display_name;
+            }
+          }
+          suggestions[i].index = i;
+        }
         suggestions = suggestions.slice(0, 5);
 
         suggestionList.innerHTML = suggestionsTemplate.render({
@@ -402,7 +393,7 @@ View.prototype.suggest = function(e) {
         });
 
         each(view.findAll('.suggestion'), function(li) {
-      li.addressData = suggestions[li.dataset.index];
+          li.addressData = suggestions[li.dataset.index];
 
           li.onmouseover = function(e) {
             li.classList.add('highlight');
@@ -429,7 +420,7 @@ View.prototype.suggest = function(e) {
   if (suggestionTimeout !== undefined) {
     clearTimeout(suggestionTimeout);
   }
-  suggestionTimeout = setTimeout(function () {
+  suggestionTimeout = setTimeout(function() {
     geocode.suggestAmigo(text, resultsCallbackAmigo);
   }, 400);
 };
@@ -442,44 +433,67 @@ View.prototype.clear = function(e) {
   e.preventDefault();
   var inputGroup = e.target.parentNode;
   var input = inputGroup.getElementsByTagName('input')[0];
-  var clearBtn = inputGroup.getElementsByTagName('i')[0];
-  var locateMeBtn = inputGroup.getElementsByTagName('i')[1];
   input.value = '';
-  clearBtn.style.display = 'none';
-  locateMeBtn.style.display = 'block';
+  this.resetIcons();
   input.focus();
 };
 
-View.prototype.locateMe = function (e) {
+View.prototype.locateMe = function(e) {
   e.preventDefault();
+  var self = this;
   var inputGroup = e.target.parentNode;
   var input = inputGroup.getElementsByTagName('input')[0];
-  var clearBtn = inputGroup.getElementsByTagName('i')[0];
-  var locateMeBtn = inputGroup.getElementsByTagName('i')[1];
-  var loadingBtn = inputGroup.getElementsByTagName('i')[2];
 
-  loadingBtn.style.display = 'block';
-  locateMeBtn.style.display = 'none';
+  this.resetIcons();
   if (navigator.geolocation) {
 
-    navigator.geolocation.getCurrentPosition(function (position) {
+    var clear_btn = inputGroup.querySelector('.fa-times')
+    var loading_btn = inputGroup.querySelector('.fa-spin')
+    var location_me_btn = inputGroup.querySelector('.fa-location-arrow')
+    clear_btn.classList.add('hidden')
+    loading_btn.classList.remove('hidden')
+    location_me_btn.classList.add('hidden')
+
+    navigator.geolocation.getCurrentPosition(function(position) {
       var plan = session.plan();
       var target = input.id.indexOf('from') !== -1 ? 'from' : 'to';
 
-      plan.setAddress(target, position.coords.longitude + ',' + position.coords.latitude, function (err, rees) {
+      plan.setAddress(target, position.coords.longitude + ',' + position.coords.latitude, function(err, rees) {
         plan.updateRoutes();
-        clearBtn.style.display = 'block';
-        loadingBtn.style.display = 'none';
-        locateMeBtn.style.display = 'none';
+        self.resetIcons();
       });
     }, null, {
-        enableHighAccuracy: true,
-        maximumAge: 10000,
-        timeout: 30000
+      enableHighAccuracy: true,
+      maximumAge: 10000,
+      timeout: 30000
     });
   } else {
-    loadingBtn.style.display = 'none';
-    locateMeBtn.style.display = 'block';
+    this.resetIcons();
+  }
+}
+
+View.prototype.resetIcons = function (e) {
+  showClearOrCurrentLocation(this, 'from')
+  showClearOrCurrentLocation(this, 'to')
+
+  function showClearOrCurrentLocation (view, name) {
+    var selector = '.' + name
+    var value = view.find(selector + ' input').value
+    var clear_btn = view.find(selector + ' .fa-times')
+    var loading_btn = view.find(selector + ' .fa-spin')
+    var location_me_btn = view.find(selector + ' .fa-location-arrow')
+
+    if (!value || !value.trim || value.trim().length === 0) {
+      console.log('hiding clear btn')
+      clear_btn.classList.add('hidden')
+      loading_btn.classList.add('hidden')
+      location_me_btn.classList.remove('hidden')
+    } else {
+      console.log('showing clear btn')
+      clear_btn.classList.remove('hidden')
+      loading_btn.classList.add('hidden')
+      location_me_btn.classList.add('hidden')
+    }
   }
 }
 
@@ -489,7 +503,7 @@ View.prototype.locateMe = function (e) {
 
 function setCursor(node, pos) {
   node = (typeof node === "string" || node instanceof String) ? document.getElementById(node) : node;
-console.log('set cursor');
+  console.log('set cursor');
 
   if (!node) return;
 
