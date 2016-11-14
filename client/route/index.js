@@ -280,23 +280,6 @@ Route.prototype.totalCalories = function() {
 };
 
 /**
- * Frequency
- */
-
-Route.prototype.frequency = function() {
-  var trips = this.trips();
-  if (!trips) {
-    return false;
-  }
-
-  var plan = session.plan();
-  var start = plan.start_time();
-  var end = plan.end_time();
-
-  return Math.round(60 / (trips / (end - start)));
-};
-
-/**
  * Walk/Bike distances rounded
  */
 
