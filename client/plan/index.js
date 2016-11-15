@@ -50,7 +50,8 @@ var Plan = module.exports = model('Plan')
     walk: true,
     fast: false,
     safe: true,
-    flat: true
+    flat: true,
+    bikeTriangle: []
   }))
   .attr('bike')
   .attr('bikeShare')
@@ -80,7 +81,8 @@ var Plan = module.exports = model('Plan')
   .attr('walk')
   .attr('fast')
   .attr('safe')
-  .attr('flat');
+  .attr('flat')
+  .attr('bikeTriangle');
 
 /**
  * Expose `load`
@@ -336,6 +338,10 @@ Plan.prototype.triangulateBikeOptions = function () {
   }
 }
 
+Plan.prototype.bikeTriangleCSV = function() {
+  return this.triangulateBikeOptions().join(',')
+}
+
 /**
  * Generate Query Parameters for this plan
  */
@@ -486,6 +492,7 @@ Plan.prototype.generateQueryString = function() {
     arriveBy : this.arriveBy(),
     date: this.date(),
     hour: this.hour(),
-    minute: this.minute()
+    minute: this.minute(),
+    bikeTriangle: this.bikeTriangleCSV()
   });
 };
