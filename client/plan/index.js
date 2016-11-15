@@ -322,18 +322,17 @@ Plan.prototype.setModes = function(csv) {
 };
 
 Plan.prototype.triangulateBikeOptions = function () {
-  var totalOpts = 0,
-      opts = [this.flat(), this.safe(), this.fast()];
+  var opts = [this.flat(), this.safe(), this.fast()];
 
-  opts.forEach(function (opt) {
-    totalOpts += opt ? 1 : 0;
-  });
+  var sum = opts.reduce(function(a, b) {
+    return a + b;
+  }, 0);
 
-  if (!totalOpts) {
-    return [0.333, 0.333, 0.334];
+  if (sum === 0) {
+    return [0.333, 0.333, 0.333];
   } else {
     return opts.map(function (opt) {
-      return opt ? +(1 / totalOpts).toFixed(3) : 0;
+      return opt ? +(1 / sum).toFixed(3) : 0;
     });
   }
 }
@@ -406,7 +405,8 @@ Plan.prototype.generateQuery = function() {
 //      waitAtBeginningFactor: 0.5,
       triangleSlopeFactor: triangleFactors[0],
       triangleSafetyFactor: triangleFactors[1],
-      triangleTimeFactor: (triangleFactors[2] === 0.333) ? triangleFactors[2] + 0.001 : triangleFactors[2], // must add to one
+      triangleTimeFactor : triangleFactors[2],
+      // triangleTimeFactor: (triangleFactors[2] === 0.333) ? triangleFactors[2] + 0.001 : triangleFactors[2], // must add to one
       optimize: 'TRIANGLE',
       arriveBy: arriveBy
   };
