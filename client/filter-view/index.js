@@ -25,8 +25,26 @@ var View = module.exports = view(template, function(view, plan) {
     plan.updateRoutes();
   });
   setTimeout(function(){
+    // console.log('"BICYCLE" is an active mode, setting the bike options')
     if (plan.modesCSV() && plan.modesCSV().indexOf('BICYCLE') !== -1){
       view.bikeFilters.classList['remove']('hidden');
+    }
+    if (plan.flat()){
+      $(view.bikeFilters).find('[data-active="flat"]').addClass('active')
+    } else {
+      $(view.bikeFilters).find('[data-active="flat"]').removeClass('active')
+    }
+
+    if (plan.safe()){
+      $(view.bikeFilters).find('[data-active="safe"]').addClass('active')
+    } else {
+      $(view.bikeFilters).find('[data-active="safe"]').removeClass('active')
+    }
+
+    if (plan.fast()){
+      $(view.bikeFilters).find('[data-active="fast"]').addClass('active')
+    } else {
+      $(view.bikeFilters).find('[data-active="fast"]').removeClass('active')
     }
   },100)
 });

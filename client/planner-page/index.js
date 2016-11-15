@@ -323,9 +323,9 @@ function showQuery(query) {
     plan.bikeTriangle(query.bikeTriangle);
     var bt_split = query.bikeTriangle.split(',')
     if (query.bikeTriangle.length > 0 && bt_split.length >= 3){
-      plan.flat(bt_split[0])
-      plan.safe(bt_split[1])
-      plan.fast(bt_split[2])
+      plan.flat(parseInt(bt_split[0],10))
+      plan.safe(parseInt(bt_split[1],10))
+      plan.fast(parseInt(bt_split[2],10))
       console.log('bike triangle set to ',bt_split)
     }
   }
