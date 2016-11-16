@@ -50,8 +50,7 @@ var Plan = module.exports = model('Plan')
     walk: true,
     fast: false,
     safe: true,
-    flat: true,
-    bikeTriangle: []
+    flat: true
   }))
   .attr('bike')
   .attr('bikeShare')
@@ -81,8 +80,7 @@ var Plan = module.exports = model('Plan')
   .attr('walk')
   .attr('fast')
   .attr('safe')
-  .attr('flat')
-  .attr('bikeTriangle');
+  .attr('flat');
 
 /**
  * Expose `load`
@@ -325,20 +323,18 @@ Plan.prototype.triangulateBikeOptions = function () {
   var opts = [this.flat(), this.safe(), this.fast()];
 
   var sum = opts.reduce(function(a, b) {
-    return a + b;
+    return Number(a) + Number(b);
   }, 0);
 
   if (sum === 0) {
-    return [0.333, 0.333, 0.333];
+    return [0.333, 0.333, 0.334];
   } else {
-    return opts.map(function (opt) {
+    var b_triangle = opts.map(function (opt) {
       return opt ? +(1 / sum).toFixed(3) : 0;
     });
+    console.log('triangle : ', b_triangle)
+    return b_triangle
   }
-}
-
-Plan.prototype.bikeTriangleCSV = function() {
-  return this.triangulateBikeOptions().join(',')
 }
 
 /**
@@ -405,8 +401,8 @@ Plan.prototype.generateQuery = function() {
 //      waitAtBeginningFactor: 0.5,
       triangleSlopeFactor: triangleFactors[0],
       triangleSafetyFactor: triangleFactors[1],
-      triangleTimeFactor : triangleFactors[2],
-      // triangleTimeFactor: (triangleFactors[2] === 0.333) ? triangleFactors[2] + 0.001 : triangleFactors[2], // must add to one
+      ///triangleTimeFactor : triangleFactors[2],
+      triangleTimeFactor: (triangleFactors[2] === 0.333) ? triangleFactors[2] + 0.001 : triangleFactors[2], // must add to one
       optimize: 'TRIANGLE',
       arriveBy: arriveBy
   };
@@ -493,6 +489,8 @@ Plan.prototype.generateQueryString = function() {
     date: this.date(),
     hour: this.hour(),
     minute: this.minute(),
-    bikeTriangle: this.bikeTriangleCSV()
+    fast: Boolean(this.fast()),
+    safe: Boolean(this.safe()),
+    flat: Boolean(this.flat())
   });
 };

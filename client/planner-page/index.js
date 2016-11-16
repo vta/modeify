@@ -319,16 +319,11 @@ function showQuery(query) {
   if (query.date !== undefined) plan.date(query.date);
   if (query.hour !== undefined) plan.hour(parseInt(query.hour, 10));
   if (query.minute !== undefined) plan.minute(parseInt(query.minute, 10));
-  if (query.bikeTriangle !== undefined) {
-    plan.bikeTriangle(query.bikeTriangle);
-    var bt_split = query.bikeTriangle.split(',')
-    if (query.bikeTriangle.length > 0 && bt_split.length >= 3){
-      plan.flat(parseFloat(bt_split[0],10))
-      plan.safe(parseFloat(bt_split[1],10))
-      plan.fast(parseFloat(bt_split[2],10))
-      console.log('bike triangle set to ',{'flat':plan.flat(), 'safe':plan.safe(), 'fast':plan.fast()})
-    }
-  }
+  if (query.flat !== undefined) plan.flat(query.flat === 'true')
+  if (query.safe !== undefined) plan.safe(query.safe === 'true')
+  if (query.fast !== undefined) plan.fast(query.fast === 'true')
+  console.log('bike triangle set to ', {'flat':plan.flat(), 'safe':plan.safe(), 'fast':plan.fast()})
+
 
   // set dateTimePicker to match query
   dateTime.picker.setTime(dateTime.picker.generateMoment());
