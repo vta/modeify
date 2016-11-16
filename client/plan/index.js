@@ -332,7 +332,7 @@ Plan.prototype.triangulateBikeOptions = function () {
     var b_triangle = opts.map(function (opt) {
       return opt ? +(1 / sum).toFixed(3) : 0;
     });
-    console.log('triangle : ', b_triangle)
+    // console.log('bike triangle : ', b_triangle)
     return b_triangle
   }
 }

@@ -322,7 +322,7 @@ function showQuery(query) {
   if (query.flat !== undefined) plan.flat(query.flat === 'true')
   if (query.safe !== undefined) plan.safe(query.safe === 'true')
   if (query.fast !== undefined) plan.fast(query.fast === 'true')
-  console.log('bike triangle set to ', {'flat':plan.flat(), 'safe':plan.safe(), 'fast':plan.fast()})
+  // console.log('bike triangle set to ', {'flat':plan.flat(), 'safe':plan.safe(), 'fast':plan.fast()})
 
 
   // set dateTimePicker to match query
