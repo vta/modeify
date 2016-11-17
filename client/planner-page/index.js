@@ -175,9 +175,7 @@ function checkWarnIncognito(){
     } catch (e) {
         Storage.prototype._setItem = Storage.prototype.setItem;
         Storage.prototype.setItem = function() {};
-        warnUserForIncognito('Your web browser does not support storing settings locally. '+
-        'In Safari, the most common cause of this is using "Private Browsing Mode". '+
-        'Some settings may not save or some features may not work properly for you.');
+        warnUserForIncognito('Your browser is in "Private" or "Incognito" mode. VTA\'s Trip Planner does not work properly in this mode. Please try again in the normal browsing mode. We apologize for the inconvenience.');
     }
   }
 }
