@@ -126,8 +126,6 @@ module.exports = function(ctx, next) {
     if (query.from && query.to) {
       showQuery(query);
     } else {
-
-
       if (plan.coordinateIsValid(from) && plan.coordinateIsValid(to)) {
         plan.setAddresses(
           from.lng + ',' + from.lat, // from
@@ -142,7 +140,12 @@ module.exports = function(ctx, next) {
         plan.loading(false);
       }
     }
+
+
+
   });
+
+  checkWarnIncognito()
 
   // plan.on('updating options', function() {
   //   ctx.view.panelFooter.classList.add('hidden');
@@ -154,6 +157,28 @@ module.exports = function(ctx, next) {
 
   next();
 };
+
+function checkWarnIncognito(){
+
+  function warnUserForIncognito(message){
+    console.warn(message)
+    alert(message)
+  }
+
+  // because incognito/private mode is not supported,
+  // check and notify the user if we are
+  // see http://stackoverflow.com/a/27081419/940217
+  if (typeof localStorage === 'object') {
+    try {
+        localStorage.setItem('localStorage', 1);
+        localStorage.removeItem('localStorage');
+    } catch (e) {
+        Storage.prototype._setItem = Storage.prototype.setItem;
+        Storage.prototype.setItem = function() {};
+        warnUserForIncognito('Your browser is in "Private" or "Incognito" mode. VTA\'s Trip Planner does not work properly in this mode. Please try again in the normal browsing mode. We apologize for the inconvenience.');
+    }
+  }
+}
 
 /**
  * Reverse Commute
