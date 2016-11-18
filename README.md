@@ -1,5 +1,5 @@
 [![Stories in Ready](https://badge.waffle.io/vta/modeify.png?label=ready&title=Ready)](https://waffle.io/vta/modeify)
-# Modeify
+# Modified TripPlanner
 
 <!--[![Build status][travis-image]][travis-url]-->
 <!--[![Test coverage][coveralls-image]][coveralls-url]-->
@@ -17,8 +17,6 @@
 
 # Intermodal Tripplanner 
 
-###The AmigoCloud version of Conveyal's Modeify. 
-
 ####The changes include
 - Ported to OTP /plan API 
 - Modified UI
@@ -27,7 +25,7 @@
 ![screenshot 1](http://i.imgur.com/spSp3nX.png "VTA Multimodal Tripplanner")
 
 
-The VTA and Amigocloud have been working together to make our own update of [CarFreeAtoZ](http://www.carfreeatoz.com/).  
+VTA and AmigoCloud have been working together to make a heavily modified fork of [CarFreeAtoZ](http://www.carfreeatoz.com/) to enable intermodal tripplanning functionality.
 
 [Here](http://tripplanner.vta.org) is our Beta site.  [Here](http://devplanner.vta.org) is our dev site.
 
