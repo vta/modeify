@@ -298,8 +298,18 @@ Plan.prototype.modesCSV = function() {
   var modes = [];
   if (this.bike()) modes.push('BICYCLE');
   if (this.bikeShare()) modes.push('BICYCLE_RENT');
-  if (this.bus()) modes.push('BUSISH');
-  if (this.train()) modes.push('TRAINISH');
+  
+  if(this.bus() && this.train()){
+    modes.push('TRANSIT')
+  }
+  else{
+    if (this.bus()) modes.push('BUS');
+    if (this.train()) {
+        modes.push('TRAM')
+        modes.push('SUBWAY')
+        modes.push('RAIL')
+    }    
+  }
   if (this.walk()) modes.push('WALK');
   if (this.parkRide()) modes.push('CAR');
   return modes.join(',');
@@ -313,8 +323,8 @@ Plan.prototype.setModes = function(csv) {
   if (!csv || csv.length < 1) return;
   var modes = csv.split ? csv.split(',') : csv;
   this.bike(modes.indexOf('BICYCLE') !== -1);
-  this.bus(modes.indexOf('BUSISH') !== -1);
-  this.train(modes.indexOf('TRAINISH') !== -1);
+  this.bus(modes.indexOf('BUS') !== -1 || modes.indexOf('TRANSIT') !== -1);
+  this.train(modes.indexOf('TRAM') !== -1 || modes.indexOf('TRANSIT') !== -1);
   this.walk(modes.indexOf('WALK') !== -1);
   this.parkRide(modes.indexOf('CAR') !== -1);
 };
@@ -366,11 +376,17 @@ Plan.prototype.generateQuery = function() {
     modes.push('CAR');
 
   } 
-  if (this.bus()) {
-      modes.push('BUSISH');
-  }
-  if (this.train()) {
-      modes.push('TRAINISH');
+  if (this.bus() && this.train()){
+    modes.push('TRANSIT')
+  }else{
+    if (this.bus()) {
+        modes.push('BUS');
+    }
+    if (this.train()) {
+        modes.push('TRAM');
+        modes.push('SUBWAY');
+        modes.push('RAIL');
+    }
   }
 
   if (modes.length==0) modes.push('WALK');
