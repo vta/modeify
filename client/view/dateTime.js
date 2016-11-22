@@ -132,6 +132,22 @@ function initMobilePicker(view, el){
   var dtp = $(el).find('input')
   dtp.attr('type','datetime-local')
 
+  // native datetime-local input type needs
+  // the time in a certain format, like
+  //    2013-03-18T13:00
+  var d = new Date()
+  var f_time = []
+  f_time.push(d.getUTCFullYear())
+  f_time.push('-')
+  f_time.push(d.getUTCMonth())
+  f_time.push('-')
+  f_time.push(d.getUTCDate())
+  f_time.push('T')
+  f_time.push(d.getHours())
+  f_time.push(':')
+  f_time.push(d.getMinutes())
+  dtp.val(f_time.join(''))
+
   dtp.on('blur', function(){
     var val = dtp.val()
     if (!val || val.length < 1){
