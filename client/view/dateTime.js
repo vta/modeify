@@ -44,10 +44,9 @@ function getUIDateTime(){
   }
   var selected_date = new Date(val)
   if (is_mobile){
-    
-    if (ua.browser.name === 'Mobile Safari'){
-       // WTF Safari, seriously.
-       // Mobile Safari does not honor the local time input as local time,
+    if (ua.os.name === 'iOS'){
+       // WTF Apple, seriously.
+       // Mobile Safari and Chrome on iOS does not honor the local time input as local time,
        // and instead uses UTC as the time zone
        var date_parts = val.split('T')[0].split('-')
        var time = val.split('T')[1]
@@ -56,9 +55,8 @@ function getUIDateTime(){
        selected_date.setDate(date_parts[2])
        selected_date.setHours(time.split(':')[0])
     }
-    
     console.log('date changed to ', selected_date)
-    time = dtp.setTime(moment(selected_date))
+    time = moment(selected_date)
   } else {
     time = moment(selected_date);
   }
@@ -114,6 +112,7 @@ function initDesktopPicker(view, el){
       var selected_date = new Date(val)
       console.log('date changed to ', selected_date)
       var time = picker.setTime(moment(selected_date))
+      console.log('firing "active" event for days:'+time.day+' and endOrStartTime:'+time.endOrStartTime+', hour:'+time.hour())
         view.emit('active', 'days', time.day)
         view.emit('active', time.endOrStartTime, time.hour)
     });
@@ -138,23 +137,33 @@ function initMobilePicker(view, el){
     if (!val || val.length < 1){
       return;
     }
-    var selected_date = new Date(val)
-    if (ua.browser.name === 'Mobile Safari'){
-       // WTF Safari, seriously.
-       // Mobile Safari does not honor the local time input as local time,
-       // and instead uses UTC as the time zone
-       var date_parts = val.split('T')[0].split('-')
-       var time = val.split('T')[1]
-       selected_date.setFullYear(date_parts[0])
-       selected_date.setMonth(date_parts[1])
-       selected_date.setDate(date_parts[2])
-       selected_date.setHours(time.split(':')[0])
-    }
-    
-    console.log('date changed to ', selected_date)
-    var time = dtp.setTime(moment(selected_date))
-      view.emit('active', 'days', time.day)
-      view.emit('active', time.endOrStartTime, time.hour)
+    var time = getUIDateTime()
+    console.log('date changed to ', time)
+
+    var arrive_by_active_btn = $('.arrive-depart-btns .active input')
+    var arrive_by_value = arrive_by_active_btn[0].getAttribute('data-arrive-by') === 'true'
+
+    var day = time.day(),
+          hour = time.hour(),
+          min = time.minute(),
+          arriveBy = arrive_by_value
+
+    var newModelAttrs = [
+      { key: 'days', value: day },
+      { key: 'date', value: time.format('MM:DD:YYYY') },
+      { key: 'minute', value: min },
+      { key: 'hour', value: hour }
+    ]
+
+    // update each of the models w/ their new values
+    newModelAttrs.forEach(function (attr) {
+      if (view.model[attr.key]) {
+        view.model[attr.key](attr.value)
+      }
+    })
+
+    view.emit('active', 'days', time.day())
+    view.emit('active', arrive_by_value, time.hour())
   });
 
   $(el).find('.input-group-addon').bind('click touchend', function(e){
