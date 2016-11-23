@@ -71,12 +71,11 @@ function setUIDepartArriveByButtonsActive(view){
 }
 
 function initDesktopPicker(view, el){
-
+  console.log('initDesktopPicker')
   picker = $(el).datetimepicker({
-      // allowInputToggle: true,
       defaultDate: new Date(),
       collapse: false,
-      format: (is_mobile ? 'LT' : false), // TODO: make it true if on mobile
+      format: false,
       widgetPositioning: { horizontal: 'right' }
     }).on('dp.hide', function (e) {
       // when the datetimepicker is closed, update models with current dates and emit event
@@ -85,22 +84,6 @@ function initDesktopPicker(view, el){
       var time = picker.setTime(e.date)
       view.emit('active', 'days', time.day)
       view.emit('active', time.endOrStartTime, time.hour)
-    }).on('dp.show', function (e) {
-      // if a touch/click is detected outside of the datetime picker, close it.
-      // window.setTimeout(function () {
-      //  $('#main').on('mouseup', function (e) {
-      //    var container = $('.bootstrap-datetimepicker-widget ul')
-      //    var is_open = container.is(':visible')
-      //    if (!is_open) {
-      //      return
-      //    }
-      //    if (!container.is(e.target) // if the target of the click isn't the container...
-      //      && container.has(e.target).length === 0) // ... nor a descendant of the container
-      //    {
-      //      picker.find('.input-group-addon').click(); // lulz, wut? at least it works.
-      //    }
-      //  })
-      // }, 90)
     })
 
     var picker_input = $(el).find('input');
