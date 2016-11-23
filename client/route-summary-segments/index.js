@@ -66,36 +66,38 @@ module.exports = function(route, opts) {
     var background = '#333';
     var name = leg.routeShortName;
 
-    if (!leg.routeShortName) {
-      if (leg.agencyId === 'CT') {
-        name = 'CT'
-        // switch (leg.route) {
-        //   case 'Baby Bullet':
-        //     name = 'CT';
-        //     break;
-        //   case 'Lo-121':
-        //     name = 'LOC';
-        //     break;
-        //   case 'Limited':
-        //     name = 'LIM';
-        //     break;
-        //   case 'TaSj-121':
-        //     name = 'TSJ';
-        //     break;
-        // }
-      } else if (leg.agencyId === '123') {
-        name = '123';
-      } else {
-        name = 'BAR';
-      }
+    var agency = ""
+    if (leg.agencyId === 'CT') {
+      agency = 'CT'
+      // switch (leg.route) {
+      //   case 'Baby Bullet':
+      //     name = 'CT';
+      //     break;
+      //   case 'Lo-121':
+      //     name = 'LOC';
+      //     break;
+      //   case 'Limited':
+      //     name = 'LIM';
+      //     break;
+      //   case 'TaSj-121':
+      //     name = 'TSJ';
+      //     break;
+      // }
+    } else if (leg.agencyId === 'VTA') {
+      agency = 'VTA';
+    } else if (leg.agencyId === 'BART'){
+      agency = 'BAR';
+      name = 'BAR';
     }
+    console.log('agency: '+agency)
 
     return {
       background: background,
       mode: convert.modeToIcon(leg.mode),
       inline: !!opts.inline,
       small: !!opts.small,
-      name: name
+      name: name,
+      agency: agency
     }
   }));
 
@@ -145,6 +147,7 @@ module.exports = function(route, opts) {
     }
   }
 
+  console.log('segments: ',segments)
   return segments
     .map(function(s) {
       return template.render(s);
