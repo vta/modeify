@@ -52,11 +52,16 @@ $j(document).ready(function(){
  });
 $j('#mobileTripPlannerForm').submit(function(){
     var setDate = $j("#datepickermobile").val().split('-');
+    var dateString = ""
     if(setDate.length >1){
-        var dateString = setDate[1] + ":" +  setDate[2] + ":" + setDate[0]
+        dateString = setDate[1] + ":" +  setDate[2] + ":" + setDate[0]
         // var dateString = setDate.getUTCMonth()+1 + ":" +setDate.getUTCDate() + ":" + setDate.getUTCFullYear();
-        $j('#mobileDate').attr({'value':dateString});
     }
+    else{
+        var currentTime = new Date();
+        dateString = currentTime.getUTCMonth()+1 + ":" +  currentTime.getUTCDate() + ":" + currentTime.getUTCFullYear();
+    }
+    $j('#mobileDate').attr({'value':dateString});
 
     hour=$j('#hourPickerMobile option:selected').text();
     period=$j('#periodMobile option:selected').text();
@@ -190,7 +195,7 @@ $j('#mobileTripPlannerForm').submit(function(){
     <div id="tripplannerwidgetmobile" > 
     <!-- margin-left:20px; -->
         <table  height="179"  border="0" cellpadding="0" cellspacing="0" >
-          <form method="get" id="mobileTripPlannerForm" class="trip_planner_form" target="_blank" action="https://devplanner.vta.org/planner?" name="trip_planner_form" onSubmit="return message_box(this);">
+          <form method="get" id="mobileTripPlannerForm" class="trip_planner_form" target="_blank" action="https://devplanner.vta.org/planner?" name="trip_planner_form">
             <tr>
                 <td colspan="2">
                     <h2>Trip Planner </h2>
