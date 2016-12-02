@@ -81,6 +81,7 @@ function initDesktopPicker(view, el){
       defaultDate: new Date(),
       collapse: false,
       format: 'MM/DD/YY',
+      debug: true,
       widgetPositioning: { horizontal: 'right' }
     }).on('dp.hide', function (e) {
       // when the datetimepicker is closed, update models with current dates and emit event
@@ -379,6 +380,7 @@ function humanTimeToMoment(t) {
 }
 
 function selectClosestTimeOption(t) {
+  console.log('')
   var m_t = moment(t)
   var m = m_t.minute()
   m_t.minute(m === 0 ? 0 : m <= 15 ? 15 : m <= 30 ? 30 : m <= 45 ? 45 : 60)
@@ -446,8 +448,8 @@ function makeTimeDDL(view) {
     console.log('ddl focused')
     if (!time_ddl_wrapper.hasClass('active')) {
       time_ddl_wrapper.addClass('active')
-      scrollToSelected()
     }
+    scrollToSelected()
   }).blur(function() {
     setTimeout(function() {
       // need a delay to get the event firing order correct
@@ -553,7 +555,7 @@ function makeTimeDDL(view) {
   setTimeout(function() {
     time_input.val(isoDateToHumanTime(moment().format()))
     time_input[0].dataset.time = moment().format()
-    selectClosestTimeOption(moment().format())
+    selectClosestTimeOption(time_input[0].dataset.time)
   }, 50);
 
   return time_ddl_wrapper

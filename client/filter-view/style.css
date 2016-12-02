@@ -178,7 +178,7 @@
   background-color: #fff;
   text-align: center;
 }
-.FilterView > .time-filters > .input-group > *{
+.FilterView > .time-filters > .filter-group{
   height: 4rem;
 }
 
@@ -290,8 +290,10 @@
   cursor: default;
 }
 .time_picker_wrapper .times_list_wrapper span:hover{
-  background-color:#09f;
+  background-color: var(--vta-dark-blue);
+  color: var(--vta-light-gray);
 }
 .time_picker_wrapper .times_list_wrapper span.selected{
-  background-color:#f90;
+  background-color: var(--vta-dark-blue);
+  color: var(--vta-light-gray);
 }
