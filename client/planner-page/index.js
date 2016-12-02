@@ -126,8 +126,6 @@ module.exports = function(ctx, next) {
     if (query.from && query.to) {
       showQuery(query);
     } else {
-
-
       if (plan.coordinateIsValid(from) && plan.coordinateIsValid(to)) {
         plan.setAddresses(
           from.lng + ',' + from.lat, // from
@@ -142,7 +140,12 @@ module.exports = function(ctx, next) {
         plan.loading(false);
       }
     }
+
+
+
   });
+
+  checkWarnIncognito()
 
   // plan.on('updating options', function() {
   //   ctx.view.panelFooter.classList.add('hidden');
@@ -154,6 +157,28 @@ module.exports = function(ctx, next) {
 
   next();
 };
+
+function checkWarnIncognito(){
+
+  function warnUserForIncognito(message){
+    console.warn(message)
+    alert(message)
+  }
+
+  // because incognito/private mode is not supported,
+  // check and notify the user if we are
+  // see http://stackoverflow.com/a/27081419/940217
+  if (typeof localStorage === 'object') {
+    try {
+        localStorage.setItem('localStorage', 1);
+        localStorage.removeItem('localStorage');
+    } catch (e) {
+        Storage.prototype._setItem = Storage.prototype.setItem;
+        Storage.prototype.setItem = function() {};
+        warnUserForIncognito('Your browser is in "Private" or "Incognito" mode. VTA\'s Trip Planner does not work properly in this mode. Please try again in the normal browsing mode. We apologize for the inconvenience.');
+    }
+  }
+}
 
 /**
  * Reverse Commute
@@ -314,11 +339,16 @@ function showQuery(query) {
   if (query.from !== undefined) plan.from(query.from);
   if (query.to !== undefined) plan.to(query.to);
   if (query.modes) plan.setModes(query.modes);
-  if (query.start_time !== undefined) plan.start_time(parseInt(query.start_time, 10));
-  if (query.end_time !== undefined) plan.end_time(parseInt(query.end_time, 10));
   if (query.days !== undefined) plan.days(query.days);
+  if (query.arriveBy !== undefined) plan.arriveBy(query.arriveBy === 'true');
   if (query.date !== undefined) plan.date(query.date);
-  if (query.minute !== undefined) plan.minute(query.minute);
+  if (query.hour !== undefined) plan.hour(parseInt(query.hour, 10));
+  if (query.minute !== undefined) plan.minute(parseInt(query.minute, 10));
+  if (query.flat !== undefined) plan.flat(query.flat === 'true')
+  if (query.safe !== undefined) plan.safe(query.safe === 'true')
+  if (query.fast !== undefined) plan.fast(query.fast === 'true')
+  // console.log('bike triangle set to ', {'flat':plan.flat(), 'safe':plan.safe(), 'fast':plan.fast()})
+
 
   // set dateTimePicker to match query
   dateTime.picker.setTime(dateTime.picker.generateMoment());

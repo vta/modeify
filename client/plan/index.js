@@ -33,9 +33,6 @@ var Plan = module.exports = model('Plan')
     bus: true,
     car: false,
     parkRide: false,
-    date: moment().format('MM:DD:YYYY'),
-    arriveBy: false,
-    end_time: false,
     from: '',
     from_valid: false,
     loading: true,
@@ -43,7 +40,9 @@ var Plan = module.exports = model('Plan')
     dataplan: [],
     query: new ProfileQuery(),
     scorer: new ProfileScorer(),
-    start_time: (new Date()).getHours(),
+    arriveBy: false,
+    date: moment().format('MM:DD:YYYY'),
+    hour: moment().hour(),
     minute: moment().minute(),
     to: '',
     to_valid: false,
@@ -59,9 +58,6 @@ var Plan = module.exports = model('Plan')
   .attr('car')
   .attr('parkRide')
   .attr('days')
-  .attr('date')
-  .attr('arriveBy')
-  .attr('end_time')
   .attr('from')
   .attr('from_id')
   .attr('from_ll')
@@ -71,7 +67,9 @@ var Plan = module.exports = model('Plan')
   .attr('options')
   .attr('query')
   .attr('scorer')
-  .attr('start_time')
+  .attr('arriveBy')
+  .attr('date')
+  .attr('hour')
   .attr('minute')
   .attr('to')
   .attr('to_id')
@@ -103,16 +101,15 @@ Plan.on('change', function(plan, name, val) {
   if (name !== 'options' && name !== 'journey' && name !== 'loading') plan.store();
 });
 
-/**
- * Keep start/end times in sync
- */
 
-Plan.on('change start_time', function(plan, val, prev) {
-  if (val >= plan.end_time()) plan.end_time(val + 1);
+Plan.on('change hour', function(plan, val, prev) {
+  // window.console.log('"change hour" event fired', {'val':val, 'prev':prev})
 });
-
-Plan.on('change end_time', function(plan, val, prev) {
-  if (val <= plan.start_time()) plan.start_time(val - 1);
+Plan.on('change minute', function(plan, val, prev) {
+  // window.console.log('"change minute" event fired', {'val':val, 'prev':prev})
+});
+Plan.on('change arriveBy', function(plan, val, prev) {
+  // window.console.log('"change arriveBy" event fired', {'val':val, 'prev':prev})
 });
 
 /**
@@ -301,11 +298,20 @@ Plan.prototype.modesCSV = function() {
   var modes = [];
   if (this.bike()) modes.push('BICYCLE');
   if (this.bikeShare()) modes.push('BICYCLE_RENT');
-  if (this.bus()) modes.push('BUSISH');
-  if (this.train()) modes.push('TRAINISH');
+  
+  if(this.bus() && this.train()){
+    modes.push('TRANSIT')
+  }
+  else{
+    if (this.bus()) modes.push('BUS');
+    if (this.train()) {
+        modes.push('TRAM')
+        modes.push('SUBWAY')
+        modes.push('RAIL')
+    }    
+  }
   if (this.walk()) modes.push('WALK');
-  if (this.car()) modes.push('CAR');
-
+  if (this.parkRide()) modes.push('CAR');
   return modes.join(',');
 };
 
@@ -316,30 +322,28 @@ Plan.prototype.modesCSV = function() {
 Plan.prototype.setModes = function(csv) {
   if (!csv || csv.length < 1) return;
   var modes = csv.split ? csv.split(',') : csv;
-
   this.bike(modes.indexOf('BICYCLE') !== -1);
-//  this.bikeShare(modes.indexOf('BICYCLE_RENT') !== -1);
-  this.bikeShare(false);
-  this.bus(true);
-//  this.bus(modes.indexOf('BUSISH') !== -1);
-  this.train(modes.indexOf('TRAINISH') !== -1);
-  this.car(modes.indexOf('CAR') !== -1);
+  this.bus(modes.indexOf('BUS') !== -1 || modes.indexOf('TRANSIT') !== -1);
+  this.train(modes.indexOf('TRAM') !== -1 || modes.indexOf('TRANSIT') !== -1);
+  this.walk(modes.indexOf('WALK') !== -1);
+  this.parkRide(modes.indexOf('CAR') !== -1);
 };
 
 Plan.prototype.triangulateBikeOptions = function () {
-  var totalOpts = 0,
-      opts = [this.flat(), this.safe(), this.fast()];
+  var opts = [this.flat(), this.safe(), this.fast()];
 
-  opts.forEach(function (opt) {
-    totalOpts += opt ? 1 : 0;
-  });
+  var sum = opts.reduce(function(a, b) {
+    return Number(a) + Number(b);
+  }, 0);
 
-  if (!totalOpts) {
+  if (sum === 0) {
     return [0.333, 0.333, 0.334];
   } else {
-    return opts.map(function (opt) {
-      return opt ? +(1 / totalOpts).toFixed(3) : 0;
+    var b_triangle = opts.map(function (opt) {
+      return opt ? +(1 / sum).toFixed(3) : 0;
     });
+    // console.log('bike triangle : ', b_triangle)
+    return b_triangle
   }
 }
 
@@ -370,28 +374,29 @@ Plan.prototype.generateQuery = function() {
 
   if (this.parkRide()) {
     modes.push('CAR');
-    modes.push('BUSISH');
-    modes.push('TRAINISH');
-  } else {
+
+  } 
+  if (this.bus() && this.train()){
+    modes.push('TRANSIT')
+  }else{
     if (this.bus()) {
-      modes.push('BUSISH');
+        modes.push('BUS');
     }
     if (this.train()) {
-      modes.push('TRAINISH');
+        modes.push('TRAM');
+        modes.push('SUBWAY');
+        modes.push('RAIL');
     }
   }
 
   if (modes.length==0) modes.push('WALK');
 
-  var startTime = this.start_time();
-  var endTime = this.end_time();
   var scorer = this.scorer();
   var arriveBy = this.arriveBy();
   var triangleFactors = this.triangulateBikeOptions();
 
   // Get correct hour, add minutes and convert to string
-  var time = arriveBy ? endTime : startTime;
-  time += ':' + this.minute()
+  var time = this.hour() + ':' + this.minute()
 
   return {
     date: this.nextDate(),
@@ -412,6 +417,7 @@ Plan.prototype.generateQuery = function() {
 //      waitAtBeginningFactor: 0.5,
       triangleSlopeFactor: triangleFactors[0],
       triangleSafetyFactor: triangleFactors[1],
+      ///triangleTimeFactor : triangleFactors[2],
       triangleTimeFactor: (triangleFactors[2] === 0.333) ? triangleFactors[2] + 0.001 : triangleFactors[2], // must add to one
       optimize: 'TRIANGLE',
       arriveBy: arriveBy
@@ -494,10 +500,13 @@ Plan.prototype.generateQueryString = function() {
     from: this.from(),
     to: this.to(),
     modes: this.modesCSV(),
-    start_time: this.start_time(),
-    end_time: this.end_time(),
     days: this.days(),
+    arriveBy : this.arriveBy(),
     date: this.date(),
-    minute: this.minute()
+    hour: this.hour(),
+    minute: this.minute(),
+    fast: Boolean(this.fast()),
+    safe: Boolean(this.safe()),
+    flat: Boolean(this.flat())
   });
 };

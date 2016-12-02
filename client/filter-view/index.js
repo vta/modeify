@@ -6,7 +6,6 @@ var analytics = require('analytics');
 var View = module.exports = view(template, function(view, plan) {
   view.reactive.use(reactiveSelect);
   view.bikeFilters = view.find('.bike-filters');
-  //view.toggleBikeFilters(view.find('#bikeModeToggle'));
   view.on('active', function() {
     analytics.send_ga({
       category: 'filter',
@@ -25,6 +24,29 @@ var View = module.exports = view(template, function(view, plan) {
     });
     plan.updateRoutes();
   });
+  setTimeout(function(){
+    // console.log('"BICYCLE" is an active mode, setting the bike options')
+    if (plan.modesCSV() && plan.modesCSV().indexOf('BICYCLE') !== -1){
+      view.bikeFilters.classList['remove']('hidden');
+    }
+    if (plan.flat()){
+      $(view.bikeFilters).find('[data-active="flat"]').addClass('active')
+    } else {
+      $(view.bikeFilters).find('[data-active="flat"]').removeClass('active')
+    }
+
+    if (plan.safe()){
+      $(view.bikeFilters).find('[data-active="safe"]').addClass('active')
+    } else {
+      $(view.bikeFilters).find('[data-active="safe"]').removeClass('active')
+    }
+
+    if (plan.fast()){
+      $(view.bikeFilters).find('[data-active="fast"]').addClass('active')
+    } else {
+      $(view.bikeFilters).find('[data-active="fast"]').removeClass('active')
+    }
+  },100)
 });
 
 // var times = hourOptions();
@@ -38,6 +60,7 @@ var View = module.exports = view(template, function(view, plan) {
 // };
 
 View.prototype.toggleBikeFilters = function (e) {
+  // gets activated when the bike icon is clicked in the mode-filters
   var view = this.reactive.view;
   var el = null;
   if (e.target.nodeName === 'I') {

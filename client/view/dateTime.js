@@ -7,7 +7,6 @@ var ua = require('user-agent');
 
 var is_mobile = (ua.os.name === 'Android' || ua.os.name === 'iOS');
 
-
 /**
  * Utils
  */
@@ -32,8 +31,43 @@ function getModel (view, attr) {
   }
 }
 
-function getEndOrStartTime (view) {
-  return getModel(view, 'arriveBy') ? 'end_time' : 'start_time'
+function getArriveBy(view) {
+  return Boolean(getModel(view, 'arriveBy'))
+}
+
+function getUIDateTime(){
+  var dtp = $('.input-group.date input')
+  var val = dtp.val()
+  var time = null;
+  if (!val || val.length < 1){
+    return;
+  }
+  var selected_date = new Date(val)
+  if (is_mobile){
+    if (ua.os.name === 'iOS'){
+       // WTF Apple, seriously.
+       // Mobile Safari and Chrome on iOS does not honor the local time input as local time,
+       // and instead uses UTC as the time zone
+       var date_parts = val.split('T')[0].split('-')
+       var time = val.split('T')[1]
+       selected_date.setFullYear(date_parts[0])
+       selected_date.setMonth(date_parts[1])
+       selected_date.setDate(date_parts[2])
+       selected_date.setHours(time.split(':')[0])
+    }
+    console.log('date changed to ', selected_date)
+    time = moment(selected_date)
+  } else {
+    time = moment(selected_date);
+  }
+  return time
+}
+
+function setUIDepartArriveByButtonsActive(view){
+  var arriveBy = getArriveBy(view)
+  // window.console.log('setUIDepartArriveByButtonsActive : '+arriveBy)
+  $('label input[data-arrive-by]').parent().removeClass('active')
+  $('label input[data-arrive-by="'+arriveBy+'"]').parent().addClass('active')
 }
 
 function initDesktopPicker(view, el){
@@ -78,6 +112,7 @@ function initDesktopPicker(view, el){
       var selected_date = new Date(val)
       console.log('date changed to ', selected_date)
       var time = picker.setTime(moment(selected_date))
+      console.log('firing "active" event for days:'+time.day+' and endOrStartTime:'+time.endOrStartTime+', hour:'+time.hour())
         view.emit('active', 'days', time.day)
         view.emit('active', time.endOrStartTime, time.hour)
     });
@@ -92,32 +127,59 @@ function initDesktopPicker(view, el){
     return picker;
 }
 
+
 function initMobilePicker(view, el){
   var dtp = $(el).find('input')
   dtp.attr('type','datetime-local')
+
+  // native datetime-local input type needs
+  // the time in a certain format, like
+  //    2013-03-18T13:00
+  var d = new Date()
+  var f_time = []
+  f_time.push(d.getUTCFullYear())
+  f_time.push('-')
+  f_time.push(d.getUTCMonth())
+  f_time.push('-')
+  f_time.push(d.getUTCDate())
+  f_time.push('T')
+  f_time.push(d.getHours())
+  f_time.push(':')
+  f_time.push(d.getMinutes())
+  dtp.val(f_time.join(''))
 
   dtp.on('blur', function(){
     var val = dtp.val()
     if (!val || val.length < 1){
       return;
     }
-    var selected_date = new Date(val)
-    if (ua.browser.name === 'Mobile Safari'){
-       // WTF Safari, seriously.
-       // Mobile Safari does not honor the local time input as local time,
-       // and instead uses UTC as the time zone
-       var date_parts = val.split('T')[0].split('-')
-       var time = val.split('T')[1]
-       selected_date.setFullYear(date_parts[0])
-       selected_date.setMonth(date_parts[1])
-       selected_date.setDate(date_parts[2])
-       selected_date.setHours(time.split(':')[0])
-    }
-    
-    console.log('date changed to ', selected_date)
-    var time = dtp.setTime(moment(selected_date))
-      view.emit('active', 'days', time.day)
-      view.emit('active', time.endOrStartTime, time.hour)
+    var time = getUIDateTime()
+    console.log('date changed to ', time)
+
+    var arrive_by_active_btn = $('.arrive-depart-btns .active input')
+    var arrive_by_value = arrive_by_active_btn[0].getAttribute('data-arrive-by') === 'true'
+
+    var day = time.day(),
+          hour = time.hour(),
+          min = time.minute(),
+          arriveBy = arrive_by_value
+
+    var newModelAttrs = [
+      { key: 'days', value: day },
+      { key: 'date', value: time.format('MM:DD:YYYY') },
+      { key: 'minute', value: min },
+      { key: 'hour', value: hour }
+    ]
+
+    // update each of the models w/ their new values
+    newModelAttrs.forEach(function (attr) {
+      if (view.model[attr.key]) {
+        view.model[attr.key](attr.value)
+      }
+    })
+
+    view.emit('active', 'days', time.day())
+    view.emit('active', arrive_by_value, time.hour())
   });
 
   $(el).find('.input-group-addon').bind('click touchend', function(e){
@@ -126,6 +188,8 @@ function initMobilePicker(view, el){
   return dtp
 }
 
+
+
 /**
  * Expose `plugin`
  */
@@ -133,6 +197,10 @@ function initMobilePicker(view, el){
 module.exports.plugin = function (reactive) {
   reactive.bind('data-date-time', function (el, name) {
     var view = this.reactive.view, picker
+
+    setTimeout(function(){
+      setUIDepartArriveByButtonsActive(view)
+    }, 200)
 
 
     //is_mobile = false // debug only
@@ -154,9 +222,8 @@ module.exports.plugin = function (reactive) {
     $.extend(picker, {
       generateMoment: function () {
         // used to convert model values – used by otp – into moment obj understood by datetimepicker
-        var startOrEnd = getEndOrStartTime(view),
-          date = getModel(view, 'date'),
-          hour = getModel(view, startOrEnd),
+        var date = getModel(view, 'date'),
+          hour = getModel(view, 'hour'),
           min = getModel(view, 'minute')
 
         var year = parseInt(date.slice(date.lastIndexOf(':') + 1), 10),
@@ -188,13 +255,13 @@ module.exports.plugin = function (reactive) {
         var day = setDayOfWeek(moment.weekday()),
           hour = moment.hour(),
           min = moment.minute(),
-          endOrStartTime = getEndOrStartTime(view)
+          arriveBy = getArriveBy(view)
 
         var newModelAttrs = [
           { key: 'days', value: day },
           { key: 'date', value: moment.format('MM:DD:YYYY') },
           { key: 'minute', value: min },
-          { key: endOrStartTime, value: hour }
+          { key: 'hour', value: hour }
         ]
 
         // update each of the models w/ their new values
@@ -227,7 +294,7 @@ module.exports.plugin = function (reactive) {
         return {
           day: day,
           hour: hour,
-          endOrStartTime: endOrStartTime
+          arriveBy: view.model['arriveBy']()
         }
       }
     })
@@ -239,28 +306,37 @@ module.exports.plugin = function (reactive) {
     evnt.bind(el, 'click', function (e) {
       e.stopPropagation()
 
+      // console.log('arrive or depart was clicked', e)
+
       var el = e.target
-      var val = el.getAttribute('data-arrive-by')
+      var val = el.getAttribute('data-arrive-by') === 'true'
       var attr = 'arriveBy'
 
-      while (el && (val === undefined || val === null)) {
-        el = el.parentNode
-        val = el && el.getAttribute('data-arrive-by')
-      }
-
-      var boolVal = (val === 'true')
       if (view.model[attr]) {
-        view.model[attr](boolVal)
+        view.model[attr](val)
       } else {
         return
       }
 
-      $('div[data-toggle="buttons"] label').removeClass('active')
-      $(el).parent().addClass('active')
+      setUIDepartArriveByButtonsActive(view)
 
-      // emit active on
-      view.emit('active', attr, boolVal)
+      var t = getUIDateTime()
+      var moment_t = moment(t)
+      var hour = t.hour(),
+          min = t.minute(),
+          arriveBy = val
 
+      var emit_dat = {
+        'date': moment_t.format('MM:DD:YYYY'),
+        'hour': hour,
+        'minute': min,
+        'arriveBy': arriveBy
+      }
+
+      // console.log('emitting "active" event, setting "hour" to '+emit_dat['hour'] + ' and "arriveBy" to '+emit_dat['arriveBy'])
+      view.emit('active', 'hour', emit_dat['hour'])
+      view.emit('active', 'arriveBy', emit_dat['arriveBy'])
+    
       document.activeElement.blur()
     })
   })

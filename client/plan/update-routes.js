@@ -273,8 +273,6 @@ function generateErrorMessage(plan, response) {
     msg += 'Add biking to see bike-to-transit results.';
   } else if (!plan.car()) {
     msg += 'Unfortunately we were unable to find non-driving results. Try turning on driving.';
-  } else if (plan.end_time() - plan.start_time() < 2) {
-    msg += 'Make sure the hours you specified are large enough to encompass the length of the journey.';
   } else if (plan.days() !== 'M—F') {
     msg += 'Transit runs less often on the weekends. Try switching to a weekday.';
   }
