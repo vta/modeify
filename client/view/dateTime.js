@@ -426,7 +426,7 @@ function makeTimeDDL(view) {
   // http://stackoverflow.com/a/8918365/940217
   // http://stackoverflow.com/a/22709868/940217
   var time_ddl_wrapper = $('<div/>').attr({
-    'class': 'time_picker_wrapper input-group time'
+    'class': 'time_picker_wrapper input-group time filter-group'
   })
 
   var times_list_wrapper = $('<div/>').attr({
@@ -446,7 +446,6 @@ function makeTimeDDL(view) {
     console.log('ddl focused')
     if (!time_ddl_wrapper.hasClass('active')){
       time_ddl_wrapper.addClass('active')
-
       scrollToSelected()
     }
   }).blur(function() {

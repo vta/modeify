@@ -134,7 +134,6 @@
   background-color: var(--vta-dark-blue);
   border-radius: 3px;
   padding: .4rem;
-  margin-right:.4rem;
   display:flex;
   flex-direction: row;
   flex-wrap: nowrap;
@@ -167,6 +166,9 @@
 
 .FilterView > .time-filters > .input-group { 
   width: 17rem;
+}
+.FilterView > .time-filters > .filter-group ~ .filter-group {
+  margin-left:.4rem
 }
 
 .FilterView > .time-filters > .input-group .form-control {
