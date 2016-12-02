@@ -65,10 +65,10 @@ module.exports.createMarker = function(opts) {
 
 if (config.map_provider() === 'AmigoCloud') {
     module.exports.realtime = function() {
-        debug('setting up socket connection');
+        debug('setting up empty socket connection');
 
-        L.amigo.realtime.setAccessToken(config.realtime_access_token());
-        L.amigo.realtime.connectDatasetByUrl(config.realtime_dataset_url());
+        // L.amigo.realtime.setAccessToken(config.realtime_access_token());
+        // L.amigo.realtime.connectDatasetByUrl(config.realtime_dataset_url());
     };
 }
 
@@ -143,7 +143,7 @@ module.exports.toggleRealtime = function(viewMap) {
   var clearRealtime = function () {
       clearTimeout(module.exports.vehiclePoller);
       map.realtime.active = false;
-      L.amigo.realtime.socket.removeAllListeners('realtime'); // I left this in for reduncency when switching to polling - Luke
+      // L.amigo.realtime.socket.removeAllListeners('realtime'); // I left this in for reduncency when switching to polling - Luke
       for (var i = 0; i < map.realtime.points.length; i++) {
         map.removeLayer(map.realtime.points[i].marker);
       }
