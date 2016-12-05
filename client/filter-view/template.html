@@ -24,18 +24,16 @@
   </div>
 
   <div class="time-filters clearfix">
-    <div class="arrive-depart-btns btn-group" data-toggle="buttons">
-      <label class="btn btn-primary active" for="option1">
-        <input name="arriveBy" type="radio" id="option1" data-arrive-by="false" checked>Depart
-      </label>
-      <label class="btn btn-primary" for="option2">
-        <input name="arriveBy" type="radio" id="option2" data-arrive-by="true">Arrive
-      </label>
+    <div class="arrive-depart-btns btn-group filter-group" data-toggle="buttons">
+      <select name="arriveBy">
+        <option value="false" data-arrive-by="false">Depart</option>
+        <option value="true" data-arrive-by="true">Arrive</option>
+      </select>
     </div>
-    <div class='input-group date' data-date-time="datepicker1">
+    <div class='input-group date filter-group' data-date-time="datepicker1">
       <input type="text" class="form-control"/>
       <span class="input-group-addon">
-          <i class="fa fa-clock-o" aria-hidden="true"></i>
+          <i class="fa fa-calendar" aria-hidden="true"></i>
       </span>
     </div>
   </div>
