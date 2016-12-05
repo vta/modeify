@@ -345,8 +345,6 @@ module.exports.plugin = function (reactive) {
 
 
 
-
-
 /**
  *     Desktop Time Picker
  */
@@ -383,7 +381,8 @@ function selectClosestTimeOption(t) {
   console.log('')
   var m_t = moment(t)
   var m = m_t.minute()
-  m_t.minute(m === 0 ? 0 : m <= 15 ? 15 : m <= 30 ? 30 : m <= 45 ? 45 : 60)
+  // m_t.minute(m === 0 ? 0 : m <= 15 ? 15 : m <= 30 ? 30 : m <= 45 ? 45 : 60)  // next 15 minutes
+   m_t.minute(m === 0 ? 0 : m <= 30 ? 30 : 60)  // next 30 minutes
   var h = '' + m_t.hour()
   m = '' + m_t.minute()
 
@@ -450,113 +449,110 @@ function makeTimeDDL(view) {
       time_ddl_wrapper.addClass('active')
     }
     scrollToSelected()
-  }).blur(function() {
-    setTimeout(function() {
-      // need a delay to get the event firing order correct
-      console.log('ddl blurred')
-      if (time_input[0].dataset.time) {
-        time_input.val(isoDateToHumanTime(time_input[0].dataset.time))
-        selectClosestTimeOption(time_input[0].dataset.time)
-        var selected_moment = moment(time_input[0].dataset.time)
+  }).blur(function(e) {
+    console.log('ddl blurred')
+    if (time_input[0].dataset.time) {
+      time_input.val(isoDateToHumanTime(time_input[0].dataset.time))
+      selectClosestTimeOption(time_input[0].dataset.time)
+      var selected_moment = moment(time_input[0].dataset.time)
 
-        var hour = selected_moment.hour(),
-          min = selected_moment.minute()
+      var hour = selected_moment.hour(),
+        min = selected_moment.minute()
 
-        var newModelAttrs = [{
-          key: 'minute',
-          value: min
-        }, {
-          key: 'hour',
-          value: hour
-        }]
-        console.log('timeddl_blur: setting hour and minute to be ' + hour + ':' + min)
-          // update each of the models w/ their new values
-        newModelAttrs.forEach(function(attr) {
-          if (view.model[attr.key]) {
-            view.model[attr.key](attr.value)
-          }
-        })
-        view.emit('active', 'hour', hour)
-
-      }
-      if (time_ddl_wrapper.hasClass('active')) {
-        time_ddl_wrapper.removeClass('active')
-      }
-    }, 50)
-  }).keydown(function(e) {
-    // http://stackoverflow.com/a/6011119/940217
-    var selected_iso_time = null;
-    switch (e.which) {
-      case 38: // up
-        console.log('arrow up')
-        selected_iso_time = selectPreviousTimeOption()
-        this.dataset.time = selected_iso_time;
-        break;
-
-      case 40: // down
-        console.log('arrow down')
-        selected_iso_time = selectNextTimeOption()
-        this.dataset.time = selected_iso_time
-        break;
-
-      case 13: // enter
-        this.blur();
-        break;
-
-      default:
-        return; // exit this handler for other keys
+      var newModelAttrs = [{
+        key: 'minute',
+        value: min
+      }, {
+        key: 'hour',
+        value: hour
+      }]
+      console.log('timeddl_blur: setting hour and minute to be ' + hour + ':' + min)
+        // update each of the models w/ their new values
+      newModelAttrs.forEach(function(attr) {
+        if (view.model[attr.key]) {
+          view.model[attr.key](attr.value)
+        }
+      })
+      view.emit('active', 'hour', hour)
     }
-    e.preventDefault(); // prevent the default action (scroll / move caret)
-  }).change(function() {
-    console.log('input changed')
-    time_input[0].dataset.time = momentToIsoDate(humanTimeToMoment(time_input.val()))
+    if (time_ddl_wrapper.hasClass('active')) {
+      time_ddl_wrapper.removeClass('active')
+    }
+  }).keydown(function(e) {
+  // http://stackoverflow.com/a/6011119/940217
+  var selected_iso_time = null;
+  switch (e.which) {
+    case 38: // up
+      console.log('arrow up')
+      selected_iso_time = selectPreviousTimeOption()
+      this.dataset.time = selected_iso_time;
+      break;
+
+    case 40: // down
+      console.log('arrow down')
+      selected_iso_time = selectNextTimeOption()
+      this.dataset.time = selected_iso_time
+      break;
+
+    case 13: // enter
+      this.blur();
+      break;
+
+    default:
+      return; // exit this handler for other keys
+  }
+  e.preventDefault(); // prevent the default action (scroll / move caret)
+}).change(function() {
+  console.log('input changed')
+  time_input[0].dataset.time = momentToIsoDate(humanTimeToMoment(time_input.val()))
+}).appendTo(time_ddl_wrapper)
+
+
+$('<span class="input-group-addon"><i class="fa fa-clock-o time-dl-btn" aria-hidden="true"></i></span>')
+  .mouseup(function() {
+    console.log('button was clicked')
+    var $this = $(this)
+    var pick_wrapper = $('.time_picker_wrapper')
+    if ($this.hasClass('active') && pick_wrapper.hasClass('active')) {
+      // the button has been clicked and the picker is open
+      pick_wrapper.removeClass('active')
+      $this.removeClass('active')
+      time_input.blur()
+    } else if ($this.hasClass('active') && !pick_wrapper.hasClass('active')) {
+      // the button has been clicked and the picker is already closed
+      $this.removeClass('active')
+    } else if (!$this.hasClass('active') && !pick_wrapper.hasClass('active')) {
+      // the button has been clicked and the picker is closed
+      pick_wrapper.addClass('active')
+      $this.addClass('active')
+      time_input.focus()
+    } else if (!$this.hasClass('active') && pick_wrapper.hasClass('active')) {
+      // the button has been clicked and the picker is already open
+      $this.addClass('active')
+    }
   }).appendTo(time_ddl_wrapper)
 
+for (var i = 0; i < 1440; i += 30) {
+  var mins = minutesToHumanTime(i)
+  var time_span = $('<span/>')
+    .text(mins)
+    .on('touchstart mousedown', function(e) {
+      console.log('clicked!', this);
+      time_input[0].dataset.time = this.dataset.value;
+      time_input[0].blur()
+        // now the blur() event happens, updating the time.
+    })
+  var moment_t = humanTimeToMoment(mins)
+  time_span[0].dataset.hour = moment_t.hour();
+  time_span[0].dataset.minute = moment_t.minute();
+  time_span[0].dataset.value = momentToIsoDate(moment_t);
+  times_list_wrapper.append(time_span);
+}
+setTimeout(function() {
+  time_input.val(isoDateToHumanTime(moment().format()))
+  time_input[0].dataset.time = moment().format()
+  selectClosestTimeOption(time_input[0].dataset.time)
+}, 50);
 
-  $('<span class="input-group-addon"><i class="fa fa-clock-o time-dl-btn" aria-hidden="true"></i></span>')
-    .mouseup(function() {
-      console.log('button was clicked')
-      var $this = $(this)
-      var pick_wrapper = $('.time_picker_wrapper')
-      if ($this.hasClass('active') && pick_wrapper.hasClass('active')) {
-        // the button has been clicked and the picker is open
-        pick_wrapper.removeClass('active')
-        $this.removeClass('active')
-        time_input.blur()
-      } else if ($this.hasClass('active') && !pick_wrapper.hasClass('active')) {
-        // the button has been clicked and the picker is already closed
-        $this.removeClass('active')
-      } else if (!$this.hasClass('active') && !pick_wrapper.hasClass('active')) {
-        // the button has been clicked and the picker is closed
-        pick_wrapper.addClass('active')
-        $this.addClass('active')
-        time_input.focus()
-      } else if (!$this.hasClass('active') && pick_wrapper.hasClass('active')) {
-        // the button has been clicked and the picker is already open
-        $this.addClass('active')
-      }
-    }).appendTo(time_ddl_wrapper)
-
-  for (var i = 420; i <= 1320; i += 15) {
-    var mins = minutesToHumanTime(i)
-    var time_span = $('<span/>')
-      .text(mins)
-      .mouseup(function() {
-        console.log('clicked!', this);
-        time_input[0].dataset.time = this.dataset.value;
-        selectClosestTimeOption(this.dataset.value)
-      })
-    var moment_t = humanTimeToMoment(mins)
-    time_span[0].dataset.hour = moment_t.hour();
-    time_span[0].dataset.minute = moment_t.minute();
-    time_span[0].dataset.value = momentToIsoDate(moment_t);
-    times_list_wrapper.append(time_span);
-  }
-  setTimeout(function() {
-    time_input.val(isoDateToHumanTime(moment().format()))
-    time_input[0].dataset.time = moment().format()
-    selectClosestTimeOption(time_input[0].dataset.time)
-  }, 50);
-
-  return time_ddl_wrapper
+return time_ddl_wrapper
 }
