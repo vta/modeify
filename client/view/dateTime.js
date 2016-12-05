@@ -69,9 +69,11 @@ function getUIDateTime(){
 
 function setUIDepartArriveByButtonsActive(view){
   var arriveBy = getArriveBy(view)
-  // window.console.log('setUIDepartArriveByButtonsActive : '+arriveBy)
-  $('label input[data-arrive-by]').parent().removeClass('active')
-  $('label input[data-arrive-by="'+arriveBy+'"]').parent().addClass('active')
+  if (arriveBy){
+    $('[name="arriveBy"]').val("true") // show "Arrive"
+  } else {
+    $('[name="arriveBy"]').val("false")// show "Depart"
+  }
 }
 
 function initDesktopPicker(view, el){
@@ -290,19 +292,19 @@ module.exports.plugin = function (reactive) {
 
   reactive.bind('data-arrive-by', function (el, name) {
     var view = this.reactive.view
-
-    evnt.bind(el, 'click', function (e) {
+    
+    evnt.bind($(el).parent().parent()[0], 'change', function (e) {
       e.stopPropagation()
-
-      // console.log('arrive or depart was clicked', e)
+      console.log('arrive or depart was clicked', e)
 
       var el = e.target
-      var val = el.getAttribute('data-arrive-by') === 'true'
+      var val = $('[name="arriveBy"]').val()  === 'true'
       var attr = 'arriveBy'
 
       if (view.model[attr]) {
         view.model[attr](val)
       } else {
+        console.log('returning early')
         return
       }
 
@@ -324,8 +326,6 @@ module.exports.plugin = function (reactive) {
       // console.log('emitting "active" event, setting "hour" to '+emit_dat['hour'] + ' and "arriveBy" to '+emit_dat['arriveBy'])
       view.emit('active', 'hour', emit_dat['hour'])
       view.emit('active', 'arriveBy', emit_dat['arriveBy'])
-    
-      document.activeElement.blur()
     })
   })
 }

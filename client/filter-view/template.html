@@ -25,12 +25,10 @@
 
   <div class="time-filters clearfix">
     <div class="arrive-depart-btns btn-group filter-group" data-toggle="buttons">
-      <label class="btn btn-primary active" for="option1">
-        <input name="arriveBy" type="radio" id="option1" data-arrive-by="false" checked>Depart
-      </label>
-      <label class="btn btn-primary" for="option2">
-        <input name="arriveBy" type="radio" id="option2" data-arrive-by="true">Arrive
-      </label>
+      <select name="arriveBy">
+        <option value="false" data-arrive-by="false">Depart</option>
+        <option value="true" data-arrive-by="true">Arrive</option>
+      </select>
     </div>
     <div class='input-group date filter-group' data-date-time="datepicker1">
       <input type="text" class="form-control"/>

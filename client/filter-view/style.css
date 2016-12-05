@@ -137,6 +137,27 @@
   display:flex;
   flex-direction: row;
   flex-wrap: nowrap;
+  width: 7.5rem;
+}
+
+.time-filters select{
+  background-color: var(--vta-dark-blue);
+  color: var(--vta-light-gray);
+  padding: 0;
+  margin: 0 0.3rem;
+  width: 5rem;
+}
+.time-filters .arrive-depart-btns::after
+{
+  cursor: default;
+  display:inline-block;
+  content:"\25B2\000D\25BC";
+  background-color: var(--vta-dark-blue);
+  color: var(--vta-light-gray);
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 0.5em;
+  line-height: 2em;
+  width: 1rem;
 }
 
 .arrive-depart-btns > label {
@@ -177,6 +198,10 @@
   font-size: 1em;
   background-color: #fff;
   text-align: center;
+
+}
+.FilterView > .time-filters > .input-group .form-control[type="text"] {
+    width: 7.3rem;
 }
 .FilterView > .time-filters > .filter-group{
   height: 4rem;
@@ -227,7 +252,7 @@
 
 .time_picker_wrapper, .time_picker_wrapper .times_list_wrapper {display:inline-block; -moz-box-sizing: border-box;-webkit-box-sizing:border-box;  box-sizing: border-box;}
 
-.input-group .time_picker_wrapper {
+.time-filters .input-group .time_picker_wrapper {
   position: relative;
   height: 0;
   width: 7rem;
@@ -236,7 +261,9 @@
   flex-wrap: nowrap;
 }
 
-.input-group .time_picker_wrapper input[type="text"] {
+
+
+.time-filters .input-group .time_picker_wrapper input[type="text"] {
   -webkit-appearance: none;
   -moz-appearance: none;
   cursor: default;
@@ -250,13 +277,13 @@
   border:none;
 }
 
-.input-group {
+.time-filters .input-group {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
 }
 
-.input-group option {
+.time-filters .input-group option {
   font-size: 1em;
   text-align: center;
   display: block;
