@@ -459,6 +459,12 @@ function makeTimeDDL(view) {
       var hour = selected_moment.hour(),
         min = selected_moment.minute()
 
+      if (hour === view.model.hour() &&
+        min === view.model.minute()) {
+        // time hasn't changed, don't hit the server.
+        return;
+      }
+
       var newModelAttrs = [{
         key: 'minute',
         value: min
