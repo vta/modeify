@@ -520,19 +520,23 @@ $('<span class="input-group-addon"><i class="fa fa-clock-o time-dl-btn" aria-hid
     var $this = $(this)
     var pick_wrapper = $('.time_picker_wrapper')
     if ($this.hasClass('active') && pick_wrapper.hasClass('active')) {
+      // console.log('button case 1')
       // the button has been clicked and the picker is open
       pick_wrapper.removeClass('active')
       $this.removeClass('active')
       time_input.blur()
     } else if ($this.hasClass('active') && !pick_wrapper.hasClass('active')) {
+      // console.log('button case 2')
       // the button has been clicked and the picker is already closed
       $this.removeClass('active')
     } else if (!$this.hasClass('active') && !pick_wrapper.hasClass('active')) {
+      // console.log('button case 3')
       // the button has been clicked and the picker is closed
       pick_wrapper.addClass('active')
       $this.addClass('active')
       time_input.focus()
     } else if (!$this.hasClass('active') && pick_wrapper.hasClass('active')) {
+      // console.log('button case 4')
       // the button has been clicked and the picker is already open
       $this.addClass('active')
     }
@@ -546,6 +550,7 @@ for (var i = 0; i < 1440; i += 30) {
       console.log('clicked!', this);
       time_input[0].dataset.time = this.dataset.value;
       time_input[0].blur()
+      $('.time_picker_wrapper .input-group-addon').removeClass('active')
         // now the blur() event happens, updating the time.
     })
   var moment_t = humanTimeToMoment(mins)
