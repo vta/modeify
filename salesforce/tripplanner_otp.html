@@ -182,82 +182,74 @@ $j('#mobileTripPlannerForm').submit(function(){
     </div>
   </form>
 </div>
+<!--
+============================== 
+  MOBILE Trip Planner Widget 
+============================== 
+-->    
+<div id="tripplannerwidgetmobile" class="widget-tripplanner">
+  <form method="get" id="mobileTripPlannerForm" class="trip_planner_form" target="_blank" action="https://devplanner.vta.org/planner?" name="trip_planner_form">
 
-        <!-- mobile -->
-    <div id="tripplannerwidgetmobile" > 
-    <!-- margin-left:20px; -->
-        <table  height="179"  border="0" cellpadding="0" cellspacing="0" >
-          <form method="get" id="mobileTripPlannerForm" class="trip_planner_form" target="_blank" action="https://devplanner.vta.org/planner?" name="trip_planner_form">
-            <tr>
-                <td colspan="2">
-                    <h2>Trip Planner </h2>
-                </td>
-            </tr>
-            <tr>
-                <td><label for="tpwfrom">From</label></td>
-                <td><input name="from" type="text" id="mobileFrom" required="true" placeholder="Enter address (use city or zip)"  title="Trip Starting Address - Enter the address of where you plan to start your trip"/><br />
-                </td>
-            </tr>
-            <tr>
-                <td><label for="tpwto">To</label></td>
-                <td><input name="to" type="text" id="mobileTo" required="true" placeholder="Destination address" title="Trip Destination Address - Enter the address of where you would like to go"/><br/></td>
-            </tr>
-            <tr>                
-                <td colspan="2">                                                
-                      <input id="tpwleave" type="radio" name="arriveBy" value="false" checked="true"/>
-                      <label for="tpwleave">Leave</label>
-                      <input id="tpwarrive" type="radio" name="arriveBy" value="true"/>
-                      <label for="tpwarrive">Arrive</label>                                                 
-                </td>   
-            </tr> 
-            <tr>
-                <td colspan="2">  
-                    <input id="datepickermobile" class="inputForm" type="date" style="background:url('{!URLFOR($Resource.vta_Org_Website,'images/calendarIcon.png')}') no-repeat; background-position:95%; width:90%; background-color:white; margin-right:2.5%;" placeholder="mm/dd/yy" title="Trip Date - Enter the date that you plan to take your trip" />
-                </td>
-            </tr>
-            <input id="mobileDate" type="hidden" name="date"/>
-            <td style="white-space:nowrap;">
-            <select id="hourPickerMobile" style="max-width:50px;" class="inputForm" title="hour options">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-                <option value="11">11</option>
-                <option value="12">12</option>
-                </select>
-            <select style="max-width:50px;"  name="minute" class="inputForm" title="minute options">
-                <option value="00">00</option>
-                <option value="05">05</option>
-                <option value="10">10</option>
-                <option value="15">15</option>
-                <option value="20">20</option>
-                <option value="25">25</option>
-                <option value="30">30</option>
-                <option value="35">35</option>
-                <option value="40">40</option>
-                <option value="45">45</option>
-                <option value="50">50</option>
-                <option value="55">55</option>
-            </select>
-            <select id = 'periodMobile' style="max-width:50px;"  class="inputForm" title="Period: AM or PM Options">
-                <option value="am">AM</option>
-                <option value="pm">PM</option>
-            </select>            
-            <input id="hourFieldMobile" type="hidden" name="hour"/>
-            </td>
-            <tr>
-                <td>
-                    <input id="tpwplan_trip_id" type="submit" value="Go" class="trip_button"/>
-                </td>
-            </tr>                                                              
-            </form> 
-        </table>
-    </div>       
-    </div> 
+    <h2>Trip Planner</h2>
+
+    <div class="input-group address">
+      <label for="tpwfrom">From</label>
+      <input name="from" type="text" id="mobileFrom" required="true" placeholder="Starting address" title="Trip Starting Address - Enter the address of where you plan to start your trip" />
+    </div>
+
+    <div class="input-group address">
+      <label for="tpwto">To</label>
+      <input name="to" type="text" id="mobileTo" required="true" placeholder="Destination address" title="Trip Destination Address - Enter the address of where you would like to go" />
+    </div>
+
+    <div class="input-group arrive-leave-by">
+      <input id="tpwleave" type="radio" name="arriveBy" value="false" checked="true" />
+      <label for="tpwleave">Leave</label>
+      <input id="tpwarrive" type="radio" name="arriveBy" value="true" />
+      <label for="tpwarrive">Arrive</label>
+    </div>
+
+    <div class="input-group date">
+      <input id="datepickermobile" class="inputForm" type="date" style="background:url('{!URLFOR($Resource.vta_Org_Website,'images/calendarIcon.png')}') no-repeat; background-position:95%; " placeholder="mm/dd/yy" title="Trip Date - Enter the date that you plan to take your trip"
+      />
+    </div>
+    <div class="input-group time">
+      <input id="mobileDate" type="hidden" name="date" />
+      <select id="hourPickerMobile" class="inputForm" title="hour options">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+      </select>
+      <select name="minute" class="inputForm" title="minute options">
+        <option value="00">00</option>
+        <option value="05">05</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="20">20</option>
+        <option value="25">25</option>
+        <option value="30">30</option>
+        <option value="35">35</option>
+        <option value="40">40</option>
+        <option value="45">45</option>
+        <option value="50">50</option>
+        <option value="55">55</option>
+      </select>
+      <select class="inputForm period" title="Period: AM or PM Options">
+        <option value="am">AM</option>
+        <option value="pm">PM</option>
+      </select>
+    </div>
+    <input id="hourFieldMobile" type="hidden" name="hour" />
+    <input id="tpwplan_trip_id" type="submit" value="Go" class="trip_button" />
+  </form>
+</div>
 </apex:component>
