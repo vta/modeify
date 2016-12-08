@@ -8,7 +8,7 @@
    }
     addJS('https://maps.googleapis.com/maps/api/js?key=AIzaSyCO5de3-oEIWzqid-N97Bzvka3FqmMRoT4&libraries=places&callback=initializeField')
     function initializeField() {
-        ids = ['googleFrom', 'googleTo', 'mobileFrom', 'mobileTo']
+        ids = ['desktopFrom', 'desktopTo', 'mobileFrom', 'mobileTo']
         for (i in ids) {
             var input = document.getElementById(ids[i]);
             if(input){
@@ -126,11 +126,11 @@ $j('#mobileTripPlannerForm').submit(function(){
                 <div class="input-wrapper">
                     <div class="input-group">
                         <div class="address">
-                            <input class="inputForm" id="googleFrom" name="from" type="text" required="true" placeholder="Starting address" title="Trip Starting Address - Enter the address (use city or zip) of where you plan to start your trip">
+                            <input class="inputForm" id="desktopFrom" name="from" type="text" required="true" placeholder="Starting address" title="Trip Starting Address - Enter the address (use city or zip) of where you plan to start your trip">
                             </input>
                         </div>
                         <div class="address">
-          <input class="inputForm" id="googleTo" name="to" type="text" required="true" placeholder="Destination address" title="Trip Destination Address - Enter the address (use city or zip) of where you would like to go">
+          <input class="inputForm" id="desktopTo" name="to" type="text" required="true" placeholder="Destination address" title="Trip Destination Address - Enter the address (use city or zip) of where you would like to go">
                         </input>
                         </div>
                     </div>
@@ -243,7 +243,7 @@ $j('#mobileTripPlannerForm').submit(function(){
         <option value="50">50</option>
         <option value="55">55</option>
       </select>
-      <select class="inputForm period" title="Period: AM or PM Options">
+      <select class="inputForm period" title="Period: AM or PM Options" id="periodMobile">
         <option value="am">AM</option>
         <option value="pm">PM</option>
       </select>
@@ -251,5 +251,6 @@ $j('#mobileTripPlannerForm').submit(function(){
     <input id="hourFieldMobile" type="hidden" name="hour" />
     <input id="tpwplan_trip_id" type="submit" value="Go" class="trip_button" />
   </form>
+</div>
 </div>
 </apex:component>
