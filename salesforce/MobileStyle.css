@@ -167,6 +167,10 @@
 	  width: auto;
 	  text-align: center;
 	}
+	
+	.widget-tripplanner .calendar {
+		height: 2em;
+	}
 
 	.widget-tripplanner .input-group {
 	  display: flex;
@@ -251,6 +255,8 @@
 	  margin-left: auto;
 	  margin-right: auto;
 	}
+
+
 
 
 
