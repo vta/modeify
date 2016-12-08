@@ -79,7 +79,7 @@
 		border: 1px solid lightgrey;
 		width: 30px;
 		height: 80px;
-		//background: rgba(227, 237, 241, 0.7);
+		/*//background: rgba(227, 237, 241, 0.7);*/
 		background:rgba(0, 89, 123, 0.7);
 		background-image:url('../images/arrowL.png');
 		background-repeat:no-repeat;
@@ -88,7 +88,7 @@
   	
   	}
   	#quick-links .mobile-toggle .menu_button:after{
-  		//box-shadow: 0 0px 0 grey, 0 10px 0 grey;
+  		/*//box-shadow: 0 0px 0 grey, 0 10px 0 grey;*/
   		box-shadow: 0 10px 0 transparent, 0 20px 0 transparent;
   		background:transparent;
   		top:30px;
@@ -101,7 +101,7 @@
   		
 		width: 70%;
 		overflow:scroll;
-		//border: 1px solid lightgrey;
+		/*//border: 1px solid lightgrey;*/
 		z-index:100;
 		border:4px solid rgba(0, 89, 123,1);
   	}
@@ -115,7 +115,7 @@
 	#quick-links #tp_section{
 	display:none;
 	}
-	 #tripplannerwidgetmobile{
+/*	 #tripplannerwidgetmobile{
 	display:inherit;
 	}
 	#tripplannerwidgetmobile input[type="text"], #tripplannerwidgetmobile input[type="submit"]{
@@ -125,9 +125,135 @@
 		width:90%;
 		padding:10px;
 	}
+*/
+
+	.widget-tripplanner {
+	  display: inline-block;
+	  width: 36rem;
+	  height: 5rem;
+	  margin-bottom: 15px;
+	  position: relative;
+	}
+
+	.widget-tripplanner,
+	.widget-tripplanner * {
+	  box-sizing: border-box;
+	  -webkit-box-sizing: border-box;
+	  -moz-box-sizing: border-box;
+	}
+
+	.widget-tripplanner form {
+	  display: block;
+	}
+
+	.widget-tripplanner .input-wrapper {
+	  display: flex;
+	  flex-flow: row wrap;
+	  align-items: center;
+	  justify-content: flex-start;
+	  width: 30rem;
+	}
+
+	.widget-tripplanner h2 {
+	  float: left;
+	  padding: 0 0.3rem 0.3rem 0;
+	  margin: 0;
+	  line-height: 1.5em;
+	  width: 6rem;
+	}
+
+	#tripplannerwidgetmobile h2 {
+	  float: none;
+	  width: auto;
+	  text-align: center;
+	}
+
+	.widget-tripplanner .input-group {
+	  display: flex;
+	  flex-direction: row;
+	  flex-wrap: nowrap;
+	  align-items: center;
+	  justify-content: space-between;
+	}
+
+	.widget-tripplanner .address {
+	  width: 10rem;
+	  margin-left: .5rem;
+	  margin-right: .5rem;
+	}
+
+	#tripplannerwidgetmobile .address {
+	  width: auto;
+	}
+
+	.widget-tripplanner .address input {
+	  width: 100%;
+	}
+
+	.widget-tripplanner input {
+	  margin: 0.5rem;
+	}
+
+	.widget-tripplanner input[type=submit] {
+	  display: inline-block;
+	  background-color: #9D2A39;
+	  width: 3rem;
+	  height: 1.5rem;
+	  color: #ffffff;
+	  font-weight: bold;
+	  border-radius: 0.2rem;
+	  text-align: center;
+	}
+
+	#tripplannerwidgetmobile.widget-tripplanner{
+		height: 15rem;
+		justify-content: center;
+		display: inherit;
+	    width: 100%;
+	    min-width:auto;
+		}
+	  
+	#tripplannerwidgetmobile .input-group {
+	  justify-content: center;
+	}
+
+	.input-group.date input {
+	  width: 10rem;
+	}
+
+	#tripplannerwidgetmobile form {
+	  text-align: center;
+	  position: relative;
+	  margin-left: auto;
+	  margin-right: auto;
+	}
+
+	#tripplannerwidgetmobile .input-group.address label {
+	  display: inline-block;
+	  width: 3rem;
+	}
+
+	#tripplannerwidgetmobile .input-group.address input {
+	  width: auto;
+	}
+	#tripplannerwidgetmobile [type=submit] {
+	  display: block;
+	  position: relative;
+	  margin-left: auto;
+	  margin-right: auto;
+	  }
+	  
+	#tripplannerwidgetmobile .input-group.date {
+	  width: 10rem;
+	  background-color: #fff;
+	  text-align: center;
+	  position: relative;
+	  margin-left: auto;
+	  margin-right: auto;
+	}
 
 
-	
+
 	/* disable desktop tabs */
 	.routeTabGroup{
 		display:none;
@@ -159,10 +285,10 @@
 		color:white;
 	}
 	
-		.arrow_box {
-		position: relative;
+	.arrow_box {
+	position: relative;
 		
-		border:2px solid lightgrey;
+	border:2px solid lightgrey;
 	}
 	.arrow_box:after, .arrow_box:before {
 		top: 100%;
