@@ -108,42 +108,34 @@ function reverseAmigo(ll, callback) {
  */
 
 function suggestAmigo(text, callback) {
-  console.log('getting suggestions for "'+text+'"')
-    var databoundary = [];
-    console.log("get gps coords")
-    get('https://www.amigocloud.com/api/v1/users/1/projects/661/datasets/22492', {'token' : config.realtime_access_token()}, function(err, res) {
+  console.log('getting suggestions for "' + text + '"')
+  var res = {
+      "body": {
+        "boundingbox": "-122.858905792236 36.818080227785,-121.452655792236 38.220919766831"
+      }
+    }
+  //get('https://www.amigocloud.com/api/v1/users/1/projects/661/datasets/22492', {
+  //  'token': config.realtime_access_token()
+  //}, function(err, res) {
 
-        if (err) {
-            console.log("error");
-        }else {
-            var list_address;
-            
-            // var query = geocodingOptions.amigoSuggestions(text, res);
-            var query = geocodingOptions.googleSuggestions(text, res);
-
-            query.get().then(function(res) {
-
-              if (query.responseMapper) {
-                var res = query.responseMapper(res);
-              }
-
-              if(res.body.features) {
-
-                  list_address = res.body.features;
-                  if (list_address.length > 0) {
-                       callback(
-                          null,
-                          list_address
-                      );
-                  }else {
-                      callback(true, res);
-                  }
-
-              }
-            });
-        }
-
-    });
+  var query = geocodingOptions.googleSuggestions(text, res);
+  query.get().then(function(res) {
+    if (query.responseMapper) {
+      var res = query.responseMapper(res);
+    }
+    if (res.body.features) {
+      list_address = res.body.features;
+      if (list_address.length > 0) {
+        callback(
+          null,
+          list_address
+        );
+      } else {
+        callback(true, res);
+      }
+    }
+  });
+  //});
 }
 
 function suggest(text, callback) {
