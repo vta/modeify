@@ -484,12 +484,10 @@ View.prototype.resetIcons = function (e) {
     var location_me_btn = view.find(selector + ' .fa-location-arrow')
 
     if (!value || !value.trim || value.trim().length === 0) {
-      console.log('hiding clear btn')
       clear_btn.classList.add('hidden')
       loading_btn.classList.add('hidden')
       location_me_btn.classList.remove('hidden')
     } else {
-      console.log('showing clear btn')
       clear_btn.classList.remove('hidden')
       loading_btn.classList.add('hidden')
       location_me_btn.classList.add('hidden')
