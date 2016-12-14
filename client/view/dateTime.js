@@ -139,6 +139,9 @@ function initMobilePicker(view, el){
   dtp.val(f_time.join(''))
 
   dtp.on('blur', function(){
+    // Note: on Mobile Chrome, for this element, the [type="datetime-local"],
+    // the blur event does not fire when the native picker closes.
+
     var val = dtp.val()
     if (!val || val.length < 1){
       return;
@@ -168,6 +171,7 @@ function initMobilePicker(view, el){
     })
 
     view.emit('active', 'days', time.day())
+    view.emit('active', 'hour', hour)
     view.emit('active', arrive_by_value, time.hour())
   });
 
