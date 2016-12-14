@@ -146,8 +146,7 @@ function initMobilePicker(view, el){
     var time = getUIDateTime()
     console.log('date changed to ', time)
 
-    var arrive_by_active_btn = $('.arrive-depart-btns .active input')
-    var arrive_by_value = arrive_by_active_btn[0].getAttribute('data-arrive-by') === 'true'
+    var arrive_by_value = $('[name="arriveBy"]').val() === 'true'
 
     var day = time.day(),
           hour = time.hour(),
