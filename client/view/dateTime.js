@@ -430,6 +430,8 @@ function makeTimeDDL(view) {
     'class': 'time_picker_wrapper input-group time filter-group'
   })
 
+  var v = view;
+
   var times_list_wrapper = $('<div/>').attr({
     'class': 'times_list_wrapper',
     'aria-hidden': 'true',
@@ -560,8 +562,14 @@ for (var i = 0; i < 1440; i += 30) {
   times_list_wrapper.append(time_span);
 }
 setTimeout(function() {
-  time_input.val(isoDateToHumanTime(moment().format()))
-  time_input[0].dataset.time = moment().format()
+  var time_set_hour = v.model.hour()
+  var time_set_min = v.model.minute()
+  var m = moment()
+  m.hour(time_set_hour)
+  m.minute(time_set_min)
+  // console.log('setting UI time to '+m.format()+' from hours='+time_set_hour+' and minutes='+time_set_min)
+  time_input.val(isoDateToHumanTime(m.format()))
+  time_input[0].dataset.time = m.format()
   selectClosestTimeOption(time_input[0].dataset.time)
 }, 50);
 
