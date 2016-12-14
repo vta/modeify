@@ -83,7 +83,6 @@ View.prototype.keydownInput = function(e) {
   switch (key) {
     case 13: // enter key
       console.log('enter key');
-      e.preventDefault();
       this.blurInput(e);
       break;
     case 38: // up key
@@ -421,8 +420,9 @@ View.prototype.suggest = function(e) {
     clearTimeout(suggestionTimeout);
   }
   suggestionTimeout = setTimeout(function() {
+    console.log('timeout trigger')
     geocode.suggestAmigo(text, resultsCallbackAmigo);
-  }, 400);
+  }, 50);
 };
 
 /**
