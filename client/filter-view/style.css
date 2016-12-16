@@ -51,7 +51,7 @@
 
 .mode-filters > button:hover, .bike-filters > button:hover,
 .mode-filters > button:focus, .bike-filters > button:focus {
-  background-color: var(--vta-middle-blue);
+  background-color: var(--vta-light-gray);
   color: var(--vta-dark-gray);
 
   text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.3);

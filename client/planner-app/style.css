@@ -4,10 +4,13 @@
  */
 
 :root {
-  --vta-light-blue: #c8e4ec;
-  --vta-dark-gray: #666;
-  --vta-light-gray: #eee;
-  --vta-dark-blue: #00587b;
+  --vta-light-blue: #4CB4E7;
+  --vta-dark-blue: #29588C;
+  --vta-black: #4C4E56;
+  --vta-dark-gray: #7A7D81;
+  --vta-medium-gray: #BDBEBD;
+  --vta-light-gray: #DaD9D6;
+
   --vta-middle-blue: #99c5d2;
   --vta-burgundy: #a2002f;
 

@@ -1,8 +1,5 @@
 
 nav {
-  background-image: url(/images/application/vta-topfade.png);
-  background-size: cover;
-  background-position: 20%;
 /*  background-color: var(--vta-logo-back);
   background-image: url(/images/application/VTA1.png);
   background-size: auto 54px;
@@ -27,12 +24,12 @@ nav {
 
 nav .vta-logo {
   background-image: url(/images/application/VTA1.png);
-  background-size: cover;
-  height: 55px;
+  background-size: contain;
+  height: 43px;
   width: 260px;
-  margin-top: 7px;
-  margin-left: 5px;
+  margin: 1.2rem;
   display: inline-block;
+  background-repeat: no-repeat;
 }
 
 nav .buttons {
