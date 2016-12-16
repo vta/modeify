@@ -139,6 +139,9 @@ function initMobilePicker(view, el){
   dtp.val(f_time.join(''))
 
   dtp.on('blur', function(){
+    // Note: on Mobile Chrome, for this element, the [type="datetime-local"],
+    // the blur event does not fire when the native picker closes.
+
     var val = dtp.val()
     if (!val || val.length < 1){
       return;
@@ -146,8 +149,7 @@ function initMobilePicker(view, el){
     var time = getUIDateTime()
     console.log('date changed to ', time)
 
-    var arrive_by_active_btn = $('.arrive-depart-btns .active input')
-    var arrive_by_value = arrive_by_active_btn[0].getAttribute('data-arrive-by') === 'true'
+    var arrive_by_value = $('[name="arriveBy"]').val() === 'true'
 
     var day = time.day(),
           hour = time.hour(),
@@ -169,6 +171,7 @@ function initMobilePicker(view, el){
     })
 
     view.emit('active', 'days', time.day())
+    view.emit('active', 'hour', hour)
     view.emit('active', arrive_by_value, time.hour())
   });
 
@@ -430,6 +433,8 @@ function makeTimeDDL(view) {
     'class': 'time_picker_wrapper input-group time filter-group'
   })
 
+  var v = view;
+
   var times_list_wrapper = $('<div/>').attr({
     'class': 'times_list_wrapper',
     'aria-hidden': 'true',
@@ -560,8 +565,14 @@ for (var i = 0; i < 1440; i += 30) {
   times_list_wrapper.append(time_span);
 }
 setTimeout(function() {
-  time_input.val(isoDateToHumanTime(moment().format()))
-  time_input[0].dataset.time = moment().format()
+  var time_set_hour = v.model.hour()
+  var time_set_min = v.model.minute()
+  var m = moment()
+  m.hour(time_set_hour)
+  m.minute(time_set_min)
+  // console.log('setting UI time to '+m.format()+' from hours='+time_set_hour+' and minutes='+time_set_min)
+  time_input.val(isoDateToHumanTime(m.format()))
+  time_input[0].dataset.time = m.format()
   selectClosestTimeOption(time_input[0].dataset.time)
 }, 50);
 
