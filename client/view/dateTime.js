@@ -59,24 +59,31 @@ function getUIDateTime(){
     time = moment(selected_date)
   } else {
     time = moment(selected_date);
+    var timepicker_moment = moment($('.time_picker_wrapper input')[0].dataset.time);
+    console.log('getUIDateTime (desktop): setting hour and minute to be '+timepicker_moment.hour()+':'+timepicker_moment.minute())
+    time.hour(timepicker_moment.hour());
+    time.minute(timepicker_moment.minute());
   }
   return time
 }
 
 function setUIDepartArriveByButtonsActive(view){
   var arriveBy = getArriveBy(view)
-  // window.console.log('setUIDepartArriveByButtonsActive : '+arriveBy)
-  $('label input[data-arrive-by]').parent().removeClass('active')
-  $('label input[data-arrive-by="'+arriveBy+'"]').parent().addClass('active')
+  if (arriveBy){
+    $('[name="arriveBy"]').val("true") // show "Arrive"
+  } else {
+    $('[name="arriveBy"]').val("false")// show "Depart"
+  }
 }
 
 function initDesktopPicker(view, el){
-
+  console.log('initDesktopPicker')
+  $(makeTimeDDL(view)).insertBefore(el)
   picker = $(el).datetimepicker({
-      // allowInputToggle: true,
       defaultDate: new Date(),
       collapse: false,
-      format: (is_mobile ? 'LT' : false), // TODO: make it true if on mobile
+      format: 'MM/DD/YY',
+      debug: true,
       widgetPositioning: { horizontal: 'right' }
     }).on('dp.hide', function (e) {
       // when the datetimepicker is closed, update models with current dates and emit event
@@ -85,22 +92,6 @@ function initDesktopPicker(view, el){
       var time = picker.setTime(e.date)
       view.emit('active', 'days', time.day)
       view.emit('active', time.endOrStartTime, time.hour)
-    }).on('dp.show', function (e) {
-      // if a touch/click is detected outside of the datetime picker, close it.
-      // window.setTimeout(function () {
-      //  $('#main').on('mouseup', function (e) {
-      //    var container = $('.bootstrap-datetimepicker-widget ul')
-      //    var is_open = container.is(':visible')
-      //    if (!is_open) {
-      //      return
-      //    }
-      //    if (!container.is(e.target) // if the target of the click isn't the container...
-      //      && container.has(e.target).length === 0) // ... nor a descendant of the container
-      //    {
-      //      picker.find('.input-group-addon').click(); // lulz, wut? at least it works.
-      //    }
-      //  })
-      // }, 90)
     })
 
     var picker_input = $(el).find('input');
@@ -112,7 +103,7 @@ function initDesktopPicker(view, el){
       var selected_date = new Date(val)
       console.log('date changed to ', selected_date)
       var time = picker.setTime(moment(selected_date))
-      console.log('firing "active" event for days:'+time.day+' and endOrStartTime:'+time.endOrStartTime+', hour:'+time.hour())
+      console.log('firing "active" event for days:'+time.day+' and endOrStartTime:'+time.endOrStartTime+', hour:'+time.hour)
         view.emit('active', 'days', time.day)
         view.emit('active', time.endOrStartTime, time.hour)
     });
@@ -123,7 +114,6 @@ function initDesktopPicker(view, el){
         }
         return false;
     })
-
     return picker;
 }
 
@@ -149,6 +139,9 @@ function initMobilePicker(view, el){
   dtp.val(f_time.join(''))
 
   dtp.on('blur', function(){
+    // Note: on Mobile Chrome, for this element, the [type="datetime-local"],
+    // the blur event does not fire when the native picker closes.
+
     var val = dtp.val()
     if (!val || val.length < 1){
       return;
@@ -156,8 +149,7 @@ function initMobilePicker(view, el){
     var time = getUIDateTime()
     console.log('date changed to ', time)
 
-    var arrive_by_active_btn = $('.arrive-depart-btns .active input')
-    var arrive_by_value = arrive_by_active_btn[0].getAttribute('data-arrive-by') === 'true'
+    var arrive_by_value = $('[name="arriveBy"]').val() === 'true'
 
     var day = time.day(),
           hour = time.hour(),
@@ -179,6 +171,7 @@ function initMobilePicker(view, el){
     })
 
     view.emit('active', 'days', time.day())
+    view.emit('active', 'hour', hour)
     view.emit('active', arrive_by_value, time.hour())
   });
 
@@ -302,19 +295,19 @@ module.exports.plugin = function (reactive) {
 
   reactive.bind('data-arrive-by', function (el, name) {
     var view = this.reactive.view
-
-    evnt.bind(el, 'click', function (e) {
+    
+    evnt.bind($(el).parent().parent()[0], 'change', function (e) {
       e.stopPropagation()
-
-      // console.log('arrive or depart was clicked', e)
+      console.log('arrive or depart was clicked', e)
 
       var el = e.target
-      var val = el.getAttribute('data-arrive-by') === 'true'
+      var val = $('[name="arriveBy"]').val()  === 'true'
       var attr = 'arriveBy'
 
       if (view.model[attr]) {
         view.model[attr](val)
       } else {
+        console.log('returning early')
         return
       }
 
@@ -336,8 +329,252 @@ module.exports.plugin = function (reactive) {
       // console.log('emitting "active" event, setting "hour" to '+emit_dat['hour'] + ' and "arriveBy" to '+emit_dat['arriveBy'])
       view.emit('active', 'hour', emit_dat['hour'])
       view.emit('active', 'arriveBy', emit_dat['arriveBy'])
-    
-      document.activeElement.blur()
     })
   })
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ *     Desktop Time Picker
+ */
+
+
+function minutesToHumanTime(m) {
+  var hours, minutes, ampm;
+  hours = Math.floor(m / 60);
+  minutes = m % 60;
+  if (minutes < 10) {
+    minutes = '0' + minutes; // adding leading zero
+  }
+  ampm = hours % 24 < 12 ? 'am' : 'pm';
+  hours = hours % 12;
+  if (hours === 0) {
+    hours = 12;
+  }
+  return hours + ':' + minutes + ' ' + ampm
+}
+
+function isoDateToHumanTime(iso_string) {
+  return moment(iso_string).format('h:mm a')
+}
+
+function momentToIsoDate(m) {
+  return m.format()
+}
+
+function humanTimeToMoment(t) {
+  return moment(t, ['h:m a', 'H:m'])
+}
+
+function selectClosestTimeOption(t) {
+  console.log('')
+  var m_t = moment(t)
+  var m = m_t.minute()
+  // m_t.minute(m === 0 ? 0 : m <= 15 ? 15 : m <= 30 ? 30 : m <= 45 ? 45 : 60)  // next 15 minutes
+   m_t.minute(m === 0 ? 0 : m <= 30 ? 30 : 60)  // next 30 minutes
+  var h = '' + m_t.hour()
+  m = '' + m_t.minute()
+
+  console.log('selecting closest time option', m_t.format())
+  var time_opts = $('.times_list_wrapper span')
+  time_opts.removeClass('selected')
+  for (var i = time_opts.length - 1; i >= 0; i--) {
+    var elem = time_opts[i]
+    if (elem.dataset.hour === h && elem.dataset.minute === m) {
+      $(elem).addClass('selected')
+    }
+  }
+}
+
+function selectPreviousTimeOption() {
+  var current = $('.times_list_wrapper span.selected')
+  var previous = current.prev()
+  current.removeClass('selected')
+  previous.addClass('selected')
+  scrollToSelected()
+  return previous[0].dataset.value
+}
+
+function selectNextTimeOption() {
+  var current = $('.times_list_wrapper span.selected')
+  var next = current.next()
+  current.removeClass('selected')
+  next.addClass('selected')
+  scrollToSelected()
+  return next[0].dataset.value
+}
+
+function scrollToSelected() {
+  // scroll to the time that's currently selected
+  var selected_elem = $('.times_list_wrapper span.selected')
+  var parent_height = selected_elem.parent().height()
+  var abs_top = (selected_elem.height() * selected_elem.index()) - (selected_elem.height() * 2)
+  $('.times_list_wrapper')[0].scrollTop = abs_top
+}
+
+function makeTimeDDL(view) {
+  // http://stackoverflow.com/a/8918365/940217
+  // http://stackoverflow.com/a/22709868/940217
+  var time_ddl_wrapper = $('<div/>').attr({
+    'class': 'time_picker_wrapper input-group time filter-group'
+  })
+
+  var v = view;
+
+  var times_list_wrapper = $('<div/>').attr({
+    'class': 'times_list_wrapper',
+    'aria-hidden': 'true',
+    'aria-label': 'time options'
+  }).appendTo(time_ddl_wrapper)
+
+
+  var time_input = $('<input/>').attr({
+    'type': 'text',
+    'role': 'textbox',
+    'class': 'form-control'
+      //'aria-label': 'time',
+      //'aria-haspopup':'true'
+  }).focus(function() {
+    console.log('ddl focused')
+    if (!time_ddl_wrapper.hasClass('active')) {
+      time_ddl_wrapper.addClass('active')
+    }
+    scrollToSelected()
+  }).blur(function(e) {
+    console.log('ddl blurred')
+    if (time_input[0].dataset.time) {
+      time_input.val(isoDateToHumanTime(time_input[0].dataset.time))
+      selectClosestTimeOption(time_input[0].dataset.time)
+      var selected_moment = moment(time_input[0].dataset.time)
+
+      var hour = selected_moment.hour(),
+        min = selected_moment.minute()
+
+      if (hour === view.model.hour() &&
+        min === view.model.minute()) {
+        // time hasn't changed, don't hit the server.
+        return;
+      }
+
+      var newModelAttrs = [{
+        key: 'minute',
+        value: min
+      }, {
+        key: 'hour',
+        value: hour
+      }]
+      console.log('timeddl_blur: setting hour and minute to be ' + hour + ':' + min)
+        // update each of the models w/ their new values
+      newModelAttrs.forEach(function(attr) {
+        if (view.model[attr.key]) {
+          view.model[attr.key](attr.value)
+        }
+      })
+      view.emit('active', 'hour', hour)
+    }
+    if (time_ddl_wrapper.hasClass('active')) {
+      time_ddl_wrapper.removeClass('active')
+    }
+  }).keydown(function(e) {
+  // http://stackoverflow.com/a/6011119/940217
+  var selected_iso_time = null;
+  switch (e.which) {
+    case 38: // up
+      console.log('arrow up')
+      selected_iso_time = selectPreviousTimeOption()
+      this.dataset.time = selected_iso_time;
+      break;
+
+    case 40: // down
+      console.log('arrow down')
+      selected_iso_time = selectNextTimeOption()
+      this.dataset.time = selected_iso_time
+      break;
+
+    case 13: // enter
+      this.blur();
+      break;
+
+    default:
+      return; // exit this handler for other keys
+  }
+  e.preventDefault(); // prevent the default action (scroll / move caret)
+}).change(function() {
+  console.log('input changed')
+  time_input[0].dataset.time = momentToIsoDate(humanTimeToMoment(time_input.val()))
+}).appendTo(time_ddl_wrapper)
+
+
+$('<span class="input-group-addon"><i class="fa fa-clock-o time-dl-btn" aria-hidden="true"></i></span>')
+  .mouseup(function() {
+    console.log('button was clicked')
+    var $this = $(this)
+    var pick_wrapper = $('.time_picker_wrapper')
+    if ($this.hasClass('active') && pick_wrapper.hasClass('active')) {
+      // console.log('button case 1')
+      // the button has been clicked and the picker is open
+      pick_wrapper.removeClass('active')
+      $this.removeClass('active')
+      time_input.blur()
+    } else if ($this.hasClass('active') && !pick_wrapper.hasClass('active')) {
+      // console.log('button case 2')
+      // the button has been clicked and the picker is already closed
+      $this.removeClass('active')
+    } else if (!$this.hasClass('active') && !pick_wrapper.hasClass('active')) {
+      // console.log('button case 3')
+      // the button has been clicked and the picker is closed
+      pick_wrapper.addClass('active')
+      $this.addClass('active')
+      time_input.focus()
+    } else if (!$this.hasClass('active') && pick_wrapper.hasClass('active')) {
+      // console.log('button case 4')
+      // the button has been clicked and the picker is already open
+      $this.addClass('active')
+    }
+  }).appendTo(time_ddl_wrapper)
+
+for (var i = 0; i < 1440; i += 30) {
+  var mins = minutesToHumanTime(i)
+  var time_span = $('<span/>')
+    .text(mins)
+    .on('touchstart mousedown', function(e) {
+      console.log('clicked!', this);
+      time_input[0].dataset.time = this.dataset.value;
+      time_input[0].blur()
+      $('.time_picker_wrapper .input-group-addon').removeClass('active')
+        // now the blur() event happens, updating the time.
+    })
+  var moment_t = humanTimeToMoment(mins)
+  time_span[0].dataset.hour = moment_t.hour();
+  time_span[0].dataset.minute = moment_t.minute();
+  time_span[0].dataset.value = momentToIsoDate(moment_t);
+  times_list_wrapper.append(time_span);
+}
+setTimeout(function() {
+  var time_set_hour = v.model.hour()
+  var time_set_min = v.model.minute()
+  var m = moment()
+  m.hour(time_set_hour)
+  m.minute(time_set_min)
+  // console.log('setting UI time to '+m.format()+' from hours='+time_set_hour+' and minutes='+time_set_min)
+  time_input.val(isoDateToHumanTime(m.format()))
+  time_input[0].dataset.time = m.format()
+  selectClosestTimeOption(time_input[0].dataset.time)
+}, 50);
+
+return time_ddl_wrapper
 }

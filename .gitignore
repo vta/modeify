@@ -32,3 +32,4 @@ coverage
 deployment
 
 assets/robots.txt
+sftp-config.json

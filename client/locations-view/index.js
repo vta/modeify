@@ -83,7 +83,6 @@ View.prototype.keydownInput = function(e) {
   switch (key) {
     case 13: // enter key
       console.log('enter key');
-      e.preventDefault();
       this.blurInput(e);
       break;
     case 38: // up key
@@ -421,8 +420,9 @@ View.prototype.suggest = function(e) {
     clearTimeout(suggestionTimeout);
   }
   suggestionTimeout = setTimeout(function() {
+    console.log('timeout trigger')
     geocode.suggestAmigo(text, resultsCallbackAmigo);
-  }, 400);
+  }, 50);
 };
 
 /**
@@ -484,12 +484,10 @@ View.prototype.resetIcons = function (e) {
     var location_me_btn = view.find(selector + ' .fa-location-arrow')
 
     if (!value || !value.trim || value.trim().length === 0) {
-      console.log('hiding clear btn')
       clear_btn.classList.add('hidden')
       loading_btn.classList.add('hidden')
       location_me_btn.classList.remove('hidden')
     } else {
-      console.log('showing clear btn')
       clear_btn.classList.remove('hidden')
       loading_btn.classList.add('hidden')
       location_me_btn.classList.add('hidden')

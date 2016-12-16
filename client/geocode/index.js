@@ -2,7 +2,6 @@ var config = require('config');
 var log = require('./client/log')('geocode');
 var get = require('./client/request').get;
 var googleGeocode = require('./google_geocode');
-
 /**
  * Geocode
  */
@@ -33,44 +32,44 @@ function geocode(address, callback) {
  **/
 
 var geocodingOptions = {
-  amigoSuggestions: function (text, res) {
-    var bounding = res.body.boundingbox;
-    var bounding_split = bounding.split(",");
-    var boinding_first = bounding_split[0].split(" ");
-    var boinding_second = bounding_split[1].split(" ");
-    var parameter = {
-        'token': config.realtime_access_token() ,
-        'boundary.rect.min_lat': boinding_first[1],
-        'boundary.rect.min_lon': boinding_first[0],
-        'boundary.rect.max_lat': boinding_second[1],
-        'boundary.rect.max_lon': boinding_second[0],
-        'sources':'osm,oa',
-        'text': text
-    };
+  // amigoSuggestions: function (text, res) {
+  //   var bounding = res.body.boundingbox;
+  //   var bounding_split = bounding.split(",");
+  //   var boinding_first = bounding_split[0].split(" ");
+  //   var boinding_second = bounding_split[1].split(" ");
+  //   var parameter = {
+  //       'token': config.realtime_access_token() ,
+  //       'boundary.rect.min_lat': boinding_first[1],
+  //       'boundary.rect.min_lon': boinding_first[0],
+  //       'boundary.rect.max_lat': boinding_second[1],
+  //       'boundary.rect.max_lon': boinding_second[0],
+  //       'sources':'osm,oa',
+  //       'text': text
+  //   };
 
-    return {
-      get: function () {
-        return $.get('https://www.amigocloud.com/api/v1/me/geocoder/search', parameter).then(function (data) {
-          return {
-            body: data
-          };
-        });
-      }
-    };
-  },
+  //   return {
+  //     get: function () {
+  //       return $.get('https://www.amigocloud.com/api/v1/me/geocoder/search', parameter).then(function (data) {
+  //         return {
+  //           body: data
+  //         };
+  //       });
+  //     }
+  //   };
+  // },
 
-  amigoReverse: function (ll) {
-    var parameter = {
-      'token':config.realtime_access_token() ,
-      'point.lon':ll[0],
-      'point.lat':ll[1]
-    };
+  // amigoReverse: function (ll) {
+  //   var parameter = {
+  //     'token':config.realtime_access_token() ,
+  //     'point.lon':ll[0],
+  //     'point.lat':ll[1]
+  //   };
 
-    return {
-      parameter: parameter,
-      endpoint: 'https://www.amigocloud.com/api/v1/me/geocoder/reverse'
-    };
-  },
+  //   return {
+  //     parameter: parameter,
+  //     endpoint: 'https://www.amigocloud.com/api/v1/me/geocoder/reverse'
+  //   };
+  // },
 
   googleSuggestions: googleGeocode.googleSuggestions,
 
@@ -109,41 +108,34 @@ function reverseAmigo(ll, callback) {
  */
 
 function suggestAmigo(text, callback) {
+  console.log('getting suggestions for "' + text + '"')
+  var res = {
+      "body": {
+        "boundingbox": "-122.858905792236 36.818080227785,-121.452655792236 38.220919766831"
+      }
+    }
+  //get('https://www.amigocloud.com/api/v1/users/1/projects/661/datasets/22492', {
+  //  'token': config.realtime_access_token()
+  //}, function(err, res) {
 
-    var databoundary = [];
-    get('https://www.amigocloud.com/api/v1/users/1/projects/661/datasets/22492', {'token' : config.realtime_access_token()}, function(err, res) {
-
-        if (err) {
-            console.log("error");
-        }else {
-            var list_address;
-            
-            // var query = geocodingOptions.amigoSuggestions(text, res);
-            var query = geocodingOptions.googleSuggestions(text, res);
-
-            query.get().then(function(res) {
-
-              if (query.responseMapper) {
-                var res = query.responseMapper(res);
-              }
-
-              if(res.body.features) {
-
-                  list_address = res.body.features;
-                  if (list_address.length > 0) {
-                       callback(
-                          null,
-                          list_address
-                      );
-                  }else {
-                      callback(true, res);
-                  }
-
-              }
-            });
-        }
-
-    });
+  var query = geocodingOptions.googleSuggestions(text, res);
+  query.get().then(function(res) {
+    if (query.responseMapper) {
+      var res = query.responseMapper(res);
+    }
+    if (res.body.features) {
+      list_address = res.body.features;
+      if (list_address.length > 0) {
+        callback(
+          null,
+          list_address
+        );
+      } else {
+        callback(true, res);
+      }
+    }
+  });
+  //});
 }
 
 function suggest(text, callback) {

@@ -301,7 +301,7 @@ function getRouteData(route, multiplier, index) {
   };
 
   if (multiplier > 1) {
-    ['cost', 'calories', 'productiveTime', 'emissions'].forEach(function(type) {
+    ['cost', 'time', 'walkDistance', 'calories', 'productiveTime', 'emissions'].forEach(function(type) {
       data[type] = data[type] * multiplier;
     });
   }
