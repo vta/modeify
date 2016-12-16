@@ -83,6 +83,8 @@ View.prototype.keydownInput = function(e) {
   switch (key) {
     case 13: // enter key
       console.log('enter key');
+      e.preventDefault();
+      el.blur();
       this.blurInput(e);
       break;
     case 38: // up key
@@ -482,7 +484,6 @@ View.prototype.resetIcons = function (e) {
     var clear_btn = view.find(selector + ' .fa-times')
     var loading_btn = view.find(selector + ' .fa-spin')
     var location_me_btn = view.find(selector + ' .fa-location-arrow')
-
     if (!value || !value.trim || value.trim().length === 0) {
       clear_btn.classList.add('hidden')
       loading_btn.classList.add('hidden')
