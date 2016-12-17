@@ -11,8 +11,9 @@
   --vta-medium-gray: #BDBEBD;
   --vta-light-gray: #DaD9D6;
 
+  --vta-red: #E74536;
+
   --vta-middle-blue: #99c5d2;
-  --vta-burgundy: #a2002f;
 
   --black: #455a71;
   --vta-logo-back: #ddd;
@@ -81,7 +82,7 @@ body {
 
   color: var(--black);
 
-  background-color: var(--vta-burgundy); /* for the tint */
+  background-color: var(--vta-red); /* for the tint */
   background-image: linear-gradient(to bottom, var(--land-color) 0%, var(--land-color) 100%); /* for the body */
 }
 
@@ -113,7 +114,7 @@ a:hover {
 .introjs-button:focus,
 .introjs-button:hover,
 .introjs-button:visited {
-  background: var(--vta-burgundy);
+  background: var(--vta-red);
   color: #fff;
   outline: none;
   border: none;
@@ -122,13 +123,13 @@ a:hover {
 
 .btn:hover,
 .introjs-button:hover {
-  background-color: color(var(--vta-burgundy) shade(10%));
+  background-color: color(var(--vta-red));
 }
 
 .btn:active,
 .btn.active,
 .introjs-button:active {
-  background-color: color(var(--vta-burgundy) shade(20%));
+  background-color: color(var(--vta-red));
 }
 
 .btn-dark,
