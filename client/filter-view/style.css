@@ -89,10 +89,11 @@ left: 27px;
   border-bottom-left-radius: 3px;
 }
 .SidePanel .bike-filters .title .fa-bicycle{
-  top:5px;
+  top:0;
   left: 7px;
   visibility: visible;
   color: white;
+  line-height: 1.4em;
 }
 
 .submit {
