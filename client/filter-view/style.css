@@ -21,24 +21,38 @@
 
 .FilterView > .bike-filters > button { 
   font-size: 15px;
-  height: 28px;
-  width: 60px;
-  padding: 0 15px 1px 0;
+  height: 1.85em;
+  line-height: 1.85em;
+  padding: 0 0 0 .5rem;
+  text-align: left;
 }
+.FilterView > .bike-filters > button[title="Fast"] { 
+  width:6rem;
+}
+.FilterView > .bike-filters > button[title="Safe"] { 
+  width:10rem;
+}
+.FilterView > .bike-filters > button[title="Flat"] { 
+  width:6rem;
+}
+
 
 .mode-filters i, .bike-filters i {
   font-size: 16px;
   position: absolute;
   top: 23px;
-  left: 27px;
   color: var(--vta-light-blue);
   text-shadow: 0px 1px 3px rgba(75, 106, 32, 0.4);
   visibility: hidden;
 }
+.mode-filters i{
+left: 27px;
+}
 
 .bike-filters i {
   top: 5px;
-  left: 42px;
+  right: 0;
+  margin-right: 0.3rem;
 }
 
 
@@ -51,7 +65,7 @@
 
 .mode-filters > button:hover, .bike-filters > button:hover,
 .mode-filters > button:focus, .bike-filters > button:focus {
-  background-color: var(--vta-light-gray);
+  background-color: var(--vta-middle-blue);
   color: var(--vta-dark-gray);
 
   text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.3);
@@ -68,11 +82,17 @@
   background-color: var(--vta-dark-blue);
   color: white;
   padding: 5px 0 0 4px;
-  width: 88px;
+  width: 42px;
   height: 28px;
   float: left;
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
+}
+.SidePanel .bike-filters .title .fa-bicycle{
+  top:5px;
+  left: 7px;
+  visibility: visible;
+  color: white;
 }
 
 .submit {
