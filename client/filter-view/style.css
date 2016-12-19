@@ -41,7 +41,7 @@
   font-size: 16px;
   position: absolute;
   top: 23px;
-  color: var(--vta-light-blue);
+  color: var(--vta-light-gray);
   text-shadow: 0px 1px 3px rgba(75, 106, 32, 0.4);
   visibility: hidden;
 }
@@ -80,7 +80,8 @@ left: 27px;
   display: inline-block;
   font-size: 13px;
   background-color: var(--vta-dark-blue);
-  color: white;
+  color: var(--vta-light-gray);
+  text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.3);
   padding: 5px 0 0 4px;
   width: 42px;
   height: 28px;
@@ -92,7 +93,6 @@ left: 27px;
   top:0;
   left: 7px;
   visibility: visible;
-  color: white;
   line-height: 1.4em;
 }
 
