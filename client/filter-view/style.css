@@ -29,7 +29,7 @@
 .FilterView > .bike-filters > button[title="Fast"] { 
   width:6rem;
 }
-.FilterView > .bike-filters > button[title="Safe"] { 
+.FilterView > .bike-filters > button[title="Friendly"] { 
   width:10rem;
 }
 .FilterView > .bike-filters > button[title="Flat"] { 
