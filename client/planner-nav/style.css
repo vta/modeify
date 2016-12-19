@@ -61,7 +61,7 @@ nav .menu {
   position: absolute;
   list-style-type: none;
   right: 0;
-  background-color: var(--black);
+  background-color: var(--vta-dark-blue);
   padding-left: 0;
   border-bottom-left-radius: var(--border-radius);
   box-shadow: -2px 2px 2px -1px var(--darkest);
