@@ -83,21 +83,22 @@ GoogleSuggestions.prototype = {
     };
     var specs = getMapSpecs();
 
-    var mapToGeocodeRes = function (results) {
-      if (results !== null){
-        results.forEach(function (feature, idx) {
-          feature.formatted_address = feature.name + ', ' + feature.vicinity;
-          feature.address_components = {};
-          feature.geometry = {
-            location: {
-              lat: feature.geometry.location.lat(),
-              lng: feature.geometry.location.lng()
-            } 
-          };
-        });
-      } else {
-        console.warn('results from the Places Service was null')
+    var placesCallback = function (results, status) {
+      if (status !== google.maps.places.PlacesServiceStatus.OK) {
+        console.warn('PlacesService status:'+status)
+        return;
       }
+      console.log('placesCallback results=', results)
+      results.forEach(function (feature, idx) {
+        feature.formatted_address = feature.name + ', ' + feature.vicinity;
+        feature.address_components = {};
+        feature.geometry = {
+          location: {
+            lat: feature.geometry.location.lat(),
+            lng: feature.geometry.location.lng()
+          } 
+        };
+      });
 
       if (!futureRes.body.result) {
         futureRes.body.result = results
@@ -108,14 +109,14 @@ GoogleSuggestions.prototype = {
       dfd.resolve();
     }
 
-    var config = {
+    var request = {
       'keyword': this.text,
       'location': specs.location,
       'radius': specs.radius
     };
 
     var service = new google.maps.places.PlacesService(document.createElement('div'));
-    service.nearbySearch(config, mapToGeocodeRes);
+    service.nearbySearch(request, placesCallback);
     return dfd.promise();
   },
 

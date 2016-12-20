@@ -59,8 +59,12 @@ View.prototype.blurInput = function(e) {
   }
 
   suggestionList.classList.add('empty');
-
-  setTimeout(function() {
+  if (suggestionTimeout !== undefined) {
+    clearTimeout(suggestionTimeout);
+  }
+  suggestionTimeout = setTimeout(function() {
+    inputGroup.classList.remove('suggestions-open');
+    suggestionList.classList.add('empty');
     suggestionList.innerHTML = '';
   }, 50);
 
@@ -76,6 +80,7 @@ View.prototype.blurInput = function(e) {
 View.prototype.keydownInput = function(e) {
   var el = e.target;
   var key = e.keyCode;
+  var view = this;
 
   // Currently highlighted suggestion
   var highlightedSuggestion = this.find('.suggestion.highlight');
@@ -85,6 +90,7 @@ View.prototype.keydownInput = function(e) {
       console.log('enter key');
       e.preventDefault();
       el.blur();
+      view.autocomplete = null; // prevent future autocomplete results from returning
       this.blurInput(e);
       break;
     case 38: // up key
@@ -317,10 +323,15 @@ View.prototype.suggest = function(e) {
     if (err) {
       log.error('%e', err);
     } else {
+      if (view.autocomplete === null){
+        console.log('throwing away autocomplete results for text "'+query_text+'" because the user previously hit enter.')
+        return
+      }
       if (view.autocomplete !== query_text){
         console.log('throwing away autocomplete results for text "'+query_text+'" because a newer search was made for "'+view.autocomplete+'"' )
         return
       }
+      view.autocomplete = null
       if (suggestions && suggestions.length > 0) {
         var filter_label = {};
         for (var i = 0; i < suggestions.length; i++) {
@@ -427,6 +438,7 @@ View.prototype.suggest = function(e) {
   // If the text is too short or does not contain a space yet, return
   if (text.length < 3) return;
 
+  console.log('getting suggestions for text: "'+text+'"' )
   // Get a suggestion!
   if (suggestionTimeout !== undefined) {
     clearTimeout(suggestionTimeout);
