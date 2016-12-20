@@ -114,10 +114,10 @@ function suggestAmigo(text, callback) {
         "boundingbox": "-122.858905792236 36.818080227785,-121.452655792236 38.220919766831"
       }
     }
+  var query_text = text;
   //get('https://www.amigocloud.com/api/v1/users/1/projects/661/datasets/22492', {
   //  'token': config.realtime_access_token()
   //}, function(err, res) {
-
   var query = geocodingOptions.googleSuggestions(text, res);
   query.get().then(function(res) {
     if (query.responseMapper) {
@@ -128,10 +128,11 @@ function suggestAmigo(text, callback) {
       if (list_address.length > 0) {
         callback(
           null,
-          list_address
+          list_address,
+          query_text
         );
       } else {
-        callback(true, res);
+        callback(true, res, query_text);
       }
     }
   });

@@ -62,7 +62,7 @@ View.prototype.blurInput = function(e) {
 
   setTimeout(function() {
     suggestionList.innerHTML = '';
-  }, 500);
+  }, 50);
 
   inputGroup.classList.remove('highlight');
   this.save(e.target);
@@ -310,11 +310,15 @@ View.prototype.suggest = function(e) {
 
   this.resetIcons();
 
-  var resultsCallbackAmigo = function(err, suggestions) {
+  var resultsCallbackAmigo = function(err, suggestions, query_text) {
 
     if (err) {
       log.error('%e', err);
     } else {
+      if (view.autocomplete !== query_text){
+        console.log('throwing away autocomplete results for text "'+query_text+'" because a newer search was made for "'+view.autocomplete+'"' )
+        return
+      }
       if (suggestions && suggestions.length > 0) {
         var filter_label = {};
         for (var i = 0; i < suggestions.length; i++) {
@@ -412,6 +416,12 @@ View.prototype.suggest = function(e) {
     }
   };
 
+  if (text.length === 0) {
+    // there's nothing here! clear the autocomplete.
+    suggestionList.classList.add('empty');
+    inputGroup.classList.remove('suggestions-open');
+    return;
+  }
   // If the text is too short or does not contain a space yet, return
   if (text.length < 3) return;
 
@@ -419,8 +429,10 @@ View.prototype.suggest = function(e) {
   if (suggestionTimeout !== undefined) {
     clearTimeout(suggestionTimeout);
   }
+  
   suggestionTimeout = setTimeout(function() {
     console.log('timeout trigger')
+    view.autocomplete = text;
     geocode.suggestAmigo(text, resultsCallbackAmigo);
   }, 50);
 };
@@ -482,7 +494,6 @@ View.prototype.resetIcons = function (e) {
     var clear_btn = view.find(selector + ' .fa-times')
     var loading_btn = view.find(selector + ' .fa-spin')
     var location_me_btn = view.find(selector + ' .fa-location-arrow')
-
     if (!value || !value.trim || value.trim().length === 0) {
       clear_btn.classList.add('hidden')
       loading_btn.classList.add('hidden')
