@@ -83,6 +83,8 @@ View.prototype.keydownInput = function(e) {
   switch (key) {
     case 13: // enter key
       console.log('enter key');
+      e.preventDefault();
+      el.blur();
       this.blurInput(e);
       break;
     case 38: // up key

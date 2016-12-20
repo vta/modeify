@@ -134,7 +134,7 @@ Modal.prototype.renderRoute = function(data) {
   data.calories = data.calories ? parseInt(data.calories).toLocaleString() + ' cals' : 'None';
   data.cost = data.cost ? '$' + data.cost.toFixed(2) : 'Free';
   data.emissions = data.emissions ? parseInt(data.emissions) : 'None';
-  data.walkDistance = data.walkDistance ? data.walkDistance + ' mi' : 'None';
+  data.walkDistance = data.walkDistance ? parseFloat(data.walkDistance).toFixed(1) + ' mi' : 'None';
 
   if (data.productiveTime) {
     if (data.productiveTime > 120) {
@@ -301,7 +301,7 @@ function getRouteData(route, multiplier, index) {
   };
 
   if (multiplier > 1) {
-    ['cost', 'calories', 'productiveTime', 'emissions'].forEach(function(type) {
+    ['cost', 'time', 'walkDistance', 'calories', 'productiveTime', 'emissions'].forEach(function(type) {
       data[type] = data[type] * multiplier;
     });
   }
