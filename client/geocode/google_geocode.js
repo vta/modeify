@@ -1,5 +1,6 @@
 var mapView = require('map-view');
 var config = require('config');
+var get = require('./client/request').get
 
 /* 
  * This code is pulled into separate file b/c the mapping makes it unecessarily complicated.
@@ -38,6 +39,10 @@ GoogleSuggestions = function (text, res) {
 
 GoogleSuggestions.prototype = {
   responseMapper: function (res) {
+    if (status !== google.maps.places.PlacesServiceStatus.OK) {
+      console.warn('PlacesService status:'+status)
+      return;
+    }
     var execute = function (func) { func(); };
     var toMap = [
       function getData () {
@@ -120,6 +125,62 @@ GoogleSuggestions.prototype = {
     return dfd.promise();
   },
 
+  //_getAutocomplete: function () {
+    //var futureRes = this.futureRes,
+    //    text = this.text;
+    //console.log('making request to Google Autocomplete service.')
+    //var endpoint = 'https://maps.googleapis.com/maps/api/place/autocomplete/xml';
+    //var parameter = {
+    //  'input': text,
+    //  'key': 'AIzaSyD8qeGQRYwwYO6-xFPAhtjh8doJJO2UrL0'
+    //};
+    //var query_params = '?' + Object.keys(parameter).map(function(k) { return k + '=' + encodeURIComponent(parameter[k]) }).join('&');
+    //var res = get(endpoint+query_params,  function(err, res) {
+    //  console.log('autocomplete response callback', err, res)
+    //  if (err) {
+    //    log('<-- geocoding error %s', err);
+    //    return null;
+    //  } else {
+    //    log('<-- geocoding complete %j', res.body);
+    //    return res.body;
+    //  }
+    //})
+  //  return res
+  //},
+
+  _getAutocomplete: function () {
+    var dfd = $.Deferred(),
+        futureRes = this.futureRes,
+        text = this.text;
+
+
+    var autocompleteCallback = function (results, status) {
+      
+      console.log('autocompleteCallback status='+status+', results=', results)
+      results.forEach(function (feature, idx) {
+        feature.formatted_address = feature.description;
+        feature.address_components = {};
+        feature.geometry = {location: { lat:0, lng:0 }}
+      });
+
+      futureRes.body.result = results
+      dfd.resolve();
+    }
+    var location_bounds = new google.maps.LatLng({lat: 37.303626, lng: -121.884750});
+
+    var request = {
+      radius: 17000,
+      location: location_bounds,
+      input: this.text
+    };
+
+    var service = new google.maps.places.AutocompleteService();
+    service.getPlacePredictions(request, autocompleteCallback);
+    return dfd.promise();
+
+
+  },
+
   _getGeocode: function () {
     var futureRes = this.futureRes,
         text = this.text;
@@ -153,11 +214,13 @@ GoogleSuggestions.prototype = {
   get: function () {
     var apiCalls = [],
         self = this;
-    apiCalls.push(self._getGeocode());
-    apiCalls.push(self._getPlaces());
-    return $.when.apply($, apiCalls).then(function () { 
-      return self.futureRes;
-    });
+    apiCalls.push(self._getAutocomplete());   
+    return self._getAutocomplete()
+    //apiCalls.push(self._getGeocode());
+    //apiCalls.push(self._getPlaces());
+    //return $.when.apply($, apiCalls).then(function () { 
+    //  return self.futureRes;
+    //});
   }
 };
 

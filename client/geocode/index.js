@@ -85,6 +85,7 @@ function reverseAmigo(ll, callback) {
 
   // var query = geocodingOptions.amigoReverse(ll);
   var query = geocodingOptions.googleReverse(ll);
+  console.log('attempting to reverse geocode', ll)
 
   get(query.endpoint, query.parameter, function(err, res) {
 
@@ -119,21 +120,10 @@ function suggestAmigo(text, callback) {
   //  'token': config.realtime_access_token()
   //}, function(err, res) {
   var query = geocodingOptions.googleSuggestions(text, res);
-  query.get().then(function(res) {
-    if (query.responseMapper) {
-      var res = query.responseMapper(res);
-    }
-    if (res.body.features) {
-      list_address = res.body.features;
-      if (list_address.length > 0) {
-        callback(
-          null,
-          list_address,
-          query_text
-        );
-      } else {
-        callback(true, res, query_text);
-      }
+  query.get().then(function() {
+    var res = query.futureRes;
+    if (res.body.result) {
+      callback(null, res.body.result, query_text);
     }
   });
   //});

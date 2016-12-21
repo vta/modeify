@@ -235,8 +235,15 @@ Plan.prototype.setAddress = function(name, address, callback, extra) {
   } else {
     var cb_amigo =  function(err, suggestions){ 
       if (suggestions && suggestions.length > 0){
-        var lat_lng = suggestions[0].geometry.coordinates[0]+','+suggestions[0].geometry.coordinates[1];
-        plan.setAddress(name, lat_lng, callback);
+
+        if (!suggestions[0].geometry.coordinates && suggestions[0]['place_id'] !== 'undefined'){
+          // look up this place's coordinates by the Google Places ID.
+          console.warn('Need the Lat/lng for "'+suggestions[0]['description']+'"; looking up the Google Places information for place_id='+suggestions[0]['place_id']+'')
+          // TODO
+        } else {
+          var lat_lng = suggestions[0].geometry.coordinates[0]+','+suggestions[0].geometry.coordinates[1];
+          plan.setAddress(name, lat_lng, callback);
+        }
       } else {
         console.log('no ejecuta nada', {'err':err,'suggestions':suggestions})
         plan.setAddress('', '', callback);

@@ -51,9 +51,8 @@ View.prototype.blurInput = function(e) {
   if (highlight) {
     console.log('highlighting');
     e.target.value = highlight.textContent || '';
-    if (highlight.dataset.lat) {
-      e.target.lat = highlight.dataset.lat;
-      e.target.lng = highlight.dataset.lng;
+    if (highlight.dataset.placesid) {
+      e.target.placesid = highlight.dataset.placesid;
       e.target.address = highlight.addressData;
     }
   }
@@ -147,6 +146,7 @@ View.prototype.save = function(el) {
   var plan = this.model;
   var name = el.name;
   var val = el.value;
+  var placesid = el.placesid;
 
   if (!val || plan[name]() === val) return;
 
@@ -336,25 +336,19 @@ View.prototype.suggest = function(e) {
         var filter_label = {};
         for (var i = 0; i < suggestions.length; i++) {
 
-          var item_suggestions = suggestions[i].properties;
+          var item_suggestion = suggestions[i];
 
-          if (item_suggestions.country_a == "USA" && item_suggestions.region_a == "CA") {
+          var suggestion_obj = {
+            "index": i,
+            "text": item_suggestion['description'],
+            "placesid": item_suggestion['place_id']
+          };
 
-            var item_geometry = suggestions[i].geometry;
-            var suggestion_obj = {
-              "index": i,
-              "text": item_suggestions.label,
-              "lat": item_geometry.coordinates[1],
-              "lon": item_geometry.coordinates[0],
-              "magicKey": ""
-            };
-
-            if (filter_label[item_suggestions.label] === undefined) {
-              filter_label[item_suggestions.label] = true;
-              suggestionsData.push(suggestion_obj);
-            }
-
-          }
+          //if (filter_label[item_suggestions.label] === undefined) {
+          //  filter_label[item_suggestions.label] = true;
+          //  suggestionsData.push(suggestion_obj);
+          //}
+          suggestionsData.push(suggestion_obj);
 
         }
 
