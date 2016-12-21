@@ -24,14 +24,13 @@ var View = module.exports = view(require('./template.html'), function(view, plan
     closest(view.el, 'form').onsubmit = function(e) {
       e.preventDefault();
 
-      plan.setAddresses(view.find('.from input').value, view.find('.to input').value, function(err) {
-        if (err) {
-          log.error('%e', err);
-        } else {
-          plan.updateRoutes();
-        }
-      });
-
+      if (plan.validCoordinates()) {
+        analytics.send_ga({
+          category: 'geocoder',
+          action: 'plan route'
+        });
+        plan.updateRoutes();
+      }
     };
   });
 });
@@ -48,6 +47,11 @@ View.prototype.blurInput = function(e) {
   inputGroup.classList.remove('suggestions-open');
 
   var highlight = this.find('.suggestion.highlight');
+  if (!highlight){
+    // enter was likely pressed. this will
+    // get the first item in the suggestions list
+    highlight = this.find('.suggestion')
+  }
   if (highlight) {
     console.log('highlighting');
     e.target.value = highlight.textContent || '';
@@ -152,7 +156,7 @@ View.prototype.save = function(el) {
 
 
   if (el.lat) {
-    this.model.setAddress(name, el.lng + ',' + el.lat, function(err, location) {
+    this.model.setAddress(name, { 'll' : el.lng + ',' + el.lat }, function(err, location) {
 
       if (err) {
         log.error('%e', err);
@@ -165,7 +169,7 @@ View.prototype.save = function(el) {
 
         textModal('Invalid address.');
 
-      } else if (location && plan.validCoordinates()) {
+      } else if (plan.validCoordinates()) {
 
         analytics.send_ga({
           category: 'geocoder',
@@ -182,7 +186,7 @@ View.prototype.save = function(el) {
     }, el.address);
   } else {
 
-    this.model.setAddress(name, val, function(err, location) {
+    this.model.setAddress(name, {'physical_addr':val, 'places_id':placesid}, function(err, location) {
       if (err) {
         log.error('%e', err);
         analytics.send_ga({
@@ -193,7 +197,7 @@ View.prototype.save = function(el) {
         });
 
         textModal('Invalid address.');
-      } else if (location && plan.validCoordinates()) {
+      } else if (plan.validCoordinates()) {
         analytics.send_ga({
           category: 'geocoder',
           action: 'change address success',

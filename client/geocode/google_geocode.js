@@ -212,9 +212,7 @@ GoogleSuggestions.prototype = {
   },
 
   get: function () {
-    var apiCalls = [],
-        self = this;
-    apiCalls.push(self._getAutocomplete());   
+    self = this; 
     return self._getAutocomplete()
     //apiCalls.push(self._getGeocode());
     //apiCalls.push(self._getPlaces());
@@ -223,6 +221,55 @@ GoogleSuggestions.prototype = {
     //});
   }
 };
+
+
+/*
+ * Google Places Endpoint
+ */
+
+GooglePlaces = function (place_id) {
+  this.place_id = place_id;
+  this.futureRes = {
+    body: {}
+  };
+}
+
+GooglePlaces.prototype = {
+  
+  _getPlace: function () {
+    var dfd = $.Deferred(),
+        futureRes = this.futureRes,
+        place_id = this.place_id;
+
+
+    var placesCallback = function (placeResult, status) {
+      if (status !== google.maps.places.PlacesServiceStatus.OK) {
+        console.warn('PlacesService status:'+status)
+        return;
+      }
+      console.log('placesCallback PlaceResult=', placeResult)
+      futureRes.body.result = placeResult
+      dfd.resolve();
+    }
+
+    var request = {
+      placeId: place_id
+    };
+
+
+    var service = new google.maps.places.PlacesService(document.createElement('div'));
+    service.getDetails(request, placesCallback);
+
+    return dfd.promise();
+  },
+
+  get: function () {
+    var self = this;  
+    return self._getPlace();
+  }
+};
+
+
 
 /*
  * Reverse geocoding
@@ -283,5 +330,8 @@ module.exports = {
   },
   googleReverse: function (ll) {
     return new GoogleReverse(ll);
+  },
+  googlePlaceLookup: function (place_id) {
+    return new GooglePlaces(place_id);
   }
 };

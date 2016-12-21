@@ -9,6 +9,7 @@ var googleGeocode = require('./google_geocode');
 module.exports = geocode;
 module.exports.reverseAmigo = reverseAmigo;
 module.exports.suggestAmigo = suggestAmigo;
+module.exports.lookupPlaceId = lookupPlaceId;
 
 /**
  * Geocode (not currently in use!)
@@ -72,7 +73,7 @@ var geocodingOptions = {
   // },
 
   googleSuggestions: googleGeocode.googleSuggestions,
-
+  googlePlaceLookup: googleGeocode.googlePlaceLookup,
   googleReverse: googleGeocode.googleReverse
 };
 
@@ -127,6 +128,18 @@ function suggestAmigo(text, callback) {
     }
   });
   //});
+}
+
+function lookupPlaceId(placeid, callback){
+  console.log('getting Google Place information for place_id=' + placeid + '')
+ 
+  var query = geocodingOptions.googlePlaceLookup(placeid);
+  query.get().then(function() {
+    var res = query.futureRes;
+    if (res.body.result) {
+      callback(null, res.body.result);
+    }
+  });
 }
 
 function suggest(text, callback) {

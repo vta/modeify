@@ -189,8 +189,19 @@ Plan.prototype.validCoordinates = function() {
 Plan.prototype.setAddress = function(name, address, callback, extra) {
   callback = callback || function() {}; // noop callback
   var plan = this;
-  var c = address.split(',');
-  var isCoordinate = c.length === 2 && !isNaN(parseFloat(c[0])) && !isNaN(parseFloat(c[1]));
+  var isCoordinate = false;
+  var c = null;
+  var places_id = null;
+  var physical_addr = null;
+  if (address instanceof Object){
+    physical_addr = address['physical_addr'] || null
+    places_id = address['places_id'] || null
+    c = (address['ll'] || '').split(',')
+  } else {
+    c = address.split(',');
+  }
+  
+  isCoordinate = c.length === 2 && !isNaN(parseFloat(c[0])) && !isNaN(parseFloat(c[1]));
 
   if (!address || address.length < 1) return callback();
 
@@ -232,18 +243,35 @@ Plan.prototype.setAddress = function(name, address, callback, extra) {
       }
     };
     geocode.reverseAmigo(c, callbackAmigo);
+  } else if (places_id !== null){
+    console.log('Looking up the Google Places details for place_id='+places_id+'')
+    var cb_amigo_placesid =  function(err, place){ 
+      console.log('Places ID callback', place)
+      if (place){
+        var lat_lng = place.geometry.location.lat()+','+place.geometry.location.lng();
+        var changes = {};
+        if (place['types'][0] === "street_address"){
+          changes[name] = place['formatted_address'];
+        } else {
+          changes[name] = place['name'] + ', ' + place['formatted_address'];
+        }
+        changes[name + '_ll'] = {lat: parseFloat(place.geometry.location.lat()), lng: parseFloat(place.geometry.location.lng())};
+        changes[name + '_id'] = place.place_id;
+        changes[name + '_valid'] = true;
+        plan.set(changes);
+        callback(null, extra);
+      } else {
+        console.log('no ejecuta nada', {'err':err,'suggestions':suggestions})
+        plan.setAddress('', '', callback);
+      }
+    }
+    geocode.lookupPlaceId(places_id, cb_amigo_placesid);
   } else {
+    // it's a physical address
     var cb_amigo =  function(err, suggestions){ 
       if (suggestions && suggestions.length > 0){
-
-        if (!suggestions[0].geometry.coordinates && suggestions[0]['place_id'] !== 'undefined'){
-          // look up this place's coordinates by the Google Places ID.
-          console.warn('Need the Lat/lng for "'+suggestions[0]['description']+'"; looking up the Google Places information for place_id='+suggestions[0]['place_id']+'')
-          // TODO
-        } else {
-          var lat_lng = suggestions[0].geometry.coordinates[0]+','+suggestions[0].geometry.coordinates[1];
-          plan.setAddress(name, lat_lng, callback);
-        }
+        var lat_lng = suggestions[0].geometry.coordinates[0]+','+suggestions[0].geometry.coordinates[1];
+        plan.setAddress(name, {'ll':lat_lng}, callback);
       } else {
         console.log('no ejecuta nada', {'err':err,'suggestions':suggestions})
         plan.setAddress('', '', callback);
