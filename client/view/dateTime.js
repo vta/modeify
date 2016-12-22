@@ -89,7 +89,13 @@ function initDesktopPicker(view, el){
       // when the datetimepicker is closed, update models with current dates and emit event
       e.stopPropagation()
       $('#main').off('mouseup')
+
+      var ui_time = getUIDateTime();
+      console.log('UI time shows : '+ui_time.format())
+      e.date.hour(ui_time.hour())
+      e.date.minute(ui_time.minute())
       var time = picker.setTime(e.date)
+      console.log('have now set "hour" to : '+time.hour)
       view.emit('active', 'days', time.day)
       view.emit('active', time.endOrStartTime, time.hour)
     })
@@ -100,12 +106,16 @@ function initDesktopPicker(view, el){
       if (!val || val.length < 1){
         return;
       }
-      var selected_date = new Date(val)
-      console.log('date changed to ', selected_date)
-      var time = picker.setTime(moment(selected_date))
+      var selected_date = moment(new Date(val))
+      console.log('date changed to ', selected_date.format())
+      var ui_time = getUIDateTime();
+      console.log('UI time shows : '+ui_time.format())
+      selected_date.hour(ui_time.hour())
+      selected_date.minute(ui_time.minute())
+      var time = picker.setTime(selected_date)
       console.log('firing "active" event for days:'+time.day+' and endOrStartTime:'+time.endOrStartTime+', hour:'+time.hour)
-        view.emit('active', 'days', time.day)
-        view.emit('active', time.endOrStartTime, time.hour)
+      view.emit('active', 'days', time.day)
+      view.emit('active', time.endOrStartTime, time.hour)
     });
     picker_input.keyup(function (event) {
         var key = event.keyCode || event.which;
