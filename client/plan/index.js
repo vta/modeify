@@ -117,6 +117,21 @@ Plan.on('change arriveBy', function(plan, val, prev) {
  */
 
 Plan.prototype.updateRoutes = debounce(function(opts, callback) {
+
+  // check if we've already done the search for these from/to pairs and for the same time
+  if (this.attrs.from_ll && this.attrs.to_ll && this.dataplan){
+    var current_fromto = [this.attrs.from_ll.lat + ',' + this.attrs.from_ll.lng, this.attrs.to_ll.lat + ',' + this.attrs.to_ll.lng]
+    var previous_fromto = [this.dataplan.requestParameters.fromPlace, this.dataplan.requestParameters.toPlace]
+    if (current_fromto[0] === previous_fromto[0] && current_fromto[1] === previous_fromto[1]){
+      var this_date_raw = this.attrs.date.split(':').concat([ this.attrs.hour, this.attrs.minute])
+      var this_date = new Date(this_date_raw[2], this_date_raw[0]-1, this_date_raw[1]).setHours(this_date_raw[3], this_date_raw[4])
+      if (this_date === this.dataplan.plan.date){
+        console.log('nope');
+        return;
+      }
+    }
+  }
+
   updateRoutes(this, opts, callback);
   this.dataplan = updateRoutes.dataplan;
 }, DEBOUNCE_UPDATES);
