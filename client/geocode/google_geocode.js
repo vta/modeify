@@ -24,11 +24,12 @@ var getCurrMap = function () {
   return mapView.getMap();
 };
 
+
 /*
- * Suggestions geocoding
+ * Google Geocoder
  */
 
-GoogleSuggestions = function (text, res) {
+GoogleGeocoder = function (text, res) {
   this.text = text;
   this.res = res;
 
@@ -37,7 +38,7 @@ GoogleSuggestions = function (text, res) {
   };
 }
 
-GoogleSuggestions.prototype = {
+GoogleGeocoder.prototype = {
   responseMapper: function (res) {
     if (status !== google.maps.places.PlacesServiceStatus.OK) {
       console.warn('PlacesService status:'+status)
@@ -68,117 +69,6 @@ GoogleSuggestions.prototype = {
 
     toMap.forEach(execute);
     return res;
-  },
-
-  _getPlaces: function () {
-    var dfd = $.Deferred(),
-        futureRes = this.futureRes,
-        text = this.text;
-
-    var getMapSpecs = function() {
-      var map = getCurrMap();
-      var mapBoundNorthEast = map.getBounds().getNorthEast();
-      return {
-        radius: 17000,
-        location: {lat: 37.303626, lng: -121.884750}
-        // TODO: make this part of a global configuration, using the following as defaults
-        // radius: mapBoundNorthEast.distanceTo(map.getCenter()),
-        // location: map.getCenter()
-      };
-    };
-    var specs = getMapSpecs();
-
-    var placesCallback = function (results, status) {
-      if (status !== google.maps.places.PlacesServiceStatus.OK) {
-        console.warn('PlacesService status:'+status)
-        return;
-      }
-      console.log('placesCallback results=', results)
-      results.forEach(function (feature, idx) {
-        feature.formatted_address = feature.name + ', ' + feature.vicinity;
-        feature.address_components = {};
-        feature.geometry = {
-          location: {
-            lat: feature.geometry.location.lat(),
-            lng: feature.geometry.location.lng()
-          } 
-        };
-      });
-
-      if (!futureRes.body.result) {
-        futureRes.body.result = results
-      } else {
-        var method = $.isNumeric(text.charAt(0)) ? 'push' : 'unshift';
-        Array.prototype[method].apply(futureRes.body.result, results);
-      }
-      dfd.resolve();
-    }
-
-    var request = {
-      'keyword': this.text,
-      'location': specs.location,
-      'radius': specs.radius
-    };
-
-    var service = new google.maps.places.PlacesService(document.createElement('div'));
-    service.nearbySearch(request, placesCallback);
-    return dfd.promise();
-  },
-
-  //_getAutocomplete: function () {
-    //var futureRes = this.futureRes,
-    //    text = this.text;
-    //console.log('making request to Google Autocomplete service.')
-    //var endpoint = 'https://maps.googleapis.com/maps/api/place/autocomplete/xml';
-    //var parameter = {
-    //  'input': text,
-    //  'key': 'AIzaSyD8qeGQRYwwYO6-xFPAhtjh8doJJO2UrL0'
-    //};
-    //var query_params = '?' + Object.keys(parameter).map(function(k) { return k + '=' + encodeURIComponent(parameter[k]) }).join('&');
-    //var res = get(endpoint+query_params,  function(err, res) {
-    //  console.log('autocomplete response callback', err, res)
-    //  if (err) {
-    //    log('<-- geocoding error %s', err);
-    //    return null;
-    //  } else {
-    //    log('<-- geocoding complete %j', res.body);
-    //    return res.body;
-    //  }
-    //})
-  //  return res
-  //},
-
-  _getAutocomplete: function () {
-    var dfd = $.Deferred(),
-        futureRes = this.futureRes,
-        text = this.text;
-
-
-    var autocompleteCallback = function (results, status) {
-      
-      console.log('autocompleteCallback status='+status+', results=', results)
-      results.forEach(function (feature, idx) {
-        feature.formatted_address = feature.description;
-        feature.address_components = {};
-        feature.geometry = {location: { lat:0, lng:0 }}
-      });
-
-      futureRes.body.result = results
-      dfd.resolve();
-    }
-    var location_bounds = new google.maps.LatLng({lat: 37.303626, lng: -121.884750});
-
-    var request = {
-      radius: 17000,
-      location: location_bounds,
-      input: this.text
-    };
-
-    var service = new google.maps.places.AutocompleteService();
-    service.getPlacePredictions(request, autocompleteCallback);
-    return dfd.promise();
-
-
   },
 
   _getGeocode: function () {
@@ -213,12 +103,60 @@ GoogleSuggestions.prototype = {
 
   get: function () {
     self = this; 
+    var apiCalls = [];
+    apiCalls.push(self._getGeocode());
+    return $.when.apply($, apiCalls).then(function () { 
+      return self.futureRes;
+    });
+  }
+};
+
+/*
+ * Suggestions geocoding
+ */
+
+GoogleSuggestions = function (text, res) {
+  this.text = text;
+  this.res = res;
+
+  this.futureRes = {
+    body: {}
+  };
+}
+
+GoogleSuggestions.prototype = {
+
+  _getAutocomplete: function () {
+    var dfd = $.Deferred(),
+        futureRes = this.futureRes,
+        text = this.text;
+
+    var autocompleteCallback = function (results, status) {
+      console.log('autocompleteCallback status='+status+', results=', results)
+      results.forEach(function (feature, idx) {
+        feature.formatted_address = feature.description;
+        feature.address_components = {};
+        feature.geometry = {location: { lat:0, lng:0 }}
+      });
+      futureRes.body.result = results
+      dfd.resolve();
+    }
+
+    var location_bounds = new google.maps.LatLng({lat: 37.303626, lng: -121.884750});
+    var request = {
+      radius: 17000,
+      location: location_bounds,
+      input: this.text
+    };
+
+    var service = new google.maps.places.AutocompleteService();
+    service.getPlacePredictions(request, autocompleteCallback);
+    return dfd.promise();
+  },
+
+  get: function () {
+    self = this; 
     return self._getAutocomplete()
-    //apiCalls.push(self._getGeocode());
-    //apiCalls.push(self._getPlaces());
-    //return $.when.apply($, apiCalls).then(function () { 
-    //  return self.futureRes;
-    //});
   }
 };
 
@@ -240,7 +178,6 @@ GooglePlaces.prototype = {
     var dfd = $.Deferred(),
         futureRes = this.futureRes,
         place_id = this.place_id;
-
 
     var placesCallback = function (placeResult, status) {
       if (status !== google.maps.places.PlacesServiceStatus.OK) {
@@ -324,14 +261,17 @@ GoogleReverse.prototype = {
   }
 };
 
-module.exports = {
+module.exports = {  
+  googleGeocoder: function (text, res) {
+    return new GoogleGeocoder(text, res);
+  },
   googleSuggestions: function (text, res) {
     return new GoogleSuggestions(text, res);
   },
   googleReverse: function (ll) {
     return new GoogleReverse(ll);
   },
-  googlePlaceLookup: function (place_id) {
+  googlePlacesLookup: function (place_id) {
     return new GooglePlaces(place_id);
   }
 };

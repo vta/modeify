@@ -259,6 +259,9 @@ Plan.prototype.setAddress = function(name, address, callback, extra) {
     };
     geocode.reverseAmigo(c, callbackAmigo);
   } else if (places_id !== null){
+    // it's already got the placesId, so just do the lookup
+    // this happens when the user clicks on one of the suggestions
+    // or hits enter in the from/to textbox
     console.log('Looking up the Google Places details for place_id='+places_id+'')
     var cb_amigo_placesid =  function(err, place){ 
       console.log('Places ID callback', place)
@@ -282,17 +285,23 @@ Plan.prototype.setAddress = function(name, address, callback, extra) {
     }
     geocode.lookupPlaceId(places_id, cb_amigo_placesid);
   } else {
-    // it's a physical address
+    // it's whole or part of a physical address/place name
+    // this happens when opening a link to Trip Planner which has addresses already in place
+    // or when the user types into the from/to textbox for autocomplete suggestions
     var cb_amigo =  function(err, suggestions){ 
       if (suggestions && suggestions.length > 0){
-        var lat_lng = suggestions[0].geometry.coordinates[0]+','+suggestions[0].geometry.coordinates[1];
-        plan.setAddress(name, {'ll':lat_lng}, callback);
+        var changes = {};
+        changes[name + '_ll'] = {lat: suggestions[0].geometry.location.lat, lng: suggestions[0].geometry.location.lng};
+        changes[name + '_id'] = suggestions[0].place_id;
+        changes[name + '_valid'] = true;
+        plan.set(changes);
+        callback(null, extra);
       } else {
         console.log('no ejecuta nada', {'err':err,'suggestions':suggestions})
         plan.setAddress('', '', callback);
       }
     }
-    geocode.suggestAmigo(address, cb_amigo);
+    geocode.geocode(address, cb_amigo);
   }
 };
 
