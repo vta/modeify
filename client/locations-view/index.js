@@ -17,8 +17,10 @@ var session = require('session');
 var View = module.exports = view(require('./template.html'), function(view, plan) {
   view.on('rendered', function() {
     var self = this;
+
     window.setTimeout(function(){
       self.resetIcons();
+      // TODO: check for user location here
     }, 200);
     
     closest(view.el, 'form').onsubmit = function(e) {
@@ -478,15 +480,25 @@ View.prototype.locateMe = function(e) {
     loading_btn.classList.remove('hidden')
     location_me_btn.classList.add('hidden')
 
-    navigator.geolocation.getCurrentPosition(function(position) {
+    var geolocationSuccess = function(position) {
+      console.log('user allowed access to geolocation')
+      self.user_geolocation = true;
       var plan = session.plan();
       var target = input.id.indexOf('from') !== -1 ? 'from' : 'to';
-
       plan.setAddress(target, position.coords.longitude + ',' + position.coords.latitude, function(err, rees) {
         plan.updateRoutes();
         self.resetIcons();
       });
-    }, null, {
+    }
+
+    var geolocationError = function(position) {
+      console.warn('user denied access to geolocation')
+      // hide the geolocation button
+      self.user_geolocation = false;
+      self.resetIcons();
+    }
+
+    navigator.geolocation.getCurrentPosition(geolocationSuccess, geolocationError, {
       enableHighAccuracy: true,
       maximumAge: 10000,
       timeout: 30000
@@ -497,9 +509,7 @@ View.prototype.locateMe = function(e) {
 }
 
 View.prototype.resetIcons = function (e) {
-  showClearOrCurrentLocation(this, 'from')
-  showClearOrCurrentLocation(this, 'to')
-
+  
   function showClearOrCurrentLocation (view, name) {
     var selector = '.' + name
     var value = view.find(selector + ' input').value
@@ -507,15 +517,26 @@ View.prototype.resetIcons = function (e) {
     var loading_btn = view.find(selector + ' .fa-spin')
     var location_me_btn = view.find(selector + ' .fa-location-arrow')
     if (!value || !value.trim || value.trim().length === 0) {
-      clear_btn.classList.add('hidden')
+      
       loading_btn.classList.add('hidden')
-      location_me_btn.classList.remove('hidden')
+      if (show_geo_btn){
+        clear_btn.classList.add('hidden')
+        location_me_btn.classList.remove('hidden')
+      } else {
+        console.log('refusing to show location arrow')
+        clear_btn.classList.remove('hidden')
+        location_me_btn.classList.add('hidden')
+      }
     } else {
       clear_btn.classList.remove('hidden')
       loading_btn.classList.add('hidden')
       location_me_btn.classList.add('hidden')
     }
   }
+
+  var show_geo_btn = (this.user_geolocation === undefined || this.user_geolocation === true) ? true : false;
+  showClearOrCurrentLocation(this, 'from')
+  showClearOrCurrentLocation(this, 'to')
 }
 
 /**
