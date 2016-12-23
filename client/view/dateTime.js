@@ -89,7 +89,13 @@ function initDesktopPicker(view, el){
       // when the datetimepicker is closed, update models with current dates and emit event
       e.stopPropagation()
       $('#main').off('mouseup')
+
+      var ui_time = getUIDateTime();
+      console.log('UI time shows : '+ui_time.format())
+      e.date.hour(ui_time.hour())
+      e.date.minute(ui_time.minute())
       var time = picker.setTime(e.date)
+      console.log('have now set "hour" to : '+time.hour)
       view.emit('active', 'days', time.day)
       view.emit('active', time.endOrStartTime, time.hour)
     })
@@ -100,12 +106,16 @@ function initDesktopPicker(view, el){
       if (!val || val.length < 1){
         return;
       }
-      var selected_date = new Date(val)
-      console.log('date changed to ', selected_date)
-      var time = picker.setTime(moment(selected_date))
+      var selected_date = moment(new Date(val))
+      console.log('date changed to ', selected_date.format())
+      var ui_time = getUIDateTime();
+      console.log('UI time shows : '+ui_time.format())
+      selected_date.hour(ui_time.hour())
+      selected_date.minute(ui_time.minute())
+      var time = picker.setTime(selected_date)
       console.log('firing "active" event for days:'+time.day+' and endOrStartTime:'+time.endOrStartTime+', hour:'+time.hour)
-        view.emit('active', 'days', time.day)
-        view.emit('active', time.endOrStartTime, time.hour)
+      view.emit('active', 'days', time.day)
+      view.emit('active', time.endOrStartTime, time.hour)
     });
     picker_input.keyup(function (event) {
         var key = event.keyCode || event.which;
@@ -435,6 +445,43 @@ function makeTimeDDL(view) {
 
   var v = view;
 
+  var blurAction = function(){
+    if (time_ddl_wrapper.hasClass('active')){
+      if (time_input[0].dataset.time) {
+        time_input.val(isoDateToHumanTime(time_input[0].dataset.time))
+        selectClosestTimeOption(time_input[0].dataset.time)
+        var selected_moment = moment(time_input[0].dataset.time)
+
+        var hour = selected_moment.hour(),
+          min = selected_moment.minute()
+
+        if (hour === view.model.hour() &&
+          min === view.model.minute()) {
+          // time hasn't changed, don't hit the server.
+          return;
+        }
+
+        var newModelAttrs = [{
+          key: 'minute',
+          value: min
+        }, {
+          key: 'hour',
+          value: hour
+        }]
+        console.log('timeddl_blur: setting hour and minute to be ' + hour + ':' + min)
+          // update each of the models w/ their new values
+        newModelAttrs.forEach(function(attr) {
+          if (view.model[attr.key]) {
+            view.model[attr.key](attr.value)
+          }
+        })
+        view.emit('active', 'hour', hour)
+      }
+      time_ddl_wrapper.removeClass('active')
+      $('.time_picker_wrapper .input-group-addon').removeClass('active')
+    }
+  }
+
   var times_list_wrapper = $('<div/>').attr({
     'class': 'times_list_wrapper',
     'aria-hidden': 'true',
@@ -456,39 +503,8 @@ function makeTimeDDL(view) {
     scrollToSelected()
   }).blur(function(e) {
     console.log('ddl blurred')
-    if (time_input[0].dataset.time) {
-      time_input.val(isoDateToHumanTime(time_input[0].dataset.time))
-      selectClosestTimeOption(time_input[0].dataset.time)
-      var selected_moment = moment(time_input[0].dataset.time)
-
-      var hour = selected_moment.hour(),
-        min = selected_moment.minute()
-
-      if (hour === view.model.hour() &&
-        min === view.model.minute()) {
-        // time hasn't changed, don't hit the server.
-        return;
-      }
-
-      var newModelAttrs = [{
-        key: 'minute',
-        value: min
-      }, {
-        key: 'hour',
-        value: hour
-      }]
-      console.log('timeddl_blur: setting hour and minute to be ' + hour + ':' + min)
-        // update each of the models w/ their new values
-      newModelAttrs.forEach(function(attr) {
-        if (view.model[attr.key]) {
-          view.model[attr.key](attr.value)
-        }
-      })
-      view.emit('active', 'hour', hour)
-    }
-    if (time_ddl_wrapper.hasClass('active')) {
-      time_ddl_wrapper.removeClass('active')
-    }
+    
+    blurAction()
   }).keydown(function(e) {
   // http://stackoverflow.com/a/6011119/940217
   var selected_iso_time = null;
@@ -554,8 +570,8 @@ for (var i = 0; i < 1440; i += 30) {
     .on('touchstart mousedown', function(e) {
       console.log('clicked!', this);
       time_input[0].dataset.time = this.dataset.value;
-      time_input[0].blur()
-      $('.time_picker_wrapper .input-group-addon').removeClass('active')
+      //time_input[0].blur()
+      blurAction()
         // now the blur() event happens, updating the time.
     })
   var moment_t = humanTimeToMoment(mins)

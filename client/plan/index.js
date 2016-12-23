@@ -117,6 +117,22 @@ Plan.on('change arriveBy', function(plan, val, prev) {
  */
 
 Plan.prototype.updateRoutes = debounce(function(opts, callback) {
+
+  // Removed: this is too aggressive in preventing duplicate searches, should find a different way to do this.
+  // check if we've already done the search for these from/to pairs and for the same time
+  //if (this.attrs.from_ll && this.attrs.to_ll && this.dataplan){
+  //  var current_fromto = [this.attrs.from_ll.lat + ',' + this.attrs.from_ll.lng, this.attrs.to_ll.lat + ',' + this.attrs.to_ll.lng]
+  //  var previous_fromto = [this.dataplan.requestParameters.fromPlace, this.dataplan.requestParameters.toPlace]
+  //  if (current_fromto[0] === previous_fromto[0] && current_fromto[1] === previous_fromto[1]){
+  //    var this_date_raw = this.attrs.date.split(':').concat([ this.attrs.hour, this.attrs.minute])
+  //    var this_date = new Date(this_date_raw[2], this_date_raw[0]-1, this_date_raw[1]).setHours(this_date_raw[3], this_date_raw[4])
+  //    if (this_date === this.dataplan.plan.date){
+  //      console.log('nope');
+  //      return;
+  //    }
+  //  }
+  //}
+
   updateRoutes(this, opts, callback);
   this.dataplan = updateRoutes.dataplan;
 }, DEBOUNCE_UPDATES);
@@ -189,8 +205,19 @@ Plan.prototype.validCoordinates = function() {
 Plan.prototype.setAddress = function(name, address, callback, extra) {
   callback = callback || function() {}; // noop callback
   var plan = this;
-  var c = address.split(',');
-  var isCoordinate = c.length === 2 && !isNaN(parseFloat(c[0])) && !isNaN(parseFloat(c[1]));
+  var isCoordinate = false;
+  var c = null;
+  var places_id = null;
+  var physical_addr = null;
+  if (address instanceof Object){
+    physical_addr = address['physical_addr'] || null
+    places_id = address['places_id'] || null
+    c = (address['ll'] || '').split(',')
+  } else {
+    c = address.split(',');
+  }
+  
+  isCoordinate = c.length === 2 && !isNaN(parseFloat(c[0])) && !isNaN(parseFloat(c[1]));
 
   if (!address || address.length < 1) return callback();
 
@@ -232,17 +259,70 @@ Plan.prototype.setAddress = function(name, address, callback, extra) {
       }
     };
     geocode.reverseAmigo(c, callbackAmigo);
-  } else {
-    var cb_amigo =  function(err, suggestions){ 
-      if (suggestions && suggestions.length > 0){
-        var lat_lng = suggestions[0].geometry.coordinates[0]+','+suggestions[0].geometry.coordinates[1];
-        plan.setAddress(name, lat_lng, callback);
+  } else if (places_id !== null){
+    // it's already got the placesId, so just do the lookup
+    // this happens when the user clicks on one of the suggestions
+    // or hits enter in the from/to textbox
+    console.log('Looking up the Google Places details for place_id='+places_id+'')
+    var cb_amigo_placesid =  function(err, place){ 
+      console.log('Places ID callback', place)
+      if (place){
+        var lat_lng = place.geometry.location.lat()+','+place.geometry.location.lng();
+        var changes = {};
+        if (place['types'][0] === "street_address"){
+          changes[name] = place['formatted_address'];
+        } else {
+          changes[name] = place['name'] + ', ' + place['formatted_address'];
+        }
+        changes[name + '_ll'] = {lat: parseFloat(place.geometry.location.lat()), lng: parseFloat(place.geometry.location.lng())};
+        changes[name + '_id'] = place.place_id;
+        changes[name + '_valid'] = true;
+        plan.set(changes);
+        callback(null, extra);
       } else {
         console.log('no ejecuta nada', {'err':err,'suggestions':suggestions})
         plan.setAddress('', '', callback);
       }
     }
-    geocode.suggestAmigo(address, cb_amigo);
+    geocode.lookupPlaceId(places_id, cb_amigo_placesid);
+  } else {
+    // it's whole or part of a physical address/place name
+    // this happens when opening a link to Trip Planner which has addresses already in place
+
+
+    // this works, but gives partially incomplete results sometimes.
+    // seems it's better to use the first result of the autocomplete
+    //var cb_amigo =  function(err, suggestions){ 
+    //  if (suggestions && suggestions.length > 0){
+    //    var changes = {};
+    //    changes[name + '_ll'] = {lat: suggestions[0].geometry.location.lat, lng: suggestions[0].geometry.location.lng};
+    //    changes[name + '_id'] = suggestions[0].place_id;
+    //    changes[name + '_valid'] = true;
+    //    plan.set(changes);
+    //    callback(null, extra);
+    //  } else {
+    //    console.log('no ejecuta nada', {'err':err,'suggestions':suggestions})
+    //    plan.setAddress('', '', callback);
+    //  }
+    //}
+    //geocode.geocode(address, cb_amigo);
+
+    var autocompleteCallback = function(err, suggestions, query_text) {
+      console.log('autocompleteCallback', err, suggestions, query_text)
+      if (err) {
+        log.error('%e', err);
+      } else {
+        if (suggestions && suggestions.length > 0) {
+          var item_suggestion = suggestions[0];
+          var suggestion_obj = {
+            "physical_addr": item_suggestion['formatted_address'],
+            "places_id": item_suggestion['place_id']
+          };
+          plan.setAddress(name, suggestion_obj, callback);
+        }
+      }
+    }
+    geocode.suggestAmigo(address, autocompleteCallback);
   }
 };
 
