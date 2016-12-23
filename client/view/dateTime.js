@@ -445,6 +445,43 @@ function makeTimeDDL(view) {
 
   var v = view;
 
+  var blurAction = function(){
+    if (time_ddl_wrapper.hasClass('active')){
+      if (time_input[0].dataset.time) {
+        time_input.val(isoDateToHumanTime(time_input[0].dataset.time))
+        selectClosestTimeOption(time_input[0].dataset.time)
+        var selected_moment = moment(time_input[0].dataset.time)
+
+        var hour = selected_moment.hour(),
+          min = selected_moment.minute()
+
+        if (hour === view.model.hour() &&
+          min === view.model.minute()) {
+          // time hasn't changed, don't hit the server.
+          return;
+        }
+
+        var newModelAttrs = [{
+          key: 'minute',
+          value: min
+        }, {
+          key: 'hour',
+          value: hour
+        }]
+        console.log('timeddl_blur: setting hour and minute to be ' + hour + ':' + min)
+          // update each of the models w/ their new values
+        newModelAttrs.forEach(function(attr) {
+          if (view.model[attr.key]) {
+            view.model[attr.key](attr.value)
+          }
+        })
+        view.emit('active', 'hour', hour)
+      }
+      time_ddl_wrapper.removeClass('active')
+      $('.time_picker_wrapper .input-group-addon').removeClass('active')
+    }
+  }
+
   var times_list_wrapper = $('<div/>').attr({
     'class': 'times_list_wrapper',
     'aria-hidden': 'true',
@@ -466,39 +503,8 @@ function makeTimeDDL(view) {
     scrollToSelected()
   }).blur(function(e) {
     console.log('ddl blurred')
-    if (time_input[0].dataset.time) {
-      time_input.val(isoDateToHumanTime(time_input[0].dataset.time))
-      selectClosestTimeOption(time_input[0].dataset.time)
-      var selected_moment = moment(time_input[0].dataset.time)
-
-      var hour = selected_moment.hour(),
-        min = selected_moment.minute()
-
-      if (hour === view.model.hour() &&
-        min === view.model.minute()) {
-        // time hasn't changed, don't hit the server.
-        return;
-      }
-
-      var newModelAttrs = [{
-        key: 'minute',
-        value: min
-      }, {
-        key: 'hour',
-        value: hour
-      }]
-      console.log('timeddl_blur: setting hour and minute to be ' + hour + ':' + min)
-        // update each of the models w/ their new values
-      newModelAttrs.forEach(function(attr) {
-        if (view.model[attr.key]) {
-          view.model[attr.key](attr.value)
-        }
-      })
-      view.emit('active', 'hour', hour)
-    }
-    if (time_ddl_wrapper.hasClass('active')) {
-      time_ddl_wrapper.removeClass('active')
-    }
+    
+    blurAction()
   }).keydown(function(e) {
   // http://stackoverflow.com/a/6011119/940217
   var selected_iso_time = null;
@@ -564,8 +570,8 @@ for (var i = 0; i < 1440; i += 30) {
     .on('touchstart mousedown', function(e) {
       console.log('clicked!', this);
       time_input[0].dataset.time = this.dataset.value;
-      time_input[0].blur()
-      $('.time_picker_wrapper .input-group-addon').removeClass('active')
+      //time_input[0].blur()
+      blurAction()
         // now the blur() event happens, updating the time.
     })
   var moment_t = humanTimeToMoment(mins)
