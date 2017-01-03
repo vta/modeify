@@ -7,7 +7,7 @@
 
 .SidePanel {
   position: absolute;
-  background-color: color(var(--vta-light-blue) alpha(80%));
+  background-color: color(var(--vta-light-gray));
   z-index: 150;
   left: 0;
   border: 0;
@@ -110,13 +110,13 @@
 
 .SidePanel .title {
   width: 100%;
-  color: var(--vta-dark-gray);
+  color: var(--vta-black);
   font-size: 15px;
 }
 
 .SidePanel .title .fa {
   vertical-align: top;
-	color: var(--vta-dark-gray);
+	color: var(--vta-light-gray);
   font-size: 20px;
   padding-right: 5px;
 }
@@ -136,7 +136,7 @@
   display: block;
   bottom: 0;
   height: 44px;
-  background-color: var(--black);
+  background-color: var(--vta-black);
   box-shadow: 0 -2px 2px -1px var(--darkest);
   width: 100%;
   line-height: 32px;
@@ -147,7 +147,7 @@
 }
 
 .SidePanel .footer .btn.send-feedback{
-  background-color: var(--vta-burgundy);
+  background-color: var(--vta-red);
   color: #fff;
   margin-left: 0;
   margin-right: 0;

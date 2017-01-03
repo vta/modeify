@@ -46,7 +46,7 @@
 }
 
 .RouteDirections .icon-end {
-  color: var(--vta-burgundy);
+  color: var(--vta-red);
 }
 
 .RouteDirections .transfer > .station {

@@ -248,11 +248,11 @@ function rankRoutes(routes, primary, secondary) {
 
   var primaryColor = d3.scale.linear()
     .domain(primaryDomain)
-    .range(['#00587b', '#fff']);
+    .range(['#4CB4E7', '#fff']);  // --vta-light-blue
 
   var secondaryColor = d3.scale.linear()
     .domain(secondaryDomain)
-    .range(['#99c5d2', '#fff']);
+    .range(['#DaD9D6', '#fff']);  // --vta-light-gray
 
   routes = routes.map(function(r) {
     r.primaryRank = primaryScale(primary(r));
