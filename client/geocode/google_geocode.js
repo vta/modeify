@@ -1,5 +1,6 @@
 var mapView = require('map-view');
 var config = require('config');
+var get = require('./client/request').get
 
 /* 
  * This code is pulled into separate file b/c the mapping makes it unecessarily complicated.
@@ -23,11 +24,12 @@ var getCurrMap = function () {
   return mapView.getMap();
 };
 
+
 /*
- * Suggestions geocoding
+ * Google Geocoder
  */
 
-GoogleSuggestions = function (text, res) {
+GoogleGeocoder = function (text, res) {
   this.text = text;
   this.res = res;
 
@@ -36,8 +38,12 @@ GoogleSuggestions = function (text, res) {
   };
 }
 
-GoogleSuggestions.prototype = {
+GoogleGeocoder.prototype = {
   responseMapper: function (res) {
+    if (status !== google.maps.places.PlacesServiceStatus.OK) {
+      console.warn('PlacesService status:'+status)
+      return;
+    }
     var execute = function (func) { func(); };
     var toMap = [
       function getData () {
@@ -63,56 +69,6 @@ GoogleSuggestions.prototype = {
 
     toMap.forEach(execute);
     return res;
-  },
-
-  _getPlaces: function () {
-    var dfd = $.Deferred(),
-        futureRes = this.futureRes,
-        text = this.text;
-
-    var getMapSpecs = function() {
-      var map = getCurrMap();
-      var mapBoundNorthEast = map.getBounds().getNorthEast();
-      return {
-        radius: 17000,
-        location: {lat: 37.303626, lng: -121.884750}
-        // TODO: make this part of a global configuration, using the following as defaults
-        // radius: mapBoundNorthEast.distanceTo(map.getCenter()),
-        // location: map.getCenter()
-      };
-    };
-    var specs = getMapSpecs();
-
-    var mapToGeocodeRes = function (results) {
-      results.forEach(function (feature, idx) {
-        feature.formatted_address = feature.name + ', ' + feature.vicinity;
-        feature.address_components = {};
-        feature.geometry = {
-          location: {
-            lat: feature.geometry.location.lat(),
-            lng: feature.geometry.location.lng()
-          } 
-        };
-      });
-
-      if (!futureRes.body.result) {
-        futureRes.body.result = results
-      } else {
-        var method = $.isNumeric(text.charAt(0)) ? 'push' : 'unshift';
-        Array.prototype[method].apply(futureRes.body.result, results);
-      }
-      dfd.resolve();
-    }
-
-    var config = {
-      'keyword': this.text,
-      'location': specs.location,
-      'radius': specs.radius
-    };
-
-    var service = new google.maps.places.PlacesService(document.createElement('div'));
-    service.nearbySearch(config, mapToGeocodeRes);
-    return dfd.promise();
   },
 
   _getGeocode: function () {
@@ -146,14 +102,111 @@ GoogleSuggestions.prototype = {
   },
 
   get: function () {
-    var apiCalls = [],
-        that = this;
-    apiCalls.push(that._getGeocode(), that._getPlaces());
+    self = this; 
+    var apiCalls = [];
+    apiCalls.push(self._getGeocode());
     return $.when.apply($, apiCalls).then(function () { 
-      return that.futureRes; 
+      return self.futureRes;
     });
   }
 };
+
+/*
+ * Suggestions geocoding
+ */
+
+GoogleSuggestions = function (text, res) {
+  this.text = text;
+  this.res = res;
+
+  this.futureRes = {
+    body: {}
+  };
+}
+
+GoogleSuggestions.prototype = {
+
+  _getAutocomplete: function () {
+    var dfd = $.Deferred(),
+        futureRes = this.futureRes,
+        text = this.text;
+
+    var autocompleteCallback = function (results, status) {
+      console.log('autocompleteCallback status='+status+', results=', results)
+      results.forEach(function (feature, idx) {
+        feature.formatted_address = feature.description;
+        feature.address_components = {};
+        feature.geometry = {location: { lat:0, lng:0 }}
+      });
+      futureRes.body.result = results
+      dfd.resolve();
+    }
+
+    var location_bounds = new google.maps.LatLng({lat: 37.303626, lng: -121.884750});
+    var request = {
+      radius: 17000,
+      location: location_bounds,
+      input: this.text
+    };
+
+    var service = new google.maps.places.AutocompleteService();
+    service.getPlacePredictions(request, autocompleteCallback);
+    return dfd.promise();
+  },
+
+  get: function () {
+    self = this; 
+    return self._getAutocomplete()
+  }
+};
+
+
+/*
+ * Google Places Endpoint
+ */
+
+GooglePlaces = function (place_id) {
+  this.place_id = place_id;
+  this.futureRes = {
+    body: {}
+  };
+}
+
+GooglePlaces.prototype = {
+  
+  _getPlace: function () {
+    var dfd = $.Deferred(),
+        futureRes = this.futureRes,
+        place_id = this.place_id;
+
+    var placesCallback = function (placeResult, status) {
+      if (status !== google.maps.places.PlacesServiceStatus.OK) {
+        console.warn('PlacesService status:'+status)
+        return;
+      }
+      console.log('placesCallback PlaceResult=', placeResult)
+      futureRes.body.result = placeResult
+      dfd.resolve();
+    }
+
+    var request = {
+      placeId: place_id
+    };
+
+
+    var service = new google.maps.places.PlacesService(document.createElement('div'));
+    service.getDetails(request, placesCallback);
+
+    return dfd.promise();
+  },
+
+  get: function () {
+    var self = this;  
+    return self._getPlace();
+  }
+};
+
+
 
 /*
  * Reverse geocoding
@@ -208,11 +261,17 @@ GoogleReverse.prototype = {
   }
 };
 
-module.exports = {
+module.exports = {  
+  googleGeocoder: function (text, res) {
+    return new GoogleGeocoder(text, res);
+  },
   googleSuggestions: function (text, res) {
     return new GoogleSuggestions(text, res);
   },
   googleReverse: function (ll) {
     return new GoogleReverse(ll);
+  },
+  googlePlacesLookup: function (place_id) {
+    return new GooglePlaces(place_id);
   }
 };
