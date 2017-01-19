@@ -116,7 +116,7 @@
 
 .SidePanel .title .fa {
   vertical-align: top;
-	color: var(--vta-light-gray);
+/*	color: var(--vta-light-gray);*/
   font-size: 20px;
   padding-right: 5px;
 }
