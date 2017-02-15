@@ -235,6 +235,15 @@ View.prototype.feedback = function(e) {
 };
 
 /**
+ * Link to Surveymonkey
+ */
+
+View.prototype.surveymonkey = function(e) {
+  e.preventDefault();
+  window.open('https://www.surveymonkey.com/r/ZB63FHZ')
+};
+
+/**
  * Hide Side Panel
  */
 
