@@ -250,6 +250,7 @@ module.exports.hasVehicleMoved = function (oldPoint, newPoint) {
 
 module.exports.addPoint = function (map, point) {
   var routeId = point.routeId,
+      routeShortName = point.routeShortName,
       iconUrl = 'assets/images/graphics/',
       line, newPoint;
 
@@ -279,7 +280,7 @@ module.exports.addPoint = function (map, point) {
     iconAnchor: [20, 45],
     popupAnchor:  [0, -50],
     className: 'tint',
-    number: routeId
+    number: routeShortName
   }));
 
   newPoint.marker.realtimeData = point;
