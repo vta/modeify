@@ -444,7 +444,8 @@ module.exports.drawRouteStops = function (routeId, stops, isBus) {
 
             $.get(endPoint, {
                 rs: routeId + '|' + rtiid,
-                format: 'json'
+                format: 'json',
+                agency: 'vta'
             }).done(function (data) {
                 var stopInfo = data.predictions[0];
                 var predictions = data.predictions[0].destinations[0].predictions;
@@ -543,7 +544,8 @@ module.exports.mapRouteStops = function (legs) {
                         vehicle.route,
                         vehicle.from.stopCode,
                         vehicle.to.stopCode,
-                        vehicle.mode === 'BUS'
+                        vehicle.mode === 'BUS',
+                        vehicle.agencyId
                     )
                 );
             }
@@ -553,12 +555,13 @@ module.exports.mapRouteStops = function (legs) {
     this.manageRealtime.toggleAsyncRealtime(deferredRouteDetails);
 };
 
-module.exports.loadRouteStops = function (routeId, from, to, isBus) {
+module.exports.loadRouteStops = function (routeId, from, to, isBus, agencyId) {
     var endPoint = '/api/transitime/routeDetails';
 
     return $.get(endPoint, {
         r: routeId,
-        format: 'json'
+        format: 'json',
+        agency: 'vta'
     }).success(function (data) {
         var route = data.routes[0],
             foundFrom = false, foundTo = false,

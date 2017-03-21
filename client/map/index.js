@@ -82,7 +82,8 @@ module.exports.getRealtimeVehicles = function (validVehicles) {
     // key: routeId, value: direction of travel (1 or 0)
     requests.push($.get(endpoint, {
       r: routeId,
-      format: 'json'
+      format: 'json',
+      agency: 'vta'
     }).then(function (data) {
       // find vehicles in route heading direction that matches legs in currRoutes
       var vehicle = {};
