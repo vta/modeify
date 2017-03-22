@@ -406,7 +406,7 @@ module.exports.drawRouteAmigo = function (legs, mode, itineration) {
     return route;
 };
 
-module.exports.drawRouteStops = function (routeId, stops, isBus) {
+module.exports.drawRouteStops = function (routeId, stops, isBus, agencyId) {
     var stopsGroup = L.featureGroup();
     var endPoint = '/api/transitime/predictions';
 
@@ -445,7 +445,7 @@ module.exports.drawRouteStops = function (routeId, stops, isBus) {
             $.get(endPoint, {
                 rs: routeId + '|' + rtiid,
                 format: 'json',
-                agency: 'vta'
+                agency: agencyId
             }).done(function (data) {
                 var stopInfo = data.predictions[0];
                 var predictions = data.predictions[0].destinations[0].predictions;
@@ -507,9 +507,11 @@ module.exports.removeRouteBuses = function () {
 
 module.exports.manageRealtime = {
     currRoutes: {},
+    agencyForRoute: {},
 
-    pushToCurrRoutes: function (id, direction) {
+    pushToCurrRoutes: function (id, direction, agencyId) {
         this.currRoutes[id] = direction;
+        this.agencyForRoute[id] = agencyId;
     },
 
     removeRealtimeData: function (map) {
@@ -521,6 +523,7 @@ module.exports.manageRealtime = {
 
     renderRealtime: function () {
         mapModule.currRoutes = this.currRoutes;
+        mapModule.agencyForRoute = this.agencyForRoute;
         mapModule.toggleRealtime(module.exports.getMap());
     },
 
@@ -537,7 +540,7 @@ module.exports.mapRouteStops = function (legs) {
 
     for (var i = 0; i < legs.length; i++) {
         vehicle = legs[i];
-        if (vehicle.mode === 'TRAM' || vehicle.mode === 'BUS') {
+        if (vehicle.mode === 'TRAM' || vehicle.mode === 'BUS' || vehicle.mode === 'RAIL') {
             if (vehicle.route.length < 4) {
                 deferredRouteDetails.push(
                     module.exports.loadRouteStops(
@@ -561,7 +564,7 @@ module.exports.loadRouteStops = function (routeId, from, to, isBus, agencyId) {
     return $.get(endPoint, {
         r: routeId,
         format: 'json',
-        agency: 'vta'
+        agency: agencyId
     }).success(function (data) {
         var route = data.routes[0],
             foundFrom = false, foundTo = false,
@@ -604,12 +607,13 @@ module.exports.loadRouteStops = function (routeId, from, to, isBus, agencyId) {
             }
         }
 
-        module.exports.drawRouteStops(routeId, stops, isBus);
+        module.exports.drawRouteStops(routeId, stops, isBus, agencyId);
         module.exports.toggleMapElement('.leaflet-div-icon1', 'hide');
 
         return module.exports.manageRealtime.pushToCurrRoutes(
             routeId,
-            i.toString() // i here matches the route direction and is always 1 or 0
+            i.toString(), // i here matches the route direction and is always 1 or 0
+            agencyId
         );
     }).fail(function (msg) {
         console.log('Request returned with error msg:' + msg);

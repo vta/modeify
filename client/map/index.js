@@ -74,6 +74,7 @@ if (config.map_provider() === 'AmigoCloud') {
 
 module.exports.getRealtimeVehicles = function (validVehicles) {
   var currRoutes = module.exports.currRoutes,
+      agencyForRoute = module.exports.agencyForRoute,
       requests = [],
       endpoint = '/api/transitime/vehiclesDetails';
 
@@ -83,7 +84,7 @@ module.exports.getRealtimeVehicles = function (validVehicles) {
     requests.push($.get(endpoint, {
       r: routeId,
       format: 'json',
-      agency: 'vta'
+      agency: agencyForRoute[routeId]
     }).then(function (data) {
       // find vehicles in route heading direction that matches legs in currRoutes
       var vehicle = {};
