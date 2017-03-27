@@ -153,7 +153,7 @@ function updateRoutes(plan, opts, callback) {
       analytics.send_ac({
         event_type: 'query',
         url: location.href,
-        results: JSON.stringify(data),
+        //results: JSON.stringify(data),
         timestamp: (new Date()).toISOString(),
         from_address: plan.from(),
         to_address: plan.to()
