@@ -67,7 +67,7 @@ module.exports = function(route, opts) {
     var name = leg.routeShortName;
 
     if (!leg.routeShortName) {
-      if (leg.agencyId === 'CT') {
+      if (leg.agencyId === 'caltrain-ca-us') {
         name = 'CT'
         // switch (leg.route) {
         //   case 'Baby Bullet':
