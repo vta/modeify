@@ -47,7 +47,7 @@ module.exports = function (el) {
         });
         map.addBaseLayer(L.amigo.AmigoGray);
         map.layersControl.addBaseLayer(
-            L.bingLayer(
+            L. bingLayer(
                 config.bing_key(), {
                     type: 'Road',
                     attribution: 'Bing Maps'
