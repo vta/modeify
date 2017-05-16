@@ -46,6 +46,8 @@ module.exports = function (el) {
             provider: 'mapbox'
         });
         map.addBaseLayer(L.amigo.AmigoGray);
+        map.addBaseLayer(L.amigo.AmigoSatellite);
+        map.addBaseLayer(L.amigo.AmigoStreet);
         map.layersControl.addBaseLayer(
             L. bingLayer(
                 config.bing_key(), {
