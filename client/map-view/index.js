@@ -39,15 +39,9 @@ module.exports = function (el) {
             }
         );
 
-        map.addAuthLayer({
-            id: config.mapbox_map_id(),
-            accessToken: config.mapbox_access_token(),
-            name: 'Gray',
-            provider: 'mapbox'
-        });
-        map.addBaseLayer(L.amigo.AmigoGray);
         map.addBaseLayer(L.amigo.AmigoSatellite);
         map.addBaseLayer(L.amigo.AmigoStreet);
+        map.addBaseLayer(L.amigo.AmigoGray);
         map.layersControl.addBaseLayer(
             L. bingLayer(
                 config.bing_key(), {
@@ -57,6 +51,13 @@ module.exports = function (el) {
             ),
             'Bing Road'
         );
+        map.addAuthLayer({
+            id: config.mapbox_map_id(),
+            accessToken: config.mapbox_access_token(),
+            name: 'Gray',
+            provider: 'mapbox'
+        });
+
         map.layersControl.addOverlay(blurLayer);
         blurLayer.addTo(map);
 
