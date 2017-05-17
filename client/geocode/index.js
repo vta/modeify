@@ -8,55 +8,15 @@ var googleGeocode = require('./google_geocode');
 
 module.exports = geocode;
 module.exports.geocode = geocode;
-module.exports.reverseAmigo = reverseAmigo;
-module.exports.suggestAmigo = suggestAmigo;
+module.exports.reverseGoogle = reverseGoogle;
+module.exports.suggestGoogle = suggestGoogle;
 module.exports.lookupPlaceId = lookupPlaceId;
 
-
-
 /**
- * Geocoding options (google or amigo)
+ * Geocoding options (google or Google)
  **/
 
 var geocodingOptions = {
-  // amigoSuggestions: function (text, res) {
-  //   var bounding = res.body.boundingbox;
-  //   var bounding_split = bounding.split(",");
-  //   var boinding_first = bounding_split[0].split(" ");
-  //   var boinding_second = bounding_split[1].split(" ");
-  //   var parameter = {
-  //       'token': config.realtime_access_token() ,
-  //       'boundary.rect.min_lat': boinding_first[1],
-  //       'boundary.rect.min_lon': boinding_first[0],
-  //       'boundary.rect.max_lat': boinding_second[1],
-  //       'boundary.rect.max_lon': boinding_second[0],
-  //       'sources':'osm,oa',
-  //       'text': text
-  //   };
-
-  //   return {
-  //     get: function () {
-  //       return $.get('https://www.amigocloud.com/api/v1/me/geocoder/search', parameter).then(function (data) {
-  //         return {
-  //           body: data
-  //         };
-  //       });
-  //     }
-  //   };
-  // },
-
-  // amigoReverse: function (ll) {
-  //   var parameter = {
-  //     'token':config.realtime_access_token() ,
-  //     'point.lon':ll[0],
-  //     'point.lat':ll[1]
-  //   };
-
-  //   return {
-  //     parameter: parameter,
-  //     endpoint: 'https://www.amigocloud.com/api/v1/me/geocoder/reverse'
-  //   };
-  // },
   googleGeocoder: googleGeocode.googleGeocoder,
   googleSuggestions: googleGeocode.googleSuggestions,
   googlePlacesLookup: googleGeocode.googlePlacesLookup,
@@ -67,10 +27,10 @@ var geocodingOptions = {
  * Reverse geocode
  */
 
-function reverseAmigo(ll, callback) {
+function reverseGoogle(ll, callback) {
   log('--> reverse geocoding %s', ll);
 
-  // var query = geocodingOptions.amigoReverse(ll);
+  // var query = geocodingOptions.GoogleReverse(ll);
   var query = geocodingOptions.googleReverse(ll);
   console.log('attempting to reverse geocode', ll)
 
@@ -94,7 +54,7 @@ function reverseAmigo(ll, callback) {
 /**
  * Suggestions!
  */
-function suggestAmigo(text, callback) {
+function suggestGoogle(text, callback) {
   console.log('getting suggestions for "' + text + '"')
   var res = {
       "body": {
@@ -102,9 +62,6 @@ function suggestAmigo(text, callback) {
       }
     }
   var query_text = text;
-  //get('https://www.amigocloud.com/api/v1/users/1/projects/661/datasets/22492', {
-  //  'token': config.realtime_access_token()
-  //}, function(err, res) {
   var query = geocodingOptions.googleSuggestions(text, res);
   query.get().then(function() {
     var res = query.futureRes;
@@ -126,9 +83,6 @@ function geocode(text, callback) {
       }
     }
   var query_text = text;
-  //get('https://www.amigocloud.com/api/v1/users/1/projects/661/datasets/22492', {
-  //  'token': config.realtime_access_token()
-  //}, function(err, res) {
   var query = geocodingOptions.googleGeocoder(text, res);
   query.get().then(function() {
     var res = query.futureRes;

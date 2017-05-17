@@ -8,7 +8,7 @@ var collision = require('./leaflet_layergroup_collision.js');
 var session = require('session');
 
 var center = config.geocode().center.split(',').map(parseFloat)
-if (config.map_provider && config.map_provider() !== 'AmigoCloud') {
+if (config.map_provider && config.map_provider() == 'Mapbox' ) {
     L.mapbox.accessToken = config.mapbox_access_token();
 }
 
@@ -17,41 +17,15 @@ module.exports = function (el) {
     localStorage.removeItem('dataplan');
     sessionStorage.removeItem('dataplan');
 
-    if (config.map_provider && config.map_provider() === 'AmigoCloud') {
+    if (config.map_provider && config.map_provider() === 'GoogleV3') {
         southWest = L.latLng(35.946877085397, -123.480610897013);
         northEast = L.latLng(40.763279543715, -118.789317362500);
-        // map = (new L.amigo.map(el, {
-        //     amigoLogo: 'right',
-        //         loadAmigoLayers: false,
-        //         inertia: false,
-        //         zoomAnimation: true,
-        //         maxBounds: L.latLngBounds(southWest, northEast),
-        //         minZoom: 8
-        // })).setView([center[1], center[0]], config.geocode().zoom);
 
         map = (new L.map(el, {
             zoomAnimation: true,
             maxBounds: L.latLngBounds(southWest, northEast),
             minZoom: 8
         })).setView([center[1], center[0]], config.geocode().zoom);
-
-        // L.amigo.auth.setToken(config.support_data_token());
-
-        // blurLayer = L.tileLayer(
-        //     'https://www.amigocloud.com/api/v1/users/' +
-        //     '23/projects/3019/datasets/23835/tiles/{z}/{x}/{y}.png?' +
-        //     'token=' + config.support_data_token(), {
-        //         name: 'Uncovered Area'
-        //     }
-        // );
-
-        // L.esri.basemapLayer('Topographic').addTo(map);
-        // map.addBaseLayer(L.amigo.AmigoSatellite);
-        // map.addBaseLayer(L.amigo.AmigoStreet);
-        // map.addBaseLayer(L.amigo.AmigoGray);
-
-
-        // L.esri.basemapLayer('Topographic').addTo(map);
 
         var roadMutant = L.gridLayer.googleMutant({
             maxZoom: 24,
@@ -101,8 +75,6 @@ module.exports = function (el) {
         });
         transitMutant.addGoogleLayer('TransitLayer');
 
-
-
         L.control.layers({
             Roadmap: roadMutant,
             Aerial: satMutant,
@@ -115,35 +87,40 @@ module.exports = function (el) {
             collapsed: false
         }).addTo(map);
 
-        // map.layersControl.addBaseLayer(
-        //     L. bingLayer(
-        //         config.bing_key(), {
-        //             type: 'Road',
-        //             attribution: 'Bing Maps'
-        //         }
-        //     ),
-        //     'Bing Road'
-        // );
-        // map.addAuthLayer({
-        //     id: config.mapbox_map_id(),
-        //     accessToken: config.mapbox_access_token(),
-        //     name: 'Gray',
-        //     provider: 'mapbox'
-        // });
-
-        // map.layersControl.addOverlay(blurLayer);
-        // blurLayer.addTo(map);
-
         //L.control.locate().addTo(map);
 
         map.routes = []; // array to hold all route objects
 
         module.exports.activeMap = map;
 
-        //map.realtimeControl = L.control.toggleRealTime().addTo(map);
-
         realtime = mapModule.realtime();
 
+    } else if (config.map_provider && config.map_provider() === 'ESRI') {
+        southWest = L.latLng(35.946877085397, -123.480610897013);
+        northEast = L.latLng(40.763279543715, -118.789317362500);
+
+        map = (new L.map(el, {
+            zoomAnimation: true,
+            maxBounds: L.latLngBounds(southWest, northEast),
+            minZoom: 8
+        })).setView([center[1], center[0]], config.geocode().zoom);
+
+        /**
+         * @todo Add Layer Controls for switching ESRI basemaps
+         * @see https://esri.github.io/esri-leaflet/examples/switching-basemaps.html
+         *
+         */
+        // L.esri.basemapLayer('Topographic').addTo(map);
+        // L.esri.basemapLayer('Imagery').addTo(map);
+        L.esri.basemapLayer('Streets').addTo(map);
+        // L.esri.basemapLayer('Terrain').addTo(map);
+        // L.esri.basemapLayer('Gray').addTo(map);
+
+        map.routes = []; // array to hold all route objects
+
+        module.exports.activeMap = map;
+
+        realtime = mapModule.realtime();
 
     } else {
 

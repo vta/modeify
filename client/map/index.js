@@ -14,8 +14,8 @@ module.exports = function(el, opts) {
   };
 
   // create a map in the el with given options
-  if (config.map_provider && config.map_provider() === 'AmigoCloud') {
-    return new Map(L.amigo.map(el, opts));
+  if (config.map_provider && config.map_provider() === 'GoogleV3') {
+    return new Map(L.map(el, opts));
   } else {
     return new Map(L.mapbox.map(el, config.mapbox_map_id(), opts));
   }
@@ -30,9 +30,9 @@ module.exports.createMarker = function(opts) {
 
   var marker;
 
-  if (config.map_provider && config.map_provider() === 'AmigoCloud') {
+  if (config.map_provider && config.map_provider() === 'GoogleV3') {
     marker = L.marker(new L.LatLng(opts.coordinate[1], opts.coordinate[0]), {
-      icon: L.amigo.marker.icon({
+      icon: L.map.marker.icon({
         'marker-size': opts.size || 'medium',
         'marker-color': opts.color || '#ccc',
         'marker-symbol': opts.icon || ''
@@ -63,7 +63,7 @@ module.exports.createMarker = function(opts) {
  */
 
 
-if (config.map_provider() === 'AmigoCloud') {
+if (config.map_provider() !== 'Mapbox') {
     module.exports.realtime = function() {
         debug('setting up empty socket connection');
 
@@ -177,7 +177,7 @@ module.exports.drawRoute = function (marker) {
   queryUrl = projectUrl + '/sql?token=' + config.realtime_access_token() +
     '&query=' + query + '&limit=1000';
 
-  L.amigo.utils.get(queryUrl).
+  L.map.utils.get(queryUrl).
     then(function (data) {
       if (!data.data.length) {
         return;
@@ -383,8 +383,8 @@ module.exports.makePopup = function (point) {
 
 function Map(map) {
   this.map = map;
-  if (config.map_provider && config.map_provider() === 'AmigoCloud') {
-    this.featureLayer = L.amigo.featureLayer().addTo(map);
+  if (config.map_provider && config.map_provider() === 'GoogleV3') {
+    this.featureLayer = L.map.featureLayer().addTo(map);
   } else {
     this.featureLayer = L.mapbox.featureLayer().addTo(map);
   }
