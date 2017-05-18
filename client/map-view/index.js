@@ -47,20 +47,20 @@ module.exports = function (el) {
             type:'hybrid'
         });
 
-        var styleMutant = L.gridLayer.googleMutant({
-            styles: [
-                {elementType: 'labels', stylers: [{visibility: 'off'}]},
-                {featureType: 'water', stylers: [{color: '#444444'}]},
-                {featureType: 'landscape', stylers: [{color: '#eeeeee'}]},
-                {featureType: 'road', stylers: [{visibility: 'off'}]},
-                {featureType: 'poi', stylers: [{visibility: 'off'}]},
-                {featureType: 'transit', stylers: [{visibility: 'off'}]},
-                {featureType: 'administrative', stylers: [{visibility: 'off'}]},
-                {featureType: 'administrative.locality', stylers: [{visibility: 'off'}]}
-            ],
-            maxZoom: 24,
-            type:'roadmap'
-        });
+        // var styleMutant = L.gridLayer.googleMutant({
+        //     styles: [
+        //         {elementType: 'labels', stylers: [{visibility: 'off'}]},
+        //         {featureType: 'water', stylers: [{color: '#444444'}]},
+        //         {featureType: 'landscape', stylers: [{color: '#eeeeee'}]},
+        //         {featureType: 'road', stylers: [{visibility: 'off'}]},
+        //         {featureType: 'poi', stylers: [{visibility: 'off'}]},
+        //         {featureType: 'transit', stylers: [{visibility: 'off'}]},
+        //         {featureType: 'administrative', stylers: [{visibility: 'off'}]},
+        //         {featureType: 'administrative.locality', stylers: [{visibility: 'off'}]}
+        //     ],
+        //     maxZoom: 24,
+        //     type:'roadmap'
+        // });
 
         var trafficMutant = L.gridLayer.googleMutant({
             maxZoom: 24,
@@ -69,25 +69,31 @@ module.exports = function (el) {
         trafficMutant.addGoogleLayer('TrafficLayer');
 
 
-        var transitMutant = L.gridLayer.googleMutant({
-            maxZoom: 24,
-            type:'roadmap'
-        });
-        transitMutant.addGoogleLayer('TransitLayer');
+        // var transitMutant = L.gridLayer.googleMutant({
+        //     maxZoom: 24,
+        //     type:'roadmap'
+        // });
+        // transitMutant.addGoogleLayer('TransitLayer');
 
         L.control.layers({
             Roadmap: roadMutant,
             Aerial: satMutant,
             Terrain: terrainMutant,
             Hybrid: hybridMutant,
-            Styles: styleMutant,
+            // Styles: styleMutant,
             Traffic: trafficMutant,
-            Transit: transitMutant
+            // Transit: transitMutant
         }, {}, {
             collapsed: false
         }).addTo(map);
 
         //L.control.locate().addTo(map);
+        map.addControl(L.control.locate({
+            locateOptions: {
+                enableHighAccuracy: true
+            },
+            // position: 'bottomright',
+        }));
 
         map.routes = []; // array to hold all route objects
 
@@ -370,7 +376,7 @@ module.exports.toggleMapElement = function (el, showHide) {
     $(el)[showHide]();
 };
 
-module.exports.drawRouteAmigo = function (legs, mode, itineration) {
+module.exports.drawRouteGoogle = function (legs, mode, itineration) {
     var route = legs.legGeometry.points;
     var circle_from = [legs.from.lat, legs.from.lon, legs.from.name];
     var circle_to = [legs.to.lat, legs.to.lon, legs.to.name];

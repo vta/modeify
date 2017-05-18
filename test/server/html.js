@@ -15,6 +15,7 @@ var manager = hogan.compile(fs.readFileSync(__dirname +
   '/../../client/manager.html', 'utf8')).render({
   application: config.application,
   segmentio_key: config.segmentio_key,
+  google_api_key: config.google_api_key,
   static_url: config.static_url,
   version: config.version
 });
@@ -27,6 +28,7 @@ var planner = hogan.compile(fs.readFileSync(__dirname +
   '/../../client/planner.html', 'utf8')).render({
   application: config.application,
   segmentio_key: config.segmentio_key,
+  google_api_key: config.google_api_key,
   static_url: config.static_url,
   version: config.version
 });
