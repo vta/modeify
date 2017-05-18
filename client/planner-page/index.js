@@ -417,7 +417,7 @@ function updateMapOnPlanChange(plan, map) {
           map.routes = []; // empty the routes array
           for (i = 0; i < itineraries.length; i++) {
             for (ii = 0; ii < itineraries[i].legs.length; ii++) {
-              route = showMapView.drawRouteAmigo(itineraries[i].legs[ii], itineraries[i].legs[ii].mode, i);
+              route = showMapView.drawRouteGoogle(itineraries[i].legs[ii], itineraries[i].legs[ii].mode, i);
               map.routes.push(route);
             }
           }

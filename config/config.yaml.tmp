@@ -27,7 +27,11 @@ geocode:
 api_url: /api
 base_url: http://localhost:5000
 
+ignore_events_from:
+
 google_site_verification:
+google_api_key:
+ga_key:
 
 mapbox_access_token:
 mapbox_map_id:
