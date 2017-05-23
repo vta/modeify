@@ -447,16 +447,20 @@ module.exports.drawRouteGoogle = function (legs, mode, itineration) {
     var weight = 5;
     var classname = "iteration-" + itineration + " iteration-200";
 
+    console.log(legs);
+    console.log(mode);
+    console.log(itineration);
+
     var dasharray = '';
-    var colors = {
-        'CAR': '#636363',
-        'BICYCLE': '#f03b20',
-        'TRAM': '#74c476',
-        'RAIL': '#fe9929',
-        'WALK': '#3182bd',
-        'BUS': '#6baed6'
-    };
-    var color = colors[mode] ? colors[mode] : '#000000';
+    // var colors = {
+    //     'CAR': '#636363',
+    //     'BICYCLE': '#f03b20',
+    //     'TRAM': '#74c476',
+    //     'RAIL': '#fe9929',
+    //     'WALK': '#3182bd',
+    //     'BUS': '#6baed6'
+    // };
+    // var color = colors[mode] ? colors[mode] : '#000000';
 
     var colors = {
         'CAR': '#ffeda0',
@@ -481,7 +485,7 @@ module.exports.drawRouteGoogle = function (legs, mode, itineration) {
 
     } else if (mode == "SUBWAY" || mode == "RAIL" || mode === "TRAM") {
         if (!(legs.routeColor === undefined)) {
-            if (legs.routeColor != "" || legs.routeColor.length == 6) {
+            if (legs.routeColor !== "" || legs.routeColor.length == 6) {
                 color = "#" + legs.routeColor;
             }
 
@@ -495,7 +499,7 @@ module.exports.drawRouteGoogle = function (legs, mode, itineration) {
         weight = 3;
     } else if (mode == "BUS") {
         if (!(legs.routeColor === undefined)) {
-            if (legs.routeColor != "" || legs.routeColor.length == 6) {
+            if (legs.routeColor !== "" || legs.routeColor.length == 6) {
                 color = "#" + legs.routeColor;
             }
         }
@@ -505,7 +509,7 @@ module.exports.drawRouteGoogle = function (legs, mode, itineration) {
     }
     
     // we don't want white ever
-    if (color == "#FFFFFF") {
+    if (color === "#FFFFFF") {
         color = "#fec44f";
     }
     
@@ -518,6 +522,8 @@ module.exports.drawRouteGoogle = function (legs, mode, itineration) {
         dashArray: dasharray,
         className: classname
     };
+
+    console.log(color_options);
 
     var argpolyline = L.PolylineUtil.decode(route, 5);
     argpolyline.unshift(circle_from);

@@ -407,6 +407,8 @@ function updateMapOnPlanChange(plan, map) {
 
           var itineraries = sesion_plan.itineraries;
 
+          console.log(itineraries);
+
           showMapView.marker_map(
             [sesion_plan.from.lat, sesion_plan.from.lon], [sesion_plan.to.lat, sesion_plan.to.lon]
           );
