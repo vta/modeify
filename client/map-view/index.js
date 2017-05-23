@@ -17,7 +17,59 @@ module.exports = function (el) {
     localStorage.removeItem('dataplan');
     sessionStorage.removeItem('dataplan');
 
-    if (config.map_provider && config.map_provider() === 'GoogleV3') {
+    if (config.map_provider && config.map_provider() === 'AmigoCloud') {
+        southWest = L.latLng(35.946877085397, -123.480610897013);
+        northEast = L.latLng(40.763279543715, -118.789317362500);
+        map = (new L.amigo.map(el, {
+            amigoLogo: 'right',
+            loadAmigoLayers: false,
+            inertia: false,
+            zoomAnimation: true,
+            maxBounds: L.latLngBounds(southWest, northEast),
+            minZoom: 8
+        })).setView([center[1], center[0]], config.geocode().zoom);
+
+        L.amigo.auth.setToken(config.support_data_token());
+
+        blurLayer = L.tileLayer(
+            'https://www.amigocloud.com/api/v1/users/' +
+            '23/projects/3019/datasets/23835/tiles/{z}/{x}/{y}.png?' +
+            'token=' + config.support_data_token(), {
+                name: 'Uncovered Area'
+            }
+        );
+
+        map.addAuthLayer({
+            id: config.mapbox_map_id(),
+            accessToken: config.mapbox_access_token(),
+            name: 'Gray',
+            provider: 'mapbox'
+        });
+        map.addBaseLayer(L.amigo.AmigoGray);
+        map.layersControl.addBaseLayer(
+            L.bingLayer(
+                config.bing_key(), {
+                    type: 'Road',
+                    attribution: 'Bing Maps'
+                }
+            ),
+            'Bing Road'
+        );
+        map.layersControl.addOverlay(blurLayer);
+        blurLayer.addTo(map);
+
+        //L.control.locate().addTo(map);
+
+        map.routes = []; // array to hold all route objects
+
+        module.exports.activeMap = map;
+
+        //map.realtimeControl = L.control.toggleRealTime().addTo(map);
+
+        realtime = mapModule.realtime();
+
+
+    } else if (config.map_provider && config.map_provider() === 'GoogleV3') {
         southWest = L.latLng(35.946877085397, -123.480610897013);
         northEast = L.latLng(40.763279543715, -118.789317362500);
 
@@ -116,11 +168,23 @@ module.exports = function (el) {
          * @see https://esri.github.io/esri-leaflet/examples/switching-basemaps.html
          *
          */
-        // L.esri.basemapLayer('Topographic').addTo(map);
-        // L.esri.basemapLayer('Imagery').addTo(map);
-        L.esri.basemapLayer('Streets').addTo(map);
-        // L.esri.basemapLayer('Terrain').addTo(map);
-        // L.esri.basemapLayer('Gray').addTo(map);
+        var esriTopo = L.esri.basemapLayer('Topographic');
+        var esriImage = L.esri.basemapLayer('Imagery');
+        var esriStreet = L.esri.basemapLayer('Streets');
+        var esriTerrain = L.esri.basemapLayer('Terrain');
+        var esriGray = L.esri.basemapLayer('Gray');
+
+        esriStreet.addTo(map);
+
+        L.control.layers({
+            Streets: esriStreet,
+            Imagery: esriImage,
+            // Terrain: esriTerrain,
+            Topographic: esriTopo,
+            Gray: esriGray,
+        }, {}, {
+            collapsed: false
+        }).addTo(map);
 
         map.routes = []; // array to hold all route objects
 

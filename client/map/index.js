@@ -3,10 +3,6 @@ var debug = require('debug')(config.name() + ':map');
 var page = require('page');
 var plugins = require('./leaflet-plugins');
 
-/**
- * Expose `map`
- */
-
 module.exports = function(el, opts) {
   opts = opts || {};
   opts.tileLayer = opts.tileLayer || {
@@ -14,8 +10,10 @@ module.exports = function(el, opts) {
   };
 
   // create a map in the el with given options
-  if (config.map_provider && config.map_provider() === 'GoogleV3') {
+  if (config.map_provider && ( config.map_provider() === 'GoogleV3' || config.map_provider() === 'ESRI')) {
     return new Map(L.map(el, opts));
+  } else if (config.map_provider && config.map_provider() === 'AmigoCloud') {
+    return new Map(L.amigo.map(el, opts));
   } else {
     return new Map(L.mapbox.map(el, config.mapbox_map_id(), opts));
   }
@@ -30,15 +28,24 @@ module.exports.createMarker = function(opts) {
 
   var marker;
 
-  if (config.map_provider && config.map_provider() === 'GoogleV3') {
-    marker = L.marker(new L.LatLng(opts.coordinate[1], opts.coordinate[0]), {
-      icon: L.map.marker.icon({
-        'marker-size': opts.size || 'medium',
-        'marker-color': opts.color || '#ccc',
-        'marker-symbol': opts.icon || ''
-      }),
-      title: opts.title || ''
-    });
+  if (config.map_provider && (config.map_provider() === 'GoogleV3' || config.map_provider() === 'ESRI')) {
+      marker = L.marker(new L.LatLng(opts.coordinate[1], opts.coordinate[0]), {
+          icon: L.map.marker.icon({
+              'marker-size': opts.size || 'medium',
+              'marker-color': opts.color || '#ccc',
+              'marker-symbol': opts.icon || ''
+          }),
+          title: opts.title || ''
+      });
+  } else if (config.map_provider && config.map_provider() === 'AmigoCloud') {
+          marker = L.marker(new L.LatLng(opts.coordinate[1], opts.coordinate[0]), {
+              icon: L.amigo.marker.icon({
+                  'marker-size': opts.size || 'medium',
+                  'marker-color': opts.color || '#ccc',
+                  'marker-symbol': opts.icon || ''
+              }),
+              title: opts.title || ''
+          });
   } else {
     marker = L.marker(new L.LatLng(opts.coordinate[1], opts.coordinate[0]), {
       icon: L.mapbox.marker.icon({
