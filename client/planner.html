@@ -27,9 +27,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
     {{/ESRI}}
     {{#Mapbox}}
+    <!-- @ToDo Update to Mapbox v3.x -->
     <link href="https://api.tiles.mapbox.com/mapbox.js/v2.1.5/mapbox.css" rel="stylesheet" />
-    <!-- @todo Updated to Mapbox v3 -->
-    <!--<link href='https://api.mapbox.com/mapbox.js/v3.1.0/mapbox.css' rel='stylesheet' />-->
     {{/Mapbox}}
     <link rel="stylesheet" href="https://www.domoritz.de/leaflet-locatecontrol/dist/L.Control.Locate.min.css" />
 
@@ -71,7 +70,9 @@
     <script src="https://unpkg.com/leaflet.gridlayer.googlemutant@latest/Leaflet.GoogleMutant.js"></script>
     {{/GoogleV3}}
     {{#Mapbox}}
-    <script src="https://api.tiles.mapbox.com/mapbox.js/v2.4.0/mapbox.js"></script>
+    <!-- @ToDo Update Mapbox to version 3.x -->
+    <!--<script src="https://unpkg.com/leaflet@0.7.2/dist/leaflet-src.js"></script>-->
+    <script src="https://api.tiles.mapbox.com/mapbox.js/v2.1.5/mapbox.js"></script>
     {{/Mapbox}}
     {{#AmigoCloud}}
     <script src="https://unpkg.com/leaflet@0.7.2/dist/leaflet-src.js"></script>
@@ -80,8 +81,8 @@
     <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet-src.js"></script>
     <script src="https://unpkg.com/esri-leaflet@2.0.8"></script>
     {{/ESRI}}
-    <script src="https://www.domoritz.de/leaflet-locatecontrol/dist/L.Control.Locate.min.js"></script>
     <script src="{{static_url}}/build/planner-app/L.UTFGrid.js"></script>
+    <script src="https://www.domoritz.de/leaflet-locatecontrol/dist/L.Control.Locate.min.js"></script>
     <script src="{{static_url}}/build/planner-app/modeify.js"></script>
     <script src="{{static_url}}/build/messages/en.js?v={{version}}"></script>
     <script src="{{static_url}}/build/planner-app/build.js?v={{version}}"></script>
