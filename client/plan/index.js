@@ -222,7 +222,7 @@ Plan.prototype.setAddress = function(name, address, callback, extra) {
   if (!address || address.length < 1) return callback();
 
   if (isCoordinate) {
-    var callbackAmigo = function (err, reverse) {
+    var callbackGoogle = function (err, reverse) {
       var changes = {};
       if (reverse) {
         var geocode_features = reverse.features;
@@ -258,13 +258,13 @@ Plan.prototype.setAddress = function(name, address, callback, extra) {
         }
       }
     };
-    geocode.reverseAmigo(c, callbackAmigo);
+    geocode.reverseGoogle(c, callbackGoogle);
   } else if (places_id !== null){
     // it's already got the placesId, so just do the lookup
     // this happens when the user clicks on one of the suggestions
     // or hits enter in the from/to textbox
     console.log('Looking up the Google Places details for place_id='+places_id+'')
-    var cb_amigo_placesid =  function(err, place){ 
+    var cb_google_places =  function(err, place){
       console.log('Places ID callback', place)
       if (place){
         var lat_lng = place.geometry.location.lat()+','+place.geometry.location.lng();
@@ -284,7 +284,7 @@ Plan.prototype.setAddress = function(name, address, callback, extra) {
         plan.setAddress('', '', callback);
       }
     }
-    geocode.lookupPlaceId(places_id, cb_amigo_placesid);
+    geocode.lookupPlaceId(places_id, cb_google_places);
   } else {
     // it's whole or part of a physical address/place name
     // this happens when opening a link to Trip Planner which has addresses already in place
@@ -292,7 +292,7 @@ Plan.prototype.setAddress = function(name, address, callback, extra) {
 
     // this works, but gives partially incomplete results sometimes.
     // seems it's better to use the first result of the autocomplete
-    //var cb_amigo =  function(err, suggestions){ 
+    //var cb_Google =  function(err, suggestions){
     //  if (suggestions && suggestions.length > 0){
     //    var changes = {};
     //    changes[name + '_ll'] = {lat: suggestions[0].geometry.location.lat, lng: suggestions[0].geometry.location.lng};
@@ -305,7 +305,7 @@ Plan.prototype.setAddress = function(name, address, callback, extra) {
     //    plan.setAddress('', '', callback);
     //  }
     //}
-    //geocode.geocode(address, cb_amigo);
+    //geocode.geocode(address, cb_Google);
 
     var autocompleteCallback = function(err, suggestions, query_text) {
       console.log('autocompleteCallback', err, suggestions, query_text)
@@ -322,7 +322,7 @@ Plan.prototype.setAddress = function(name, address, callback, extra) {
         }
       }
     }
-    geocode.suggestAmigo(address, autocompleteCallback);
+    geocode.suggestGoogle(address, autocompleteCallback);
   }
 };
 

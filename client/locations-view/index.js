@@ -324,7 +324,7 @@ View.prototype.suggest = function(e) {
 
   this.resetIcons();
 
-  var resultsCallbackAmigo = function(err, suggestions, query_text) {
+  var resultsCallbackGoogle = function(err, suggestions, query_text) {
 
     if (err) {
       log.error('%e', err);
@@ -447,7 +447,7 @@ View.prototype.suggest = function(e) {
   suggestionTimeout = setTimeout(function() {
     console.log('timeout trigger')
     view.autocomplete = text;
-    geocode.suggestAmigo(text, resultsCallbackAmigo);
+    geocode.suggestGoogle(text, resultsCallbackGoogle);
   }, 50);
 };
 

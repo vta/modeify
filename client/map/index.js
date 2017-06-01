@@ -35,9 +35,9 @@ module.exports.createMarker = function(opts) {
 
   var marker;
 
-  if (config.map_provider && config.map_provider() === 'AmigoCloud') {
+  if (config.map_provider && config.map_provider() === 'GoogleV3') {
     marker = L.marker(new L.LatLng(opts.coordinate[1], opts.coordinate[0]), {
-      icon: L.amigo.marker.icon({
+      icon: L.map.marker.icon({
         'marker-size': opts.size || 'medium',
         'marker-color': opts.color || '#ccc',
         'marker-symbol': opts.icon || ''
@@ -77,7 +77,7 @@ module.exports.createMarker = function(opts) {
  */
 
 
-if (config.map_provider() === 'AmigoCloud') {
+if (config.map_provider() !== 'Mapbox') {
     module.exports.realtime = function() {
         debug('setting up empty socket connection');
 
@@ -191,7 +191,7 @@ module.exports.drawRoute = function (marker) {
   queryUrl = projectUrl + '/sql?token=' + config.realtime_access_token() +
     '&query=' + query + '&limit=1000';
 
-  L.amigo.utils.get(queryUrl).
+  L.map.utils.get(queryUrl).
     then(function (data) {
       if (!data.data.length) {
         return;
