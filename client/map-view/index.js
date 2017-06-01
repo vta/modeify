@@ -5,10 +5,11 @@ var polyUtil = require('./polyline_encoded.js');
 var routeboxer = require('./leaflet_routeboxer.js');
 var leaflet_label = require('./leaflet_label/leaflet.label-src.js');
 var collision = require('./leaflet_layergroup_collision.js');
+
 var session = require('session');
 
 var center = config.geocode().center.split(',').map(parseFloat)
-if (config.map_provider && config.map_provider() !== 'AmigoCloud') {
+if (config.map_provider && config.map_provider() === 'Mapbox') {
     L.mapbox.accessToken = config.mapbox_access_token();
 }
 
@@ -68,6 +69,141 @@ module.exports = function (el) {
 
         realtime = mapModule.realtime();
 
+
+    } else if (config.map_provider && config.map_provider() === 'GoogleV3') {
+        southWest = L.latLng(35.946877085397, -123.480610897013);
+        northEast = L.latLng(40.763279543715, -118.789317362500);
+
+        map = (new L.map(el, {
+            zoomAnimation: true,
+            maxBounds: L.latLngBounds(southWest, northEast),
+            minZoom: 8
+        })).setView([center[1], center[0]], config.geocode().zoom);
+        southWest = L.latLng(35.946877085397, -123.480610897013);
+        northEast = L.latLng(40.763279543715, -118.789317362500);
+        // map = (new L.gmaps.map(el, {
+        //     loadGoogleLayers: false,
+        //     inertia: false,
+        //     zoomAnimation: true,
+        //     maxBounds: L.latLngBounds(southWest, northEast),
+        //     minZoom: 8
+        // })).setView([center[1], center[0]], config.geocode().zoom);
+
+        // L.gmaps.auth.setToken(config.support_data_token());
+
+        var roadMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'roadmap'
+        }).addTo(map);
+
+        var satMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'satellite'
+        });
+
+        var terrainMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'terrain'
+        });
+
+        var hybridMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'hybrid'
+        });
+
+        // var styleMutant = L.gridLayer.googleMutant({
+        //     styles: [
+        //         {elementType: 'labels', stylers: [{visibility: 'off'}]},
+        //         {featureType: 'water', stylers: [{color: '#444444'}]},
+        //         {featureType: 'landscape', stylers: [{color: '#eeeeee'}]},
+        //         {featureType: 'road', stylers: [{visibility: 'off'}]},
+        //         {featureType: 'poi', stylers: [{visibility: 'off'}]},
+        //         {featureType: 'transit', stylers: [{visibility: 'off'}]},
+        //         {featureType: 'administrative', stylers: [{visibility: 'off'}]},
+        //         {featureType: 'administrative.locality', stylers: [{visibility: 'off'}]}
+        //     ],
+        //     maxZoom: 24,
+        //     type:'roadmap'
+        // });
+
+        var trafficMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'roadmap'
+        });
+        trafficMutant.addGoogleLayer('TrafficLayer');
+
+
+        // var transitMutant = L.gridLayer.googleMutant({
+        //     maxZoom: 24,
+        //     type:'roadmap'
+        // });
+        // transitMutant.addGoogleLayer('TransitLayer');
+
+
+        L.control.layers({
+            Roadmap: roadMutant,
+            Aerial: satMutant,
+            Terrain: terrainMutant,
+            Hybrid: hybridMutant,
+            // Styles: styleMutant,
+            Traffic: trafficMutant,
+            // Transit: transitMutant
+        }, {}, {
+            collapsed: false
+        }).addTo(map);
+
+        //L.control.locate().addTo(map);
+        map.addControl(L.control.locate({
+            locateOptions: {
+                enableHighAccuracy: true
+            },
+            // position: 'bottomright',
+        }));
+
+        map.routes = []; // array to hold all route objects
+
+        module.exports.activeMap = map;
+
+        // realtime = mapModule.realtime();
+
+    } else if (config.map_provider && config.map_provider() === 'ESRI') {
+        southWest = L.latLng(35.946877085397, -123.480610897013);
+        northEast = L.latLng(40.763279543715, -118.789317362500);
+
+        map = (new L.map(el, {
+            zoomAnimation: true,
+            maxBounds: L.latLngBounds(southWest, northEast),
+            minZoom: 8
+        })).setView([center[1], center[0]], config.geocode().zoom);
+
+        /**
+         * @todo Add Layer Controls for switching ESRI basemaps
+         * @see https://esri.github.io/esri-leaflet/examples/switching-basemaps.html
+         *
+         */
+        var esriTopo = L.esri.basemapLayer('Topographic');
+        var esriImage = L.esri.basemapLayer('Imagery');
+        var esriStreet = L.esri.basemapLayer('Streets');
+        var esriTerrain = L.esri.basemapLayer('Terrain');
+        var esriGray = L.esri.basemapLayer('Gray');
+
+        esriStreet.addTo(map);
+
+        L.control.layers({
+            Streets: esriStreet,
+            Imagery: esriImage,
+            // Terrain: esriTerrain,
+            Topographic: esriTopo,
+            Gray: esriGray,
+        }, {}, {
+            collapsed: false
+        }).addTo(map);
+
+        map.routes = []; // array to hold all route objects
+
+        module.exports.activeMap = map;
+
+        // realtime = mapModule.realtime();
 
     } else {
 
