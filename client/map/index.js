@@ -1,6 +1,9 @@
 var config = require('config');
 var debug = require('debug')(config.name() + ':map');
 var page = require('page');
+// var leaflet = require('leaflet');
+// var esri_leaflet = require('esri-leaflet');
+// var googleMutant = require('leaflet.gridlayer.googlemutant');
 var plugins = require('./leaflet-plugins');
 
 /**
@@ -13,9 +16,11 @@ module.exports = function(el, opts) {
     detectRetina: true
   };
 
-  // create a map in the el with given options
-  if (config.map_provider && config.map_provider() === 'GoogleV3') {
-    return new Map(L.map(el, opts));
+// create a map in the el with given options
+  if (config.map_provider && ( config.map_provider() === 'GoogleV3' || config.map_provider() === 'ESRI')) {
+      return new Map(L.modeify(el, opts));
+  } else if (config.map_provider && config.map_provider() === 'AmigoCloud') {
+    return new Map(L.amigo.map(el, opts));
   } else {
     return new Map(L.mapbox.map(el, config.mapbox_map_id(), opts));
   }
@@ -30,15 +35,24 @@ module.exports.createMarker = function(opts) {
 
   var marker;
 
-  if (config.map_provider && config.map_provider() === 'GoogleV3') {
+  if (config.map_provider && config.map_provider() === 'AmigoCloud') {
     marker = L.marker(new L.LatLng(opts.coordinate[1], opts.coordinate[0]), {
-      icon: L.map.marker.icon({
+      icon: L.amigo.marker.icon({
         'marker-size': opts.size || 'medium',
         'marker-color': opts.color || '#ccc',
         'marker-symbol': opts.icon || ''
       }),
       title: opts.title || ''
     });
+  } else if (config.map_provider && (config.map_provider() === 'GoogleV3' || config.map_provider() === 'ESRI')) {
+      marker = L.marker(new L.LatLng(opts.coordinate[1], opts.coordinate[0]), {
+          icon: L.modeify.marker.icon({
+              'marker-size': opts.size || 'medium',
+              'marker-color': opts.color || '#ccc',
+              'marker-symbol': opts.icon || ''
+          }),
+          title: opts.title || ''
+      });
   } else {
     marker = L.marker(new L.LatLng(opts.coordinate[1], opts.coordinate[0]), {
       icon: L.mapbox.marker.icon({
@@ -177,18 +191,17 @@ module.exports.drawRoute = function (marker) {
   queryUrl = projectUrl + '/sql?token=' + config.realtime_access_token() +
     '&query=' + query + '&limit=1000';
 
-  L.map.utils.get(queryUrl).
-    then(function (data) {
-      if (!data.data.length) {
-        return;
-      }
-
-      module.exports.activeRoute = L.geoJson(
-
-      JSON.parse(data.data[0].st_asgeojson), {
-	      style: routeStyle
-	    }).addTo(module.exports.realtimeMap);
-    });
+  if (config.map_provider() === 'Amigo') {
+      L.amigo.utils.get(queryUrl).then(function (data) {
+          if (!data.data.length) {
+              return;
+          }
+          module.exports.activeRoute = L.geoJson(
+              JSON.parse(data.data[0].st_asgeojson), {
+                  style: routeStyle
+              }).addTo(module.exports.realtimeMap);
+      });
+  };
 };
 
 module.exports.deleteRoute = function (marker) {
@@ -383,9 +396,11 @@ module.exports.makePopup = function (point) {
 
 function Map(map) {
   this.map = map;
-  if (config.map_provider && config.map_provider() === 'GoogleV3') {
-    this.featureLayer = L.map.featureLayer().addTo(map);
-  } else {
+  if (config.map_provider && config.map_provider() === 'AmigoCloud') {
+    this.featureLayer = L.amigo.featureLayer().addTo(map);
+  } else if (config.map_provider && (config.map_provider() === 'GoogleV3' || config.map_provider() === 'ESRI')) {
+      this.featureLayer = L.modeify.featureLayer().addTo(map);
+  }else {
     this.featureLayer = L.mapbox.featureLayer().addTo(map);
   }
 }

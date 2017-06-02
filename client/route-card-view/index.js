@@ -1,5 +1,6 @@
 var analytics = require('analytics');
 var d3 = require('d3');
+var config = require('config');
 var convert = require('convert');
 var Feedback = require('feedback-modal');
 var mouseenter = require('mouseenter');
@@ -29,12 +30,20 @@ var View = module.exports = view(require('./template.html'), function (view, mod
         for (var i = 0; i < itineration.length; i++) {
             var r3 = d3.selectAll(".iteration-" + i);
             if (i != model.index) {
-                r3.transition().duration(500).style("stroke", "#E0E0E0");
+                if (config.map_provider() === 'AmigoCloud') {
+                    r3.transition().duration(500).style("stroke", "#E0E0E0");
+                } else {
+                    r3.classed("hideMe", true);
+                }
                 r3.attr("data-show", "0");
 
                 var rec2 = d3.selectAll(".circle-fade-" + i);
                 rec2.attr('class', 'leaflet-marker-icon leaflet-div-icon2 circle-fade-' + i + ' leaflet-zoom-hide');
             } else {
+                if (config.map_provider() !== 'AmigoCloud')
+                {
+                    r3.classed("hideMe", false);
+                }
                 r3.attr("data-show", "1");
             }
         }

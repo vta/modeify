@@ -5,10 +5,11 @@ var polyUtil = require('./polyline_encoded.js');
 var routeboxer = require('./leaflet_routeboxer.js');
 var leaflet_label = require('./leaflet_label/leaflet.label-src.js');
 var collision = require('./leaflet_layergroup_collision.js');
+
 var session = require('session');
 
 var center = config.geocode().center.split(',').map(parseFloat)
-if (config.map_provider && config.map_provider() == 'Mapbox' ) {
+if (config.map_provider && config.map_provider() === 'Mapbox') {
     L.mapbox.accessToken = config.mapbox_access_token();
 }
 
@@ -16,84 +17,79 @@ module.exports = function (el) {
     var map, realtime, southWest, northEast, blurLayer;
     localStorage.removeItem('dataplan');
     sessionStorage.removeItem('dataplan');
+    southWest = L.latLng(35.946877085397, -123.480610897013);
+    northEast = L.latLng(40.763279543715, -118.789317362500);
 
-    if (config.map_provider && config.map_provider() === 'GoogleV3') {
-        southWest = L.latLng(35.946877085397, -123.480610897013);
-        northEast = L.latLng(40.763279543715, -118.789317362500);
-
-        map = (new L.map(el, {
+    if (config.map_provider && config.map_provider() === 'AmigoCloud') {
+        map = (new L.amigo.map(el, {
+            amigoLogo: 'right',
+            loadAmigoLayers: false,
+            inertia: false,
             zoomAnimation: true,
             maxBounds: L.latLngBounds(southWest, northEast),
             minZoom: 8
         })).setView([center[1], center[0]], config.geocode().zoom);
 
-        var roadMutant = L.gridLayer.googleMutant({
-            maxZoom: 24,
-            type:'roadmap'
-        }).addTo(map);
+        L.amigo.auth.setToken(config.support_data_token());
 
-        var satMutant = L.gridLayer.googleMutant({
-            maxZoom: 24,
-            type:'satellite'
+        blurLayer = L.tileLayer(
+            'https://www.amigocloud.com/api/v1/users/' +
+            '23/projects/3019/datasets/23835/tiles/{z}/{x}/{y}.png?' +
+            'token=' + config.support_data_token(), {
+                name: 'Uncovered Area'
+            }
+        );
+
+        map.addAuthLayer({
+            id: config.mapbox_map_id(),
+            accessToken: config.mapbox_access_token(),
+            name: 'Gray',
+            provider: 'mapbox'
         });
-
-        var terrainMutant = L.gridLayer.googleMutant({
-            maxZoom: 24,
-            type:'terrain'
-        });
-
-        var hybridMutant = L.gridLayer.googleMutant({
-            maxZoom: 24,
-            type:'hybrid'
-        });
-
-        // var styleMutant = L.gridLayer.googleMutant({
-        //     styles: [
-        //         {elementType: 'labels', stylers: [{visibility: 'off'}]},
-        //         {featureType: 'water', stylers: [{color: '#444444'}]},
-        //         {featureType: 'landscape', stylers: [{color: '#eeeeee'}]},
-        //         {featureType: 'road', stylers: [{visibility: 'off'}]},
-        //         {featureType: 'poi', stylers: [{visibility: 'off'}]},
-        //         {featureType: 'transit', stylers: [{visibility: 'off'}]},
-        //         {featureType: 'administrative', stylers: [{visibility: 'off'}]},
-        //         {featureType: 'administrative.locality', stylers: [{visibility: 'off'}]}
-        //     ],
-        //     maxZoom: 24,
-        //     type:'roadmap'
-        // });
-
-        var trafficMutant = L.gridLayer.googleMutant({
-            maxZoom: 24,
-            type:'roadmap'
-        });
-        trafficMutant.addGoogleLayer('TrafficLayer');
-
-
-        // var transitMutant = L.gridLayer.googleMutant({
-        //     maxZoom: 24,
-        //     type:'roadmap'
-        // });
-        // transitMutant.addGoogleLayer('TransitLayer');
-
-        L.control.layers({
-            Roadmap: roadMutant,
-            Aerial: satMutant,
-            Terrain: terrainMutant,
-            Hybrid: hybridMutant,
-            // Styles: styleMutant,
-            Traffic: trafficMutant,
-            // Transit: transitMutant
-        }, {}, {
-            collapsed: false
-        }).addTo(map);
+        map.addBaseLayer(L.amigo.AmigoSatellite);
+        map.addBaseLayer(L.amigo.AmigoStreet);
+        map.addBaseLayer(L.amigo.AmigoGray);
+        map.layersControl.addBaseLayer(
+            L. bingLayer(
+                config.bing_key(), {
+                    type: 'Road',
+                    attribution: 'Bing Maps'
+                }
+            ),
+            'Bing Road'
+        );
+        map.layersControl.addOverlay(blurLayer);
+        blurLayer.addTo(map);
 
         //L.control.locate().addTo(map);
-        map.addControl(L.control.locate({
-            locateOptions: {
-                enableHighAccuracy: true
-            },
-            // position: 'bottomright',
-        }));
+
+        map.routes = []; // array to hold all route objects
+
+        module.exports.activeMap = map;
+
+        //map.realtimeControl = L.control.toggleRealTime().addTo(map);
+
+        realtime = mapModule.realtime();
+
+
+    } else if (config.map_provider && config.map_provider() === 'GoogleV3') {
+
+        map = (new L.modeify.map(el, {
+            loadGoogleLayers: true,
+            inertia: false,
+            zoomAnimation: true,
+            maxBounds: L.latLngBounds(southWest, northEast),
+            minZoom: 8
+        })).setView([center[1], center[0]], config.geocode().zoom);
+
+        L.modeify.auth.setToken(config.support_data_token());
+
+        // map.addControl(L.control.locate({
+        //     locateOptions: {
+        //         enableHighAccuracy: true
+        //     },
+        //     // position: 'bottomright',
+        // }));
 
         map.routes = []; // array to hold all route objects
 
@@ -116,17 +112,29 @@ module.exports = function (el) {
          * @see https://esri.github.io/esri-leaflet/examples/switching-basemaps.html
          *
          */
-        // L.esri.basemapLayer('Topographic').addTo(map);
-        // L.esri.basemapLayer('Imagery').addTo(map);
-        L.esri.basemapLayer('Streets').addTo(map);
-        // L.esri.basemapLayer('Terrain').addTo(map);
-        // L.esri.basemapLayer('Gray').addTo(map);
+        var esriTopo = L.esri.basemapLayer('Topographic');
+        var esriImage = L.esri.basemapLayer('Imagery');
+        var esriStreet = L.esri.basemapLayer('Streets');
+        var esriTerrain = L.esri.basemapLayer('Terrain');
+        var esriGray = L.esri.basemapLayer('Gray');
+
+        esriStreet.addTo(map);
+
+        L.control.layers({
+            Streets: esriStreet,
+            Imagery: esriImage,
+            // Terrain: esriTerrain,
+            Topographic: esriTopo,
+            Gray: esriGray,
+        }, {}, {
+            collapsed: false
+        }).addTo(map);
 
         map.routes = []; // array to hold all route objects
 
         module.exports.activeMap = map;
 
-        realtime = mapModule.realtime();
+        // realtime = mapModule.realtime();
 
     } else {
 
@@ -384,15 +392,6 @@ module.exports.drawRouteGoogle = function (legs, mode, itineration) {
     var classname = "iteration-" + itineration + " iteration-200";
 
     var dasharray = '';
-    var colors = {
-        'CAR': '#636363',
-        'BICYCLE': '#f03b20',
-        'TRAM': '#74c476',
-        'RAIL': '#fe9929',
-        'WALK': '#3182bd',
-        'BUS': '#6baed6'
-    };
-    var color = colors[mode] ? colors[mode] : '#000000';
 
     var colors = {
         'CAR': '#ffeda0',
@@ -485,7 +484,7 @@ module.exports.drawRouteStops = function (routeId, stops, isBus, agencyId) {
                 iconSize: [15, 15],
                 iconAnchor: [0, 0]
             }),
-            interactive: false,
+            interactive: true,
             clickable: true
         });
 
