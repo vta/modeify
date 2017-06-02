@@ -84,12 +84,12 @@ module.exports = function (el) {
 
         L.modeify.auth.setToken(config.support_data_token());
 
-        map.addControl(L.control.locate({
-            locateOptions: {
-                enableHighAccuracy: true
-            },
-            // position: 'bottomright',
-        }));
+        // map.addControl(L.control.locate({
+        //     locateOptions: {
+        //         enableHighAccuracy: true
+        //     },
+        //     // position: 'bottomright',
+        // }));
 
         map.routes = []; // array to hold all route objects
 
