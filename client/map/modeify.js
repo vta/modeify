@@ -3902,8 +3902,8 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
   io.transports.push('jsonp-polling');
 
 })(
-    'undefined' != typeof io ? io.Transport : module.exports
-  , 'undefined' != typeof io ? io : module.parent.exports
+    'undefined' !== typeof io ? io.Transport : module.exports
+  , 'undefined' !== typeof io ? io : module.parent.exports
   , this
 );
 
@@ -3975,13 +3975,13 @@ var utils = {
         if (url.substr(0, 4) === 'http') {
             return url;
         } else {
-            return L.amigo.constants.baseUrl + L.amigo.constants.apiUrl + url;
+            return L.modeify.constants.baseUrl + L.modeify.constants.apiUrl + url;
         }
     },
     http: function (method, url, data, headers, async) {
         var xmlHttp = new XMLHttpRequest(),
 
-        url = L.amigo.utils.parseUrl(url);
+        url = L.modeify.utils.parseUrl(url);
 
         xmlHttp.then = function (callback, errorCallback) {
             this.onreadystatechange = function () {
@@ -4004,7 +4004,7 @@ var utils = {
         );
 
         if (data) {
-            xmlHttp.send(L.amigo.utils.params(data));
+            xmlHttp.send(L.modeify.utils.params(data));
         } else {
             xmlHttp.send();
         }
@@ -4012,15 +4012,15 @@ var utils = {
         return xmlHttp;
     },
     me: function () {
-        return L.amigo.utils.get('/me');
+        return L.modeify.utils.get('/me');
     },
     get: function (url, data) {
         if (typeof data !== 'undefined') {
-            url += '?' + L.amigo.utils.params(data) + '&token=' + L.amigo.auth.getToken() + '&format=json';
+            url += '?' + L.modeify.utils.params(data) + '&token=' + L.modeify.auth.getToken() + '&format=json';
         } else {
-            url += '?token=' + L.amigo.auth.getToken() + '&format=json';
+            url += '?token=' + L.modeify.auth.getToken() + '&format=json';
         }
-        return L.amigo.utils.http('GET', url);
+        return L.modeify.utils.http('GET', url);
     },
     post: function (url, data, headers) {
         if (headers) {
@@ -4030,7 +4030,7 @@ var utils = {
                 'Content-Type': 'application/x-www-form-urlencoded'
             };
         }
-        return L.amigo.utils.http('POST', url, data, headers);
+        return L.modeify.utils.http('POST', url, data, headers);
     },
     params: function (params) {
         var parts = [];
@@ -4084,15 +4084,15 @@ var utils = {
         if (e.data) {
             // First request the row's data'
             queryURL = datasetData.project;
-            queryString = L.amigo.utils.buildPopupQuery(e, config);
-            L.amigo.utils.get(
+            queryString = L.modeify.utils.buildPopupQuery(e, config);
+            L.modeify.utils.get(
                 queryURL + '/sql',
                 {
                     query: queryString
                 }
             ).then(function (data) {
                 //Now build the HTML for the popup with data
-                popupHTMLString = L.amigo.utils.buildPopupHTML(data, config);
+                popupHTMLString = L.modeify.utils.buildPopupHTML(data, config);
 
                 L.popup({
                     className: 'ac-feature-popup ' + config.className
@@ -4112,7 +4112,7 @@ var utils = {
     },
     processAdditionalDatasetConfig: function (datasetLayer, config, map) {
         if (config.popup) {
-            L.amigo.utils.processPopupDatasetConfig(
+            L.modeify.utils.processPopupDatasetConfig(
                 datasetLayer,
                 config.popup,
                 map
@@ -4131,7 +4131,7 @@ var utils = {
         map.on('overlayadd', function (e) {
             map.utfGrids[name] = new L.UtfGrid(
                 e.layer.options.datasetData.tiles + '/{z}/{x}/{y}.json' +
-                    L.amigo.auth.getTokenParam(),
+                    L.modeify.auth.getTokenParam(),
                 {
                     useJsonP: false,
                     minZoom: 0,
@@ -4144,7 +4144,7 @@ var utils = {
                 if (popupConfig.overrideCallback) {
                     popupConfig.overrideCallback(e, map);
                 } else {
-                    L.amigo.utils.showPopup(e, popupConfig, map);
+                    L.modeify.utils.showPopup(e, popupConfig, map);
                 }
 
                 if (popupConfig.additionalCallback) {
@@ -4165,7 +4165,7 @@ var utils = {
 
 /**
  * @method L.Map.extend() creates the AmigoCloud base map
- */
+ *
 var map = L.Map.extend({
     initialize: function (element, options) {
         var layersControl, initialLayer = [], amigoLogo;
@@ -4175,7 +4175,7 @@ var map = L.Map.extend({
 
         layersControl = this.buildAmigoLayers(options.loadAmigoLayers);
         if (options.loadAmigoLayers) {
-            initialLayer = [L.amigo.AmigoStreet];
+            initialLayer = [L.modeify.AmigoStreet];
         }
 
         L.Map.prototype.initialize.call(
@@ -4207,7 +4207,7 @@ var map = L.Map.extend({
                 );
 
                 inner = '<div><a href="http://amigocloud.com">' +
-                    '<img src="' + L.amigo.constants.amigoLogoUrl + '">' +
+                    '<img src="' + L.modeify.constants.amigoLogoUrl + '">' +
                     '</a></img></div>';
 
                 this._container.innerHTML = inner;
@@ -4238,24 +4238,24 @@ var map = L.Map.extend({
         }
 
         this.on('unload', function (e) {
-            L.amigo.AmigoStreet = L.tileLayer(
-                L.amigo.constants.amigoLayersData[0].tiles + '/{z}/{x}/{y}.png',
+            L.modeify.AmigoStreet = L.tileLayer(
+                L.modeify.constants.amigoLayersData[0].tiles + '/{z}/{x}/{y}.png',
                 {
                     attribution: 'Map data &copy; <a href="http://amigocloud.com">AmigoCloud</a>',
                     name: 'AmigoStreet',
                     maxZoom: 22
                 }
             );
-            L.amigo.AmigoGray = L.tileLayer(
-                L.amigo.constants.amigoLayersData[1].tiles + '/{z}/{x}/{y}.png',
+            L.modeify.AmigoGray = L.tileLayer(
+                L.modeify.constants.amigoLayersData[1].tiles + '/{z}/{x}/{y}.png',
                 {
                     attribution: 'Map data &copy; <a href="http://amigocloud.com">AmigoCloud</a>',
                     name: 'AmigoGray',
                     maxZoom: 22
                 }
             );
-            L.amigo.AmigoSatellite = L.tileLayer(
-                L.amigo.constants.amigoLayersData[2].tiles + '/{z}/{x}/{y}.png',
+            L.modeify.AmigoSatellite = L.tileLayer(
+                L.modeify.constants.amigoLayersData[2].tiles + '/{z}/{x}/{y}.png',
                 {
                     attribution: 'Map data &copy; <a href="http://amigocloud.com">AmigoCloud</a>',
                     name: 'AmigoSatellite',
@@ -4265,16 +4265,16 @@ var map = L.Map.extend({
         });
     },
     buildAmigoLayers: function (loadAmigoLayers) {
-        var layersData = L.amigo.constants.amigoLayersData,
+        var layersData = L.modeify.constants.amigoLayersData,
             tileUrlSuffix = '/{z}/{x}/{y}.png',
             i;
         this.systemLayers = {};
         this.baseLayers = {};
         this.datasetLayers = {};
 
-        this.systemLayers.AmigoStreet = L.amigo.AmigoStreet;
-        this.systemLayers.AmigoGray = L.amigo.AmigoGray;
-        this.systemLayers.AmigoSatellite = L.amigo.AmigoSatellite;
+        this.systemLayers.AmigoStreet = L.modeify.AmigoStreet;
+        this.systemLayers.AmigoGray = L.modeify.AmigoGray;
+        this.systemLayers.AmigoSatellite = L.modeify.AmigoSatellite;
 
         this.layersControl = L.control.layers();
 
@@ -4291,12 +4291,12 @@ var map = L.Map.extend({
         if (config.url) {
             datasetLayer = this.addDatasetLayerByUrl(
                 config,
-                L.amigo.utils.processAdditionalDatasetConfig
+                L.modeify.utils.processAdditionalDatasetConfig
             );
         } else if (config.ids) {
             datasetLayer = this.addDatasetLayerByIds(
                 config,
-                L.amigo.utils.processAdditionalDatasetConfig
+                L.modeify.utils.processAdditionalDatasetConfig
             );
         }
 
@@ -4313,11 +4313,11 @@ var map = L.Map.extend({
             config.options = {maxZoom: 22};
         }
 
-        L.amigo.utils.get(url).then(function (data) {
+        L.modeify.utils.get(url).then(function (data) {
             datasetData = data;
             _this.datasetLayers[datasetData.name] =
                 L.tileLayer(
-                    datasetData.tiles + '/{z}/{x}/{y}.png' + L.amigo.auth.getTokenParam(),
+                    datasetData.tiles + '/{z}/{x}/{y}.png' + L.modeify.auth.getTokenParam(),
                     L.extend(
                         {},
                         config.options,
@@ -4340,7 +4340,7 @@ var map = L.Map.extend({
         var url = '/users/' + config.ids.user + '/projects/' +
             config.ids.project +
             ((config.type === 'vector') ? '/datasets/' : '/raster_datasets/') +
-            config.ids.dataset + L.amigo.auth.getTokenParam(),
+            config.ids.dataset + L.modeify.auth.getTokenParam(),
             _this = this,
             datasetData;
 
@@ -4350,11 +4350,11 @@ var map = L.Map.extend({
             config.options = {maxZoom: 22};
         }
 
-        L.amigo.utils.get(url).then(function (data) {
+        L.modeify.utils.get(url).then(function (data) {
             datasetData = data;
             _this.datasetLayers[datasetData.name] =
                 L.tileLayer(
-                    datasetData.tiles + '/{z}/{x}/{y}.png' + L.amigo.auth.getTokenParam(),
+                    datasetData.tiles + '/{z}/{x}/{y}.png' + L.modeify.auth.getTokenParam(),
                     L.extend(
                         {},
                         config.options,
@@ -4403,7 +4403,7 @@ var map = L.Map.extend({
         }
     },
     addBaseLayerByUrl: function (config) {
-        var url = config.url + L.amigo.auth.getTokenParam(),
+        var url = config.url + L.modeify.auth.getTokenParam(),
             _this = this,
             baseLayerData;
 
@@ -4413,11 +4413,11 @@ var map = L.Map.extend({
             config.options = {maxZoom: 22};
         }
 
-        L.amigo.utils.get(url).then(function (data) {
+        L.modeify.utils.get(url).then(function (data) {
             baseLayerData = data;
             _this.baseLayers[baseLayerData.name] =
                 L.tileLayer(
-                    baseLayerData.tiles + '/{z}/{x}/{y}.png' + L.amigo.auth.getTokenParam(),
+                    baseLayerData.tiles + '/{z}/{x}/{y}.png' + L.modeify.auth.getTokenParam(),
                     L.extend(
                         {},
                         config.options,
@@ -4430,7 +4430,7 @@ var map = L.Map.extend({
         });
     },
     addBaseLayerById: function (config) {
-        var url = '/base_layers/' + config.id + L.amigo.auth.getTokenParam(),
+        var url = '/base_layers/' + config.id + L.modeify.auth.getTokenParam(),
             _this = this,
             baseLayerData;
 
@@ -4440,11 +4440,11 @@ var map = L.Map.extend({
             config.options = {maxZoom: 22};
         }
 
-        L.amigo.utils.get(url).then(function (data) {
+        L.modeify.utils.get(url).then(function (data) {
             baseLayerData = data;
             _this.baseLayers[baseLayerData.name] =
                 L.tileLayer(
-                    baseLayerData.tiles + '/{z}/{x}/{y}.png' + L.amigo.auth.getTokenParam(),
+                    baseLayerData.tiles + '/{z}/{x}/{y}.png' + L.modeify.auth.getTokenParam(),
                     L.extend(
                         {},
                         config.options,
@@ -4488,6 +4488,8 @@ var map = L.Map.extend({
         return this.datasetLayers;
     }
 });
+ *
+ **/
 
 /**
  * AmigoCloud marker definition
@@ -4565,7 +4567,7 @@ var realtime = {
         this.datasetId = datasetId;
 
         this.startListening(
-            L.amigo.constants.baseUrl + L.amigo.constants.apiUrl +
+            L.modeify.constants.baseUrl + L.modeify.constants.apiUrl +
                 '/users/' + userId +
                 '/projects/' + projectId +
                 '/datasets/' + datasetId +
@@ -4589,8 +4591,8 @@ var realtime = {
     },
     startListening: function (url) {
         var _this = this,
-            get = L.amigo.utils.get,
-            constants = L.amigo.constants;
+            get = L.modeify.utils.get,
+            constants = L.modeify.constants;
 
         get(constants.baseUrl + constants.apiUrl +
             '/me?token=' + this.token + '&format=json').
@@ -4616,7 +4618,7 @@ var realtime = {
  */
 var events = {
     token: '',
-    socket: io.connect(constants.socketServerUrl, {port: 443}),
+    // socket: io.connect(constants.socketServerUrl, {port: 443}),
     authenticate: function () {
         var data = {
             'userid' : this.userId,
@@ -4639,9 +4641,9 @@ var events = {
     },
     startListening: function () {
         var _this = this,
-            get = L.amigo.utils.get,
-            constants = L.amigo.constants,
-            auth = L.amigo.auth;
+            get = L.modeify.utils.get,
+            constants = L.modeify.constants,
+            auth = L.modeify.auth;
 
         _this.token = auth.getToken();
         get(constants.baseUrl + constants.apiUrl + '/me').
@@ -4659,8 +4661,9 @@ var events = {
 /**
  * AmigoCloud L.Map class construction for basemaps, layers, features, events and markers
  * @type {{map, marker: {icon: marker.icon}, featureLayer: L.featureGroup, constants: {amigoLayersData: *[], baseUrl: string, socketServerUrl: string, amigoLogoUrl: string, apiUrl: string}, utils: {parseUrl: utils.parseUrl, http: utils.http, me: utils.me, get: utils.get, post: utils.post, params: utils.params, buildPopupHTML: utils.buildPopupHTML, buildPopupQuery: utils.buildPopupQuery, showPopup: utils.showPopup, processAdditionalDatasetConfig: utils.processAdditionalDatasetConfig, processPopupDatasetConfig: utils.processPopupDatasetConfig}, auth: {setToken: auth.setToken, getToken: auth.getToken, getTokenParam: auth.getTokenParam}, realtime: {authenticate: realtime.authenticate, emit: realtime.emit, on: realtime.on, setAccessToken: realtime.setAccessToken, connectDatasetById: realtime.connectDatasetById, connectDatasetByUrl: realtime.connectDatasetByUrl, startListening: realtime.startListening}, events: {token: string, socket, authenticate: events.authenticate, emit: events.emit, on: events.on, startListening: events.startListening}, AmigoStreet, AmigoGray, AmigoSatellite, version: string}}
- */
-L.amigo = {
+ *
+ *
+L.modeify = {
     map: map,
     marker: marker,
     featureLayer: featureLayer,
@@ -4695,9 +4698,276 @@ L.amigo = {
     ),
     version: '1.0.4'
 };
+ *
+ * **/
 
 /**
- * AmigoCloud realtime websockets
+ * @method L.Map.extend() creates the AmigoCloud base map
  */
-L.amigo.realtime.socket = io.connect(constants.socketServerUrl);
+var map = L.Map.extend({
+    initialize: function (element, options) {
+        var layersControl, initialLayer = [];
+
+        options.loadAGoogleLayers =
+            (options.loadGoogleLayers === undefined) ? true :
+                options.loadGoogleLayers;
+
+        layersControl = this.buildGoogleLayers(options.loadGoogleLayers);
+        if (options.loadGoogleLayers) {
+            initialLayer = L.modeify.GoogleRoadmap;
+        }
+
+        L.Map.prototype.initialize.call(
+            this,
+            element,
+            L.extend(
+                L.Map.prototype.options,
+                L.extend(
+                    {},
+                    options,
+                    {
+                        layers: initialLayer
+                    }
+                )
+            )
+        );
+        layersControl.addTo(this);
+
+        if (!this.options.center) {
+            this.setView([0.0, 0.0], 10);
+        }
+    },
+
+    buildGoogleLayers: function (loadGoogleLayers) {
+        this.systemLayers = {};
+        this.baseLayers = {};
+        this.datasetLayers = {};
+
+        this.systemLayers.Roadmap = L.modeify.GoogleRoadmap;
+        this.systemLayers.Satellite = L.modeify.GoogleSatellite;
+        this.systemLayers.Terrain = L.modeify.GoogleTerrain;
+        this.systemLayers.Hybrid = L.modeify.GoogleHybrid;
+        // this.systemLayers.Traffic = L.modeify.GoogleTraffic;
+
+        layersControl = L.control.layers();
+
+        if (loadGoogleLayers) {
+            for (var layer in this.systemLayers) {
+                layersControl.addBaseLayer(this.systemLayers[layer], layer);
+            }
+        }
+
+        // var trafficMutant = L.gridLayer.googleMutant({
+        //     maxZoom: 24,
+        //     type:'roadmap'
+        // });
+        // trafficMutant.addGoogleLayer('TrafficLayer');
+
+
+        // var transitMutant = L.gridLayer.googleMutant({
+        //     maxZoom: 24,
+        //     type:'roadmap'
+        // });
+        // transitMutant.addGoogleLayer('TransitLayer');
+
+        // this.layersControl = addGoogleLayer({
+        //     Roadmap: this.Roadmap,
+        //     Aerial: this.Satellite,
+        //     Terrain: this.Terrain,
+        //     Hybrid: this.Hybrid,
+        //     // Styles: styleMutant,
+        //     Traffic: trafficMutant,
+        //     // Transit: transitMutant
+        // }, {}, {
+        //     collapsed: false
+        // });
+
+        // this.layersControl['Traffic'] = trafficMutant;
+
+        // this.layersControl[] = {};
+        // this.layersControl[] = {collapsed: false};
+
+        return layersControl;
+    },
+    addDatasetLayer: function (config) {
+        var datasetLayer;
+        if (config.url) {
+            datasetLayer = this.addDatasetLayerByUrl(
+                config,
+                L.modeify.utils.processAdditionalDatasetConfig
+            );
+        } else if (config.ids) {
+            datasetLayer = this.addDatasetLayerByIds(
+                config,
+                L.modeify.utils.processAdditionalDatasetConfig
+            );
+        }
+
+        return datasetLayer;
+    },
+    addDatasetLayerByUrl: function (config, additionalCallback) {
+        var _this = this,
+            url = config.url,
+            datasetData;
+
+        if (config.options && !config.options.maxZoom) {
+            config.options.maxZoom = 22;
+        } else if (!config.options) {
+            config.options = {maxZoom: 22};
+        }
+
+        L.modeify.utils.get(url).then(function (data) {
+            datasetData = data;
+            _this.datasetLayers[datasetData.name] =
+                L.tileLayer(
+                    // datasetData.tiles + '/{z}/{x}/{y}.png' + L.modeify.auth.getTokenParam(),
+                    L.extend(
+                        {},
+                        config.options,
+                        {
+                            datasetData: datasetData
+                        }
+                    )
+                );
+            _this.layersControl.addOverlay(_this.datasetLayers[datasetData.name], datasetData.name);
+
+            additionalCallback(
+                _this.datasetLayers[datasetData.name],
+                config,
+                _this
+            );
+            return _this.datasetLayers[datasetData.name];
+        });
+    },
+    addDatasetLayerByIds: function (config, additionalCallback) {
+        var url = '/users/' + config.ids.user + '/projects/' +
+                config.ids.project +
+                ((config.type === 'vector') ? '/datasets/' : '/raster_datasets/') +
+                config.ids.dataset + L.modeify.auth.getTokenParam(),
+            _this = this,
+            datasetData;
+
+        if (config.options && !config.options.maxZoom) {
+            config.options.maxZoom = 22;
+        } else if (!config.options) {
+            config.options = {maxZoom: 22};
+        }
+
+        L.modeify.utils.get(url).then(function (data) {
+            datasetData = data;
+            _this.datasetLayers[datasetData.name] =
+                L.tileLayer(
+                    // datasetData.tiles + '/{z}/{x}/{y}.png' + L.modeify.auth.getTokenParam(),
+                    L.extend(
+                        {},
+                        config.options,
+                        {
+                            datasetData: datasetData
+                        }
+                    )
+                );
+            _this.layersControl.addOverlay(_this.datasetLayers[datasetData.name], datasetData.name);
+
+            additionalCallback(
+                _this.datasetLayers[datasetData.name],
+                config,
+                _this
+            );
+            return _this.datasetLayers[datasetData.name];
+        });
+    },
+    addBaseLayer: function (config, options) {
+        var layersCount = 0, layer;
+        // if (config.url) {
+        //     this.addBaseLayerByUrl(config);
+        // } else if (config.id) {
+        //     this.addBaseLayerById(config);
+        // } else if (config.getContainer) {
+            this.addBaseLayerWithLayer(config, options);
+        // }
+        for (layer in this.baseLayers) {
+            layersCount++;
+        }
+        if (layersCount === 1) {
+            this.addGoogleLayer(this.baseLayers[layer].redraw());
+        }
+    },
+    addExternalBaseLayer: function (name, url, options) {
+        var layersCount = 0, layer;
+        this.baseLayers[name] =
+            L.tileLayer(url, options);
+        this.layersControl.addBaseLayer(this.baseLayers[name], name);
+
+        for (layer in this.baseLayers) {
+            layersCount++;
+        }
+        if (layersCount === 1) {
+            this.addLayer(this.baseLayers[layer]);
+        }
+    },
+    addBaseLayerWithLayer: function (layer, options) {
+        for (var option in options) {
+            layer.options[option] = options[option];
+        }
+        this.baseLayers[layer.options.name] = layer.options.name;
+        this.layersControl.addBaseLayer(this.baseLayers[layer.options.name]);
+    },
+    addMapBoxLayer: function (config) {
+        var url = 'https://api.tiles.mapbox.com/v4/' +
+            config.id + '/{z}/{x}/{y}.png' +
+            '?access_token=' + config.accessToken;
+
+        if (config.options && !config.options.maxZoom) {
+            config.options.maxZoom = 22;
+        } else if (!config.options) {
+            config.options = {maxZoom: 22};
+        }
+
+        this.addExternalBaseLayer(config.name, url, config);
+    },
+    getBaseLayers: function () {
+        return this.baseLayers;
+    },
+    getDatasetLayers: function () {
+        return this.datasetLayers;
+    }
+});
+
+L.modeify = {
+    map: map,
+    marker: marker,
+    featureLayer: featureLayer,
+    // constants: constants,
+    // utils: utils,
+    // auth: auth,
+    // realtime: realtime,
+    // events: events,
+    GoogleRoadmap: L.gridLayer.googleMutant({
+        maxZoom: 24,
+        type:'roadmap',
+        name: 'Roadmap'
+    }),
+    GoogleSatellite: L.gridLayer.googleMutant({
+        maxZoom: 24,
+        type:'satellite',
+        name: 'Satellite'
+    }),
+    GoogleTerrain: L.gridLayer.googleMutant({
+        maxZoom: 24,
+        type:'terrain',
+        name: 'Terrain'
+    }),
+    GoogleHybrid: L.gridLayer.googleMutant({
+        maxZoom: 24,
+        type:'hybrid',
+        name: 'Hybrid'
+    }),
+    GoogleTraffic: L.gridLayer.googleMutant({
+        maxZoom: 24,
+        type:'roadmap',
+        name: 'Traffic'
+    }).addGoogleLayer('TrafficLayer'),
+    version: '1.0.3'
+};
+
 

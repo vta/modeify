@@ -68,22 +68,25 @@
     {{#GoogleV3}}
     <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet-src.js"></script>
     <script src="https://unpkg.com/leaflet.gridlayer.googlemutant@latest/Leaflet.GoogleMutant.js"></script>
+    <script src="{{static_url}}/build/planner-app/L.UTFGrid.js"></script>
+    <script src="{{static_url}}/build/planner-app/modeify.js"></script>
     {{/GoogleV3}}
     {{#Mapbox}}
     <!-- @ToDo Update Mapbox to version 3.x -->
     <!--<script src="https://unpkg.com/leaflet@0.7.2/dist/leaflet-src.js"></script>-->
     <script src="https://api.tiles.mapbox.com/mapbox.js/v2.1.5/mapbox.js"></script>
+    <script src="https://www.amigocloud.com/static/amigocloud-1.0.3/amigocloud-1.0.3.js"></script>
     {{/Mapbox}}
     {{#AmigoCloud}}
-    <script src="https://unpkg.com/leaflet@0.7.2/dist/leaflet-src.js"></script>
+    <script src="https://www.amigocloud.com/static/amigocloud-1.0.3/amigocloud-1.0.3.js"></script>
     {{/AmigoCloud}}
     {{#ESRI}}
     <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet-src.js"></script>
     <script src="https://unpkg.com/esri-leaflet@2.0.8"></script>
-    {{/ESRI}}
     <script src="{{static_url}}/build/planner-app/L.UTFGrid.js"></script>
-    <script src="https://www.domoritz.de/leaflet-locatecontrol/dist/L.Control.Locate.min.js"></script>
     <script src="{{static_url}}/build/planner-app/modeify.js"></script>
+    {{/ESRI}}
+    <script src="https://www.domoritz.de/leaflet-locatecontrol/dist/L.Control.Locate.min.js"></script>
     <script src="{{static_url}}/build/messages/en.js?v={{version}}"></script>
     <script src="{{static_url}}/build/planner-app/build.js?v={{version}}"></script>
   </body>
