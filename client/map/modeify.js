@@ -4164,334 +4164,6 @@ var utils = {
 };
 
 /**
- * @method L.Map.extend() creates the AmigoCloud base map
- *
-var map = L.Map.extend({
-    initialize: function (element, options) {
-        var layersControl, initialLayer = [], amigoLogo;
-        options.loadAmigoLayers =
-            (options.loadAmigoLayers === undefined) ? true :
-            options.loadAmigoLayers;
-
-        layersControl = this.buildAmigoLayers(options.loadAmigoLayers);
-        if (options.loadAmigoLayers) {
-            initialLayer = [L.modeify.AmigoStreet];
-        }
-
-        L.Map.prototype.initialize.call(
-            this,
-            element,
-            L.extend(
-                L.Map.prototype.options,
-                L.extend(
-                    {},
-                    options,
-                    {
-                        layers: initialLayer
-                    }
-                )
-            )
-        );
-        layersControl.addTo(this);
-
-        if (this.options.amigoLogo) {
-            amigoLogo = L.control({
-                position: 'bottomright'
-            });
-            amigoLogo.onAdd = function (map) {
-                var inner;
-                this._container = L.DomUtil.create(
-                    'div',
-                    'amigocloud-attribution-logo logo-' +
-                        (this.options.amigoLogo === 'right' ? 'right' : 'center')
-                );
-
-                inner = '<div><a href="http://amigocloud.com">' +
-                    '<img src="' + L.modeify.constants.amigoLogoUrl + '">' +
-                    '</a></img></div>';
-
-                this._container.innerHTML = inner;
-                return this._container;
-            };
-
-            amigoLogo.addTo = function (map) {
-                this._map = map;
-                var container = this._container = this.onAdd(map),
-                pos = 'bottomright',
-                corner = map._controlCorners[pos];
-
-                corner.parentElement.appendChild(container);
-
-                return this;
-            };
-            amigoLogo.addTo(this);
-            this.amigoLogo = amigoLogo;
-        }
-
-        // Disable the default 'Leaflet' text
-        if (this.attributionControl) {
-            this.attributionControl.setPrefix('');
-        }
-
-        if (!this.options.center) {
-            this.setView([0.0, 0.0], 10);
-        }
-
-        this.on('unload', function (e) {
-            L.modeify.AmigoStreet = L.tileLayer(
-                L.modeify.constants.amigoLayersData[0].tiles + '/{z}/{x}/{y}.png',
-                {
-                    attribution: 'Map data &copy; <a href="http://amigocloud.com">AmigoCloud</a>',
-                    name: 'AmigoStreet',
-                    maxZoom: 22
-                }
-            );
-            L.modeify.AmigoGray = L.tileLayer(
-                L.modeify.constants.amigoLayersData[1].tiles + '/{z}/{x}/{y}.png',
-                {
-                    attribution: 'Map data &copy; <a href="http://amigocloud.com">AmigoCloud</a>',
-                    name: 'AmigoGray',
-                    maxZoom: 22
-                }
-            );
-            L.modeify.AmigoSatellite = L.tileLayer(
-                L.modeify.constants.amigoLayersData[2].tiles + '/{z}/{x}/{y}.png',
-                {
-                    attribution: 'Map data &copy; <a href="http://amigocloud.com">AmigoCloud</a>',
-                    name: 'AmigoSatellite',
-                    maxZoom: 22
-                }
-            );
-        });
-    },
-    buildAmigoLayers: function (loadAmigoLayers) {
-        var layersData = L.modeify.constants.amigoLayersData,
-            tileUrlSuffix = '/{z}/{x}/{y}.png',
-            i;
-        this.systemLayers = {};
-        this.baseLayers = {};
-        this.datasetLayers = {};
-
-        this.systemLayers.AmigoStreet = L.modeify.AmigoStreet;
-        this.systemLayers.AmigoGray = L.modeify.AmigoGray;
-        this.systemLayers.AmigoSatellite = L.modeify.AmigoSatellite;
-
-        this.layersControl = L.control.layers();
-
-        if (loadAmigoLayers) {
-            for (var layer in this.systemLayers) {
-                this.layersControl.addBaseLayer(this.systemLayers[layer], layer);
-            }
-        }
-
-        return this.layersControl;
-    },
-    addDatasetLayer: function (config) {
-        var datasetLayer;
-        if (config.url) {
-            datasetLayer = this.addDatasetLayerByUrl(
-                config,
-                L.modeify.utils.processAdditionalDatasetConfig
-            );
-        } else if (config.ids) {
-            datasetLayer = this.addDatasetLayerByIds(
-                config,
-                L.modeify.utils.processAdditionalDatasetConfig
-            );
-        }
-
-        return datasetLayer;
-    },
-    addDatasetLayerByUrl: function (config, additionalCallback) {
-        var _this = this,
-            url = config.url,
-            datasetData;
-
-        if (config.options && !config.options.maxZoom) {
-            config.options.maxZoom = 22;
-        } else if (!config.options) {
-            config.options = {maxZoom: 22};
-        }
-
-        L.modeify.utils.get(url).then(function (data) {
-            datasetData = data;
-            _this.datasetLayers[datasetData.name] =
-                L.tileLayer(
-                    datasetData.tiles + '/{z}/{x}/{y}.png' + L.modeify.auth.getTokenParam(),
-                    L.extend(
-                        {},
-                        config.options,
-                        {
-                            datasetData: datasetData
-                        }
-                    )
-                );
-            _this.layersControl.addOverlay(_this.datasetLayers[datasetData.name], datasetData.name);
-
-            additionalCallback(
-                _this.datasetLayers[datasetData.name],
-                config,
-                _this
-            );
-            return _this.datasetLayers[datasetData.name];
-        });
-    },
-    addDatasetLayerByIds: function (config, additionalCallback) {
-        var url = '/users/' + config.ids.user + '/projects/' +
-            config.ids.project +
-            ((config.type === 'vector') ? '/datasets/' : '/raster_datasets/') +
-            config.ids.dataset + L.modeify.auth.getTokenParam(),
-            _this = this,
-            datasetData;
-
-        if (config.options && !config.options.maxZoom) {
-            config.options.maxZoom = 22;
-        } else if (!config.options) {
-            config.options = {maxZoom: 22};
-        }
-
-        L.modeify.utils.get(url).then(function (data) {
-            datasetData = data;
-            _this.datasetLayers[datasetData.name] =
-                L.tileLayer(
-                    datasetData.tiles + '/{z}/{x}/{y}.png' + L.modeify.auth.getTokenParam(),
-                    L.extend(
-                        {},
-                        config.options,
-                        {
-                            datasetData: datasetData
-                        }
-                    )
-                );
-            _this.layersControl.addOverlay(_this.datasetLayers[datasetData.name], datasetData.name);
-
-            additionalCallback(
-                _this.datasetLayers[datasetData.name],
-                config,
-                _this
-            );
-            return _this.datasetLayers[datasetData.name];
-        });
-    },
-    addBaseLayer: function (config, options) {
-        var layersCount = 0, layer;
-        if (config.url) {
-            this.addBaseLayerByUrl(config);
-        } else if (config.id) {
-            this.addBaseLayerById(config);
-        } else if (config.getContainer) {
-            this.addBaseLayerWithLayer(config, options);
-        }
-        for (layer in this.baseLayers) {
-            layersCount++;
-        }
-        if (layersCount === 1) {
-            this.addLayer(this.baseLayers[layer].redraw());
-        }
-    },
-    addExternalBaseLayer: function (name, url, options) {
-        var layersCount = 0, layer;
-        this.baseLayers[name] =
-            L.tileLayer(url, options);
-        this.layersControl.addBaseLayer(this.baseLayers[name], name);
-
-        for (layer in this.baseLayers) {
-            layersCount++;
-        }
-        if (layersCount === 1) {
-            this.addLayer(this.baseLayers[layer]);
-        }
-    },
-    addBaseLayerByUrl: function (config) {
-        var url = config.url + L.modeify.auth.getTokenParam(),
-            _this = this,
-            baseLayerData;
-
-        if (config.options && !config.options.maxZoom) {
-            config.options.maxZoom = 22;
-        } else if (!config.options) {
-            config.options = {maxZoom: 22};
-        }
-
-        L.modeify.utils.get(url).then(function (data) {
-            baseLayerData = data;
-            _this.baseLayers[baseLayerData.name] =
-                L.tileLayer(
-                    baseLayerData.tiles + '/{z}/{x}/{y}.png' + L.modeify.auth.getTokenParam(),
-                    L.extend(
-                        {},
-                        config.options,
-                        {
-                            datasetData: datasetData
-                        }
-                    )
-                );
-            _this.layersControl.addBaseLayer(_this.baseLayers[baseLayerData.name], baseLayerData.name);
-        });
-    },
-    addBaseLayerById: function (config) {
-        var url = '/base_layers/' + config.id + L.modeify.auth.getTokenParam(),
-            _this = this,
-            baseLayerData;
-
-        if (config.options && !config.options.maxZoom) {
-            config.options.maxZoom = 22;
-        } else if (!config.options) {
-            config.options = {maxZoom: 22};
-        }
-
-        L.modeify.utils.get(url).then(function (data) {
-            baseLayerData = data;
-            _this.baseLayers[baseLayerData.name] =
-                L.tileLayer(
-                    baseLayerData.tiles + '/{z}/{x}/{y}.png' + L.modeify.auth.getTokenParam(),
-                    L.extend(
-                        {},
-                        config.options,
-                        {
-                            baseLayerData: baseLayerData
-                        }
-                    )
-                );
-            _this.layersControl.addBaseLayer(_this.baseLayers[baseLayerData.name], baseLayerData.name);
-        });
-    },
-    addBaseLayerWithLayer: function (layer, options) {
-        for (var option in options) {
-            layer.options[option] = options[option];
-        }
-        this.baseLayers[layer.options.name] = layer;
-        this.layersControl.addBaseLayer(this.baseLayers[layer.options.name], layer.options.name);
-    },
-    addMapBoxLayer: function (config) {
-        var url = 'https://api.tiles.mapbox.com/v4/' +
-            config.id + '/{z}/{x}/{y}.png' +
-            '?access_token=' + config.accessToken;
-
-        if (config.options && !config.options.maxZoom) {
-            config.options.maxZoom = 22;
-        } else if (!config.options) {
-            config.options = {maxZoom: 22};
-        }
-
-        this.addExternalBaseLayer(config.name, url, config);
-    },
-    addAuthLayer: function (config) {
-        if (config.provider === 'mapbox') {
-            this.addMapBoxLayer(config);
-        }
-    },
-    getBaseLayers: function () {
-        return this.baseLayers;
-    },
-    getDatasetLayers: function () {
-        return this.datasetLayers;
-    }
-});
- *
- **/
-
-/**
  * AmigoCloud marker definition
  * @type {{icon: marker.icon}}
  */
@@ -4659,49 +4331,6 @@ var events = {
 };
 
 /**
- * AmigoCloud L.Map class construction for basemaps, layers, features, events and markers
- * @type {{map, marker: {icon: marker.icon}, featureLayer: L.featureGroup, constants: {amigoLayersData: *[], baseUrl: string, socketServerUrl: string, amigoLogoUrl: string, apiUrl: string}, utils: {parseUrl: utils.parseUrl, http: utils.http, me: utils.me, get: utils.get, post: utils.post, params: utils.params, buildPopupHTML: utils.buildPopupHTML, buildPopupQuery: utils.buildPopupQuery, showPopup: utils.showPopup, processAdditionalDatasetConfig: utils.processAdditionalDatasetConfig, processPopupDatasetConfig: utils.processPopupDatasetConfig}, auth: {setToken: auth.setToken, getToken: auth.getToken, getTokenParam: auth.getTokenParam}, realtime: {authenticate: realtime.authenticate, emit: realtime.emit, on: realtime.on, setAccessToken: realtime.setAccessToken, connectDatasetById: realtime.connectDatasetById, connectDatasetByUrl: realtime.connectDatasetByUrl, startListening: realtime.startListening}, events: {token: string, socket, authenticate: events.authenticate, emit: events.emit, on: events.on, startListening: events.startListening}, AmigoStreet, AmigoGray, AmigoSatellite, version: string}}
- *
- *
-L.modeify = {
-    map: map,
-    marker: marker,
-    featureLayer: featureLayer,
-    constants: constants,
-    utils: utils,
-    auth: auth,
-    realtime: realtime,
-    events: events,
-    AmigoStreet: L.tileLayer(
-        this.constants.amigoLayersData[0].tiles + '/{z}/{x}/{y}.png',
-        {
-            attribution: 'Map data &copy; <a href="http://amigocloud.com">AmigoCloud</a>',
-            name: 'AmigoStreet',
-            maxZoom: 22
-        }
-    ),
-    AmigoGray: L.tileLayer(
-        this.constants.amigoLayersData[1].tiles + '/{z}/{x}/{y}.png',
-        {
-            attribution: 'Map data &copy; <a href="http://amigocloud.com">AmigoCloud</a>',
-            name: 'AmigoGray',
-            maxZoom: 22
-        }
-    ),
-    AmigoSatellite: L.tileLayer(
-        this.constants.amigoLayersData[2].tiles + '/{z}/{x}/{y}.png',
-        {
-            attribution: 'Map data &copy; <a href="http://amigocloud.com">AmigoCloud</a>',
-            name: 'AmigoSatellite',
-            maxZoom: 22
-        }
-    ),
-    version: '1.0.4'
-};
- *
- * **/
-
-/**
  * @method L.Map.extend() creates the AmigoCloud base map
  */
 var map = L.Map.extend({
@@ -4731,6 +4360,7 @@ var map = L.Map.extend({
                 )
             )
         );
+
         layersControl.addTo(this);
 
         if (!this.options.center) {
@@ -4743,205 +4373,40 @@ var map = L.Map.extend({
         this.baseLayers = {};
         this.datasetLayers = {};
 
-        this.systemLayers.Roadmap = L.modeify.GoogleRoadmap;
-        this.systemLayers.Satellite = L.modeify.GoogleSatellite;
-        this.systemLayers.Terrain = L.modeify.GoogleTerrain;
-        this.systemLayers.Hybrid = L.modeify.GoogleHybrid;
-        // this.systemLayers.Traffic = L.modeify.GoogleTraffic;
+        var trafficMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'roadmap'
+        });
+        trafficMutant.addGoogleLayer('TrafficLayer');
 
-        layersControl = L.control.layers();
-
-        if (loadGoogleLayers) {
-            for (var layer in this.systemLayers) {
-                layersControl.addBaseLayer(this.systemLayers[layer], layer);
-            }
-        }
-
-        // var trafficMutant = L.gridLayer.googleMutant({
-        //     maxZoom: 24,
-        //     type:'roadmap'
-        // });
-        // trafficMutant.addGoogleLayer('TrafficLayer');
-
-
-        // var transitMutant = L.gridLayer.googleMutant({
-        //     maxZoom: 24,
-        //     type:'roadmap'
-        // });
-        // transitMutant.addGoogleLayer('TransitLayer');
-
-        // this.layersControl = addGoogleLayer({
-        //     Roadmap: this.Roadmap,
-        //     Aerial: this.Satellite,
-        //     Terrain: this.Terrain,
-        //     Hybrid: this.Hybrid,
-        //     // Styles: styleMutant,
-        //     Traffic: trafficMutant,
-        //     // Transit: transitMutant
-        // }, {}, {
-        //     collapsed: false
-        // });
-
-        // this.layersControl['Traffic'] = trafficMutant;
-
-        // this.layersControl[] = {};
-        // this.layersControl[] = {collapsed: false};
+        layersControl = L.control.layers({
+            Roadmap: L.modeify.GoogleRoadmap,
+            Aerial: L.modeify.GoogleSatellite,
+            Terrain: L.modeify.GoogleTerrain,
+            Hybrid: L.modeify.GoogleHybrid,
+            Traffic: trafficMutant
+        }, {}, {
+            collapsed: false
+        });
 
         return layersControl;
-    },
-    addDatasetLayer: function (config) {
-        var datasetLayer;
-        if (config.url) {
-            datasetLayer = this.addDatasetLayerByUrl(
-                config,
-                L.modeify.utils.processAdditionalDatasetConfig
-            );
-        } else if (config.ids) {
-            datasetLayer = this.addDatasetLayerByIds(
-                config,
-                L.modeify.utils.processAdditionalDatasetConfig
-            );
-        }
-
-        return datasetLayer;
-    },
-    addDatasetLayerByUrl: function (config, additionalCallback) {
-        var _this = this,
-            url = config.url,
-            datasetData;
-
-        if (config.options && !config.options.maxZoom) {
-            config.options.maxZoom = 22;
-        } else if (!config.options) {
-            config.options = {maxZoom: 22};
-        }
-
-        L.modeify.utils.get(url).then(function (data) {
-            datasetData = data;
-            _this.datasetLayers[datasetData.name] =
-                L.tileLayer(
-                    // datasetData.tiles + '/{z}/{x}/{y}.png' + L.modeify.auth.getTokenParam(),
-                    L.extend(
-                        {},
-                        config.options,
-                        {
-                            datasetData: datasetData
-                        }
-                    )
-                );
-            _this.layersControl.addOverlay(_this.datasetLayers[datasetData.name], datasetData.name);
-
-            additionalCallback(
-                _this.datasetLayers[datasetData.name],
-                config,
-                _this
-            );
-            return _this.datasetLayers[datasetData.name];
-        });
-    },
-    addDatasetLayerByIds: function (config, additionalCallback) {
-        var url = '/users/' + config.ids.user + '/projects/' +
-                config.ids.project +
-                ((config.type === 'vector') ? '/datasets/' : '/raster_datasets/') +
-                config.ids.dataset + L.modeify.auth.getTokenParam(),
-            _this = this,
-            datasetData;
-
-        if (config.options && !config.options.maxZoom) {
-            config.options.maxZoom = 22;
-        } else if (!config.options) {
-            config.options = {maxZoom: 22};
-        }
-
-        L.modeify.utils.get(url).then(function (data) {
-            datasetData = data;
-            _this.datasetLayers[datasetData.name] =
-                L.tileLayer(
-                    // datasetData.tiles + '/{z}/{x}/{y}.png' + L.modeify.auth.getTokenParam(),
-                    L.extend(
-                        {},
-                        config.options,
-                        {
-                            datasetData: datasetData
-                        }
-                    )
-                );
-            _this.layersControl.addOverlay(_this.datasetLayers[datasetData.name], datasetData.name);
-
-            additionalCallback(
-                _this.datasetLayers[datasetData.name],
-                config,
-                _this
-            );
-            return _this.datasetLayers[datasetData.name];
-        });
-    },
-    addBaseLayer: function (config, options) {
-        var layersCount = 0, layer;
-        // if (config.url) {
-        //     this.addBaseLayerByUrl(config);
-        // } else if (config.id) {
-        //     this.addBaseLayerById(config);
-        // } else if (config.getContainer) {
-            this.addBaseLayerWithLayer(config, options);
-        // }
-        for (layer in this.baseLayers) {
-            layersCount++;
-        }
-        if (layersCount === 1) {
-            this.addGoogleLayer(this.baseLayers[layer].redraw());
-        }
-    },
-    addExternalBaseLayer: function (name, url, options) {
-        var layersCount = 0, layer;
-        this.baseLayers[name] =
-            L.tileLayer(url, options);
-        this.layersControl.addBaseLayer(this.baseLayers[name], name);
-
-        for (layer in this.baseLayers) {
-            layersCount++;
-        }
-        if (layersCount === 1) {
-            this.addLayer(this.baseLayers[layer]);
-        }
-    },
-    addBaseLayerWithLayer: function (layer, options) {
-        for (var option in options) {
-            layer.options[option] = options[option];
-        }
-        this.baseLayers[layer.options.name] = layer.options.name;
-        this.layersControl.addBaseLayer(this.baseLayers[layer.options.name]);
-    },
-    addMapBoxLayer: function (config) {
-        var url = 'https://api.tiles.mapbox.com/v4/' +
-            config.id + '/{z}/{x}/{y}.png' +
-            '?access_token=' + config.accessToken;
-
-        if (config.options && !config.options.maxZoom) {
-            config.options.maxZoom = 22;
-        } else if (!config.options) {
-            config.options = {maxZoom: 22};
-        }
-
-        this.addExternalBaseLayer(config.name, url, config);
-    },
-    getBaseLayers: function () {
-        return this.baseLayers;
-    },
-    getDatasetLayers: function () {
-        return this.datasetLayers;
     }
+
 });
 
+/**
+ * Modeify map container with layers
+ * @type {{map, marker: {icon: marker.icon}, featureLayer: L.featureGroup, constants: {amigoLayersData: *[], baseUrl: string, socketServerUrl: string, amigoLogoUrl: string, apiUrl: string}, utils: {parseUrl: utils.parseUrl, http: utils.http, me: utils.me, get: utils.get, post: utils.post, params: utils.params, buildPopupHTML: utils.buildPopupHTML, buildPopupQuery: utils.buildPopupQuery, showPopup: utils.showPopup, processAdditionalDatasetConfig: utils.processAdditionalDatasetConfig, processPopupDatasetConfig: utils.processPopupDatasetConfig}, auth: {setToken: auth.setToken, getToken: auth.getToken, getTokenParam: auth.getTokenParam}, realtime: {authenticate: realtime.authenticate, emit: realtime.emit, on: realtime.on, setAccessToken: realtime.setAccessToken, connectDatasetById: realtime.connectDatasetById, connectDatasetByUrl: realtime.connectDatasetByUrl, startListening: realtime.startListening}, events: {token: string, socket, authenticate: events.authenticate, emit: events.emit, on: events.on, startListening: events.startListening}, GoogleRoadmap, GoogleSatellite, GoogleTerrain, GoogleHybrid, GoogleTraffic: *, version: string}}
+ */
 L.modeify = {
     map: map,
     marker: marker,
     featureLayer: featureLayer,
-    // constants: constants,
-    // utils: utils,
-    // auth: auth,
-    // realtime: realtime,
-    // events: events,
+    constants: constants,
+    utils: utils,
+    auth: auth,
+    realtime: realtime,
+    events: events,
     GoogleRoadmap: L.gridLayer.googleMutant({
         maxZoom: 24,
         type:'roadmap',
@@ -4962,11 +4427,6 @@ L.modeify = {
         type:'hybrid',
         name: 'Hybrid'
     }),
-    GoogleTraffic: L.gridLayer.googleMutant({
-        maxZoom: 24,
-        type:'roadmap',
-        name: 'Traffic'
-    }).addGoogleLayer('TrafficLayer'),
     version: '1.0.3'
 };
 

@@ -186,10 +186,10 @@ module.exports.drawRoute = function (marker) {
       },
       queryUrl;
 
-  // var query = 'SELECT st_asgeojson(wkb_geometry) FROM dataset_' + datasetId +
-  //   " WHERE lineabbr='" + routeId + "'";
-  // queryUrl = projectUrl + '/sql?token=' + config.realtime_access_token() +
-  //   '&query=' + query + '&limit=1000';
+  var query = 'SELECT st_asgeojson(wkb_geometry) FROM dataset_' + datasetId +
+    " WHERE lineabbr='" + routeId + "'";
+  queryUrl = projectUrl + '/sql?token=' + config.realtime_access_token() +
+    '&query=' + query + '&limit=1000';
 
   if (config.map_provider() === 'Amigo') {
       L.amigo.utils.get(queryUrl).then(function (data) {
@@ -202,19 +202,6 @@ module.exports.drawRoute = function (marker) {
               }).addTo(module.exports.realtimeMap);
       });
   };
-  // } else if (config.map_provider() === 'GoogleV3') {
-  //     // L.modeify.utils.get(queryUrl).then(function (data) {
-  //     //     if (!data.data.length) {
-  //     //         return;
-  //     //     }
-  //         module.exports.activeRoute = L.geoJson(
-  //
-  //             JSON.parse(data.data[0].st_asgeojson), {
-  //                 style: routeStyle
-  //             }).addTo(module.exports.realtimeMap);
-  //     // });
-  // }
-
 };
 
 module.exports.deleteRoute = function (marker) {
