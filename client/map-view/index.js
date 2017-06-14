@@ -79,7 +79,9 @@ module.exports = function (el) {
         L.modeify.map = (new L.map(el, {
             zoomAnimation: true,
             maxBounds: L.latLngBounds(southWest, northEast),
-            minZoom: 8
+            minZoom: 8,
+            dragging: true,
+            layers: L.modeify.GoogleRoadmap
         })).setView([center[1], center[0]], config.geocode().zoom);
 
         map = L.modeify.map;
@@ -92,7 +94,7 @@ module.exports = function (el) {
         //     minZoom: 8
         // })).setView([center[1], center[0]], config.geocode().zoom);
 
-        L.modeify.GoogleRoadmap.addTo(map);
+        // L.modeify.GoogleRoadmap.addTo(map);
 
         L.modeify.auth.setToken(config.support_data_token());
 
