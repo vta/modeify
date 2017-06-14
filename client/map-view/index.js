@@ -83,18 +83,9 @@ module.exports = function (el) {
         //
         // map = L.modeify.map;
         //
-        // map = (new L.modeify.map(el, {
-        //     loadGoogleLayers: true,
-        //     inertia: false,
-        //     zoomAnimation: true,
-        //     maxBounds: L.latLngBounds(southWest, northEast),
-        //     minZoom: 8
-        // })).setView([center[1], center[0]], config.geocode().zoom);
-        // L.modeify.GoogleRoadmap.addTo(map);
-
         var mapopts =  {
-            zoomSnap: 0.1,
-            zoomAnimation: true,
+            // zoomSnap: 0.1,
+            zoomAnimation: false,
             maxBounds: L.latLngBounds(southWest, northEast),
             minZoom: 8,
             dragging: true
@@ -102,9 +93,42 @@ module.exports = function (el) {
 
         map = L.map(el, mapopts).setView([center[1], center[0]], config.geocode().zoom);
 
-        var roadMutant = L.modeify.GoogleRoadmap.addTo(map);
+        // map = (new L.map(el, mapopts)).setView([center[1], center[0]], config.geocode().zoom);
 
-        L.modeify.auth.setToken(config.support_data_token());
+        var roadMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'roadmap'
+        }).addTo(map);
+
+        var satMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'satellite'
+        });
+
+        var terrainMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'terrain'
+        });
+
+        var hybridMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'hybrid'
+        });
+
+        var styleMutant = L.gridLayer.googleMutant({
+            styles: [
+                {elementType: 'labels', stylers: [{visibility: 'off'}]},
+                {featureType: 'water', stylers: [{color: '#444444'}]},
+                {featureType: 'landscape', stylers: [{color: '#eeeeee'}]},
+                {featureType: 'road', stylers: [{visibility: 'off'}]},
+                {featureType: 'poi', stylers: [{visibility: 'off'}]},
+                {featureType: 'transit', stylers: [{visibility: 'off'}]},
+                {featureType: 'administrative', stylers: [{visibility: 'off'}]},
+                {featureType: 'administrative.locality', stylers: [{visibility: 'off'}]}
+            ],
+            maxZoom: 24,
+            type:'roadmap'
+        });
 
         var trafficMutant = L.gridLayer.googleMutant({
             maxZoom: 24,
@@ -112,16 +136,26 @@ module.exports = function (el) {
         });
         trafficMutant.addGoogleLayer('TrafficLayer');
 
-        L.control.layers({
+
+        var transitMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'roadmap'
+        });
+        transitMutant.addGoogleLayer('TransitLayer');
+
+        map.layersControl = L.control.layers({
             Roadmap: roadMutant,
-            Aerial: L.modeify.GoogleSatellite,
-            Terrain: L.modeify.GoogleTerrain,
-            Hybrid: L.modeify.GoogleHybrid,
-            Traffic: trafficMutant
+            Aerial: satMutant,
+            Terrain: terrainMutant,
+            Hybrid: hybridMutant,
+            // Styles: styleMutant,
+            Traffic: trafficMutant,
+            // Transit: transitMutant
         }, {}, {
             collapsed: false
         }).addTo(map);
 
+        L.modeify.auth.setToken(config.support_data_token());
 
         // map.addControl(L.control.locate({
         //     locateOptions: {
@@ -132,11 +166,15 @@ module.exports = function (el) {
 
         map.routes = []; // array to hold all route objects
 
-        L.modeify.map = map;
+        svg = d3.select(map.getPanes().overlayPane).append("svg");
+
+        g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
         module.exports.activeMap = map;
 
         // realtime = mapModule.realtime();
+
+        L.modeify.map = map;
 
     } else if (config.map_provider && config.map_provider() === 'ESRI') {
         southWest = L.latLng(35.946877085397, -123.480610897013);
@@ -176,6 +214,8 @@ module.exports = function (el) {
         module.exports.activeMap = map;
 
         // realtime = mapModule.realtime();
+
+        L.modeify.map = map;
 
     } else {
 
