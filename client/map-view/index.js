@@ -74,7 +74,7 @@ module.exports = function (el) {
 
     } else if (config.map_provider && config.map_provider() === 'GoogleV3') {
 
-        map = (new L.modeify.map(el, {
+        var map = (new L.modeify.map(el, {
             loadGoogleLayers: true,
             inertia: false,
             zoomAnimation: true,
@@ -83,6 +83,16 @@ module.exports = function (el) {
         })).setView([center[1], center[0]], config.geocode().zoom);
 
         L.modeify.auth.setToken(config.support_data_token());
+
+        L.control.layers({
+            Roadmap: L.modeify.GoogleRoadmap,
+            Aerial: L.modeify.GoogleSatellite,
+            Terrain: L.modeify.GoogleTerrain,
+            Hybrid: L.modeify.GoogleHybrid,
+            Traffic: trafficMutant
+        }, {}, {
+            collapsed: false
+        }).addTo(map);
 
         // map.addControl(L.control.locate({
         //     locateOptions: {
@@ -95,7 +105,7 @@ module.exports = function (el) {
 
         module.exports.activeMap = map;
 
-        realtime = mapModule.realtime();
+        var realtime = mapModule.realtime();
 
     } else if (config.map_provider && config.map_provider() === 'ESRI') {
         southWest = L.latLng(35.946877085397, -123.480610897013);
