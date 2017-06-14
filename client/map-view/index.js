@@ -73,19 +73,16 @@ module.exports = function (el) {
 
 
     } else if (config.map_provider && config.map_provider() === 'GoogleV3') {
+
         southWest = L.latLng(35.946877085397, -123.480610897013);
         northEast = L.latLng(40.763279543715, -118.789317362500);
 
-        L.modeify.map = (new L.map(el, {
-            zoomAnimation: true,
-            maxBounds: L.latLngBounds(southWest, northEast),
-            minZoom: 8,
-            dragging: true,
-            layers: L.modeify.GoogleRoadmap
-        })).setView([center[1], center[0]], config.geocode().zoom);
-
-        map = L.modeify.map;
-
+        // L.modeify.map = (new L.map(el, {
+        //     layers: L.modeify.GoogleRoadmap
+        // })).setView([center[1], center[0]], config.geocode().zoom);
+        //
+        // map = L.modeify.map;
+        //
         // map = (new L.modeify.map(el, {
         //     loadGoogleLayers: true,
         //     inertia: false,
@@ -93,8 +90,19 @@ module.exports = function (el) {
         //     maxBounds: L.latLngBounds(southWest, northEast),
         //     minZoom: 8
         // })).setView([center[1], center[0]], config.geocode().zoom);
-
         // L.modeify.GoogleRoadmap.addTo(map);
+
+        var mapopts =  {
+            zoomSnap: 0.1,
+            zoomAnimation: true,
+            maxBounds: L.latLngBounds(southWest, northEast),
+            minZoom: 8,
+            dragging: true
+        };
+
+        map = L.map(el, mapopts).setView([center[1], center[0]], config.geocode().zoom);
+
+        var roadMutant = L.modeify.GoogleRoadmap.addTo(map);
 
         L.modeify.auth.setToken(config.support_data_token());
 
@@ -105,7 +113,7 @@ module.exports = function (el) {
         trafficMutant.addGoogleLayer('TrafficLayer');
 
         L.control.layers({
-            Roadmap: L.modeify.GoogleRoadmap,
+            Roadmap: roadMutant,
             Aerial: L.modeify.GoogleSatellite,
             Terrain: L.modeify.GoogleTerrain,
             Hybrid: L.modeify.GoogleHybrid,
@@ -113,6 +121,7 @@ module.exports = function (el) {
         }, {}, {
             collapsed: false
         }).addTo(map);
+
 
         // map.addControl(L.control.locate({
         //     locateOptions: {
@@ -122,6 +131,8 @@ module.exports = function (el) {
         // }));
 
         map.routes = []; // array to hold all route objects
+
+        L.modeify.map = map;
 
         module.exports.activeMap = map;
 
