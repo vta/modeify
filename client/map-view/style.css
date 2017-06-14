@@ -22,13 +22,13 @@
 }
 
 @media screen and (max-width: 639px) {
-    help-me-choose {
+    .help-me-choose {
         display: none;
     }
 }
 
 @media screen and (min-width: 640px) {
-    help-me-choose {
+    .help-me-choose {
         display: inline-block;
     }
 }
