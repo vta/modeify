@@ -20,19 +20,6 @@
 .leaflet-control-layers-overlays {
   display: none;
 }
-/**
-@media screen and (max-width: 639px) {
-    .help-me-choose {
-        display: none;
-    }
-}
-
-@media screen and (min-width: 640px) {
-    .help-me-choose {
-        display: inline-block;
-    }
-}
-**/
 
 @-webkit-keyframes fade_jona {
     0% {
