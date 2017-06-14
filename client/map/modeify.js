@@ -4332,7 +4332,7 @@ var events = {
 
 /**
  * @method L.Map.extend() creates the AmigoCloud base map
- */
+ *
 var map = L.Map.extend({
     initialize: function (element, options) {
         var layersControl, initialLayer = [];
@@ -4355,13 +4355,15 @@ var map = L.Map.extend({
                     {},
                     options,
                     {
-                        layers: initialLayer
+                        // layers: initialLayer
                     }
                 )
             )
         );
 
-        layersControl.addTo(this);
+        initialLayer.addTo(this);
+
+        // layersControl.addTo(this);
 
         if (!this.options.center) {
             this.setView([0.0, 0.0], 10);
@@ -4394,39 +4396,43 @@ var map = L.Map.extend({
 
 });
 
+ *
+ **/
+
+
 /**
  * Modeify map container with layers
  * @type {{map, marker: {icon: marker.icon}, featureLayer: L.featureGroup, constants: {amigoLayersData: *[], baseUrl: string, socketServerUrl: string, amigoLogoUrl: string, apiUrl: string}, utils: {parseUrl: utils.parseUrl, http: utils.http, me: utils.me, get: utils.get, post: utils.post, params: utils.params, buildPopupHTML: utils.buildPopupHTML, buildPopupQuery: utils.buildPopupQuery, showPopup: utils.showPopup, processAdditionalDatasetConfig: utils.processAdditionalDatasetConfig, processPopupDatasetConfig: utils.processPopupDatasetConfig}, auth: {setToken: auth.setToken, getToken: auth.getToken, getTokenParam: auth.getTokenParam}, realtime: {authenticate: realtime.authenticate, emit: realtime.emit, on: realtime.on, setAccessToken: realtime.setAccessToken, connectDatasetById: realtime.connectDatasetById, connectDatasetByUrl: realtime.connectDatasetByUrl, startListening: realtime.startListening}, events: {token: string, socket, authenticate: events.authenticate, emit: events.emit, on: events.on, startListening: events.startListening}, GoogleRoadmap, GoogleSatellite, GoogleTerrain, GoogleHybrid, GoogleTraffic: *, version: string}}
  */
 L.modeify = {
-    map: map,
+    map: {},
     marker: marker,
-    featureLayer: featureLayer,
+    // featureLayer: featureLayer,
     constants: constants,
     utils: utils,
     auth: auth,
-    realtime: realtime,
+    // realtime: realtime,
     events: events,
-    GoogleRoadmap: L.gridLayer.googleMutant({
-        maxZoom: 24,
-        type:'roadmap',
-        name: 'Roadmap'
-    }),
-    GoogleSatellite: L.gridLayer.googleMutant({
-        maxZoom: 24,
-        type:'satellite',
-        name: 'Satellite'
-    }),
-    GoogleTerrain: L.gridLayer.googleMutant({
-        maxZoom: 24,
-        type:'terrain',
-        name: 'Terrain'
-    }),
-    GoogleHybrid: L.gridLayer.googleMutant({
-        maxZoom: 24,
-        type:'hybrid',
-        name: 'Hybrid'
-    }),
+    // GoogleRoadmap: L.gridLayer.googleMutant({
+    //     maxZoom: 24,
+    //     type:'roadmap',
+    //     name: 'Roadmap'
+    // }),
+    // GoogleSatellite: L.gridLayer.googleMutant({
+    //     maxZoom: 24,
+    //     type:'satellite',
+    //     name: 'Satellite'
+    // }),
+    // GoogleTerrain: L.gridLayer.googleMutant({
+    //     maxZoom: 24,
+    //     type:'terrain',
+    //     name: 'Terrain'
+    // }),
+    // GoogleHybrid: L.gridLayer.googleMutant({
+    //     maxZoom: 24,
+    //     type:'hybrid',
+    //     name: 'Hybrid'
+    // }),
     version: '1.0.3'
 };
 

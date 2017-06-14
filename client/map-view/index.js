@@ -74,13 +74,86 @@ module.exports = function (el) {
 
     } else if (config.map_provider && config.map_provider() === 'GoogleV3') {
 
-        map = (new L.modeify.map(el, {
-            loadGoogleLayers: true,
-            inertia: false,
-            zoomAnimation: true,
+        southWest = L.latLng(35.946877085397, -123.480610897013);
+        northEast = L.latLng(40.763279543715, -118.789317362500);
+
+        // L.modeify.map = (new L.map(el, {
+        //     layers: L.modeify.GoogleRoadmap
+        // })).setView([center[1], center[0]], config.geocode().zoom);
+        //
+        // map = L.modeify.map;
+        //
+        var mapopts =  {
+            // zoomSnap: 0.1,
+            zoomAnimation: false,
             maxBounds: L.latLngBounds(southWest, northEast),
-            minZoom: 8
-        })).setView([center[1], center[0]], config.geocode().zoom);
+            minZoom: 8,
+            dragging: true
+        };
+
+        map = L.map(el, mapopts).setView([center[1], center[0]], config.geocode().zoom);
+
+        // map = (new L.map(el, mapopts)).setView([center[1], center[0]], config.geocode().zoom);
+
+        var roadMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'roadmap'
+        }).addTo(map);
+
+        var satMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'satellite'
+        });
+
+        var terrainMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'terrain'
+        });
+
+        var hybridMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'hybrid'
+        });
+
+        var styleMutant = L.gridLayer.googleMutant({
+            styles: [
+                {elementType: 'labels', stylers: [{visibility: 'off'}]},
+                {featureType: 'water', stylers: [{color: '#444444'}]},
+                {featureType: 'landscape', stylers: [{color: '#eeeeee'}]},
+                {featureType: 'road', stylers: [{visibility: 'off'}]},
+                {featureType: 'poi', stylers: [{visibility: 'off'}]},
+                {featureType: 'transit', stylers: [{visibility: 'off'}]},
+                {featureType: 'administrative', stylers: [{visibility: 'off'}]},
+                {featureType: 'administrative.locality', stylers: [{visibility: 'off'}]}
+            ],
+            maxZoom: 24,
+            type:'roadmap'
+        });
+
+        var trafficMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'roadmap'
+        });
+        trafficMutant.addGoogleLayer('TrafficLayer');
+
+
+        var transitMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'roadmap'
+        });
+        transitMutant.addGoogleLayer('TransitLayer');
+
+        map.layersControl = L.control.layers({
+            Roadmap: roadMutant,
+            Aerial: satMutant,
+            Terrain: terrainMutant,
+            Hybrid: hybridMutant,
+            // Styles: styleMutant,
+            Traffic: trafficMutant,
+            // Transit: transitMutant
+        }, {}, {
+            collapsed: false
+        }).addTo(map);
 
         L.modeify.auth.setToken(config.support_data_token());
 
@@ -93,9 +166,15 @@ module.exports = function (el) {
 
         map.routes = []; // array to hold all route objects
 
+        svg = d3.select(map.getPanes().overlayPane).append("svg");
+
+        g = svg.append("g").attr("class", "leaflet-zoom-hide");
+
         module.exports.activeMap = map;
 
-        realtime = mapModule.realtime();
+        // realtime = mapModule.realtime();
+
+        L.modeify.map = map;
 
     } else if (config.map_provider && config.map_provider() === 'ESRI') {
         southWest = L.latLng(35.946877085397, -123.480610897013);
@@ -135,6 +214,8 @@ module.exports = function (el) {
         module.exports.activeMap = map;
 
         // realtime = mapModule.realtime();
+
+        L.modeify.map = map;
 
     } else {
 
