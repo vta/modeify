@@ -73,15 +73,14 @@ module.exports = function (el) {
 
 
     } else if (config.map_provider && config.map_provider() === 'GoogleV3') {
+        southWest = L.latLng(35.946877085397, -123.480610897013);
+        northEast = L.latLng(40.763279543715, -118.789317362500);
 
-        var options = {
-            inertia: false,
+        L.modeify.map = (new L.map(el, {
             zoomAnimation: true,
             maxBounds: L.latLngBounds(southWest, northEast),
             minZoom: 8
-        };
-
-        L.modeify.map = new L.map(el, options).setView([center[1], center[0]], config.geocode().zoom);
+        })).setView([center[1], center[0]], config.geocode().zoom);
 
         map = L.modeify.map;
 
@@ -124,7 +123,7 @@ module.exports = function (el) {
 
         module.exports.activeMap = map;
 
-        realtime = mapModule.realtime();
+        // realtime = mapModule.realtime();
 
     } else if (config.map_provider && config.map_provider() === 'ESRI') {
         southWest = L.latLng(35.946877085397, -123.480610897013);
