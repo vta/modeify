@@ -4333,10 +4333,6 @@ var events = {
 /**
  * @method L.Map.extend() creates the AmigoCloud base map
  */
-/**
- *
- *
-
 var map = L.Map.extend({
     initialize: function (element, options) {
         var layersControl, initialLayer = [];
@@ -4397,15 +4393,6 @@ var map = L.Map.extend({
     }
 
 });
-
- *
- **/
-
-var mapopts =  {
-//      zoomSnap: 0.1
-};
-
-var map = L.map('map', mapopts).setView([0,0],0);
 
 /**
  * Modeify map container with layers

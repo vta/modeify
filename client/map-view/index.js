@@ -74,7 +74,7 @@ module.exports = function (el) {
 
     } else if (config.map_provider && config.map_provider() === 'GoogleV3') {
 
-        var map = (new L.modeify.map(el, {
+        map = (new L.modeify.map(el, {
             loadGoogleLayers: true,
             inertia: false,
             zoomAnimation: true,
@@ -82,17 +82,25 @@ module.exports = function (el) {
             minZoom: 8
         })).setView([center[1], center[0]], config.geocode().zoom);
 
+        // L.modeify.GoogleRoadmap.addTo(map);
+
         L.modeify.auth.setToken(config.support_data_token());
 
-        L.control.layers({
-            Roadmap: L.modeify.GoogleRoadmap,
-            Aerial: L.modeify.GoogleSatellite,
-            Terrain: L.modeify.GoogleTerrain,
-            Hybrid: L.modeify.GoogleHybrid,
-            Traffic: trafficMutant
-        }, {}, {
-            collapsed: false
-        }).addTo(map);
+        // var trafficMutant = L.gridLayer.googleMutant({
+        //     maxZoom: 24,
+        //     type:'roadmap'
+        // });
+        // trafficMutant.addGoogleLayer('TrafficLayer');
+        //
+        // L.control.layers({
+        //     Roadmap: L.modeify.GoogleRoadmap,
+        //     Aerial: L.modeify.GoogleSatellite,
+        //     Terrain: L.modeify.GoogleTerrain,
+        //     Hybrid: L.modeify.GoogleHybrid,
+        //     Traffic: trafficMutant
+        // }, {}, {
+        //     collapsed: false
+        // }).addTo(map);
 
         // map.addControl(L.control.locate({
         //     locateOptions: {
@@ -105,7 +113,7 @@ module.exports = function (el) {
 
         module.exports.activeMap = map;
 
-        var realtime = mapModule.realtime();
+        realtime = mapModule.realtime();
 
     } else if (config.map_provider && config.map_provider() === 'ESRI') {
         southWest = L.latLng(35.946877085397, -123.480610897013);
