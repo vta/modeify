@@ -74,33 +74,44 @@ module.exports = function (el) {
 
     } else if (config.map_provider && config.map_provider() === 'GoogleV3') {
 
-        map = (new L.modeify.map(el, {
-            loadGoogleLayers: true,
+        var options = {
             inertia: false,
             zoomAnimation: true,
             maxBounds: L.latLngBounds(southWest, northEast),
             minZoom: 8
-        })).setView([center[1], center[0]], config.geocode().zoom);
+        };
 
-        // L.modeify.GoogleRoadmap.addTo(map);
+        L.modeify.map = new L.map(el, options).setView([center[1], center[0]], config.geocode().zoom);
+
+        map = L.modeify.map;
+
+        // map = (new L.modeify.map(el, {
+        //     loadGoogleLayers: true,
+        //     inertia: false,
+        //     zoomAnimation: true,
+        //     maxBounds: L.latLngBounds(southWest, northEast),
+        //     minZoom: 8
+        // })).setView([center[1], center[0]], config.geocode().zoom);
+
+        L.modeify.GoogleRoadmap.addTo(map);
 
         L.modeify.auth.setToken(config.support_data_token());
 
-        // var trafficMutant = L.gridLayer.googleMutant({
-        //     maxZoom: 24,
-        //     type:'roadmap'
-        // });
-        // trafficMutant.addGoogleLayer('TrafficLayer');
-        //
-        // L.control.layers({
-        //     Roadmap: L.modeify.GoogleRoadmap,
-        //     Aerial: L.modeify.GoogleSatellite,
-        //     Terrain: L.modeify.GoogleTerrain,
-        //     Hybrid: L.modeify.GoogleHybrid,
-        //     Traffic: trafficMutant
-        // }, {}, {
-        //     collapsed: false
-        // }).addTo(map);
+        var trafficMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'roadmap'
+        });
+        trafficMutant.addGoogleLayer('TrafficLayer');
+
+        L.control.layers({
+            Roadmap: L.modeify.GoogleRoadmap,
+            Aerial: L.modeify.GoogleSatellite,
+            Terrain: L.modeify.GoogleTerrain,
+            Hybrid: L.modeify.GoogleHybrid,
+            Traffic: trafficMutant
+        }, {}, {
+            collapsed: false
+        }).addTo(map);
 
         // map.addControl(L.control.locate({
         //     locateOptions: {
