@@ -4407,7 +4407,7 @@ var map = L.Map.extend({
 L.modeify = {
     map: {},
     marker: marker,
-    // featureLayer: featureLayer,
+    featureLayer: featureLayer,
     constants: constants,
     utils: utils,
     auth: auth,
