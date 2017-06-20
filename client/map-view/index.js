@@ -83,24 +83,28 @@ module.exports = function (el) {
         //
         // map = L.modeify.map;
         //
-        var mapopts =  {
-            // zoomSnap: 0.1,
-            zoomAnimation: false,
-            maxBounds: L.latLngBounds(southWest, northEast),
-            minZoom: 8,
-            zoomControl:true,
-        };
 
-        map = L.map('map', mapopts).setView([center[1], center[0]], config.geocode().zoom);
+        // map = L.map('map', mapopts).setView([center[1], center[0]], config.geocode().zoom);
 
-        console.log(el);
+        // console.log(el);
 
         // map = (new L.map(el, mapopts)).setView([center[1], center[0]], config.geocode().zoom);
 
         var roadMutant = L.gridLayer.googleMutant({
             maxZoom: 24,
             type:'roadmap'
-        }).addTo(map);
+        });
+
+        var mapopts =  {
+            // zoomSnap: 0.1,
+            zoomAnimation: false,
+            maxBounds: L.latLngBounds(southWest, northEast),
+            minZoom: 8,
+            zoomControl:true,
+            layers: roadMutant
+        };
+
+        map = L.map('map', mapopts).setView([center[1], center[0]], config.geocode().zoom);
 
         var satMutant = L.gridLayer.googleMutant({
             maxZoom: 24,
