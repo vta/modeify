@@ -91,7 +91,6 @@
   .MapView {
     height: 280px;
     /*width: 100%;*/
-    width: calc(100vw - 16px);
     margin-top: 70px;
   }
 }
