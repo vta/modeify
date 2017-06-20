@@ -93,6 +93,8 @@ module.exports = function (el) {
 
         map = L.map(el, mapopts).setView([center[1], center[0]], config.geocode().zoom);
 
+        console.log(el);
+
         // map = (new L.map(el, mapopts)).setView([center[1], center[0]], config.geocode().zoom);
 
         var roadMutant = L.gridLayer.googleMutant({
