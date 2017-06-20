@@ -209,13 +209,17 @@ Plan.prototype.setAddress = function(name, address, callback, extra) {
   var c = null;
   var places_id = null;
   var physical_addr = null;
+  console.log('setAddress:' + address);
   if (address instanceof Object){
+    console.log('address instanceof Object');
+    console.log(Object(address));
     physical_addr = address['physical_addr'] || null
     places_id = address['places_id'] || null
-    c = (address['ll'] || '').split(',')
+    c = (physical_addr || '').split(',')
   } else {
     c = address.split(',');
   }
+  console.log('c: '+c);
   
   isCoordinate = c.length === 2 && !isNaN(parseFloat(c[0])) && !isNaN(parseFloat(c[1]));
 
@@ -267,13 +271,14 @@ Plan.prototype.setAddress = function(name, address, callback, extra) {
     var cb_google_places =  function(err, place){
       console.log('Places ID callback', place)
       if (place){
+        console.log(Object(place));
         var lat_lng = place.geometry.location.lat()+','+place.geometry.location.lng();
         var changes = {};
-        if (place['types'][0] === "street_address"){
+        // if (place['types'][0] === "street_address" || place['types'][0] === "route" || place['types'][0] === "establishment"){
           changes[name] = place['formatted_address'];
-        } else {
-          changes[name] = place['name'] + ', ' + place['formatted_address'];
-        }
+        // } else {
+        //   changes[name] = place['name'] + ', ' + place['formatted_address'];
+        // }
         changes[name + '_ll'] = {lat: parseFloat(place.geometry.location.lat()), lng: parseFloat(place.geometry.location.lng())};
         changes[name + '_id'] = place.place_id;
         changes[name + '_valid'] = true;
