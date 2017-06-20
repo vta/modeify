@@ -88,10 +88,11 @@ module.exports = function (el) {
             zoomAnimation: false,
             maxBounds: L.latLngBounds(southWest, northEast),
             minZoom: 8,
-            dragging: true
+            zoomControl:true,
+            dragging: !L.Browser.mobile
         };
 
-        map = L.map(el, mapopts).setView([center[1], center[0]], config.geocode().zoom);
+        map = L.map('map', mapopts).setView([center[1], center[0]], config.geocode().zoom);
 
         console.log(el);
 
