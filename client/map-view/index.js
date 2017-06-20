@@ -89,7 +89,6 @@ module.exports = function (el) {
             maxBounds: L.latLngBounds(southWest, northEast),
             minZoom: 8,
             zoomControl:true,
-            dragging: !L.Browser.mobile
         };
 
         map = L.map('map', mapopts).setView([center[1], center[0]], config.geocode().zoom);
@@ -178,7 +177,7 @@ module.exports = function (el) {
 
         // realtime = mapModule.realtime();
 
-        map.draggable = true;
+        map.draggable = !L.Browser.mobile;
 
         L.modeify.map = map;
 
