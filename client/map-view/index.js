@@ -98,9 +98,7 @@ module.exports = function (el) {
             zoomControl:true,
             detectRetina: L.Browser.mobile,
             dragging: true,
-            inertia: true,
-            tap: true
-
+            inertia: true
         };
 
         map = L.map('map', mapopts).setView([center[1], center[0]], config.geocode().zoom);

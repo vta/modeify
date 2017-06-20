@@ -11,6 +11,8 @@
     margin-left: 8px;
 }
 
+.leaflet-control-container { -webkit-transform: translate3d(0,0,0); }
+
 .amigocloud-attribution-logo {
   left: inherit;
   bottom: 15px;
