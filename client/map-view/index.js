@@ -99,7 +99,7 @@ module.exports = function (el) {
             detectRetina: L.Browser.mobile,
             dragging: true,
             inertia: true,
-            tap: false
+            tap: true
 
         };
 
