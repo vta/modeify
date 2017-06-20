@@ -145,14 +145,15 @@ module.exports = function (el) {
 
         map.layersControl = L.control.layers({
             Roadmap: roadMutant,
-            Aerial: satMutant,
+            // Aerial: satMutant,
             Terrain: terrainMutant,
-            Hybrid: hybridMutant,
+            // Hybrid: hybridMutant,
+            Aerial: hybridMutant,
             // Styles: styleMutant,
             Traffic: trafficMutant,
             // Transit: transitMutant
         }, {}, {
-            collapsed: false
+            collapsed: true
         }).addTo(map);
 
         L.modeify.auth.setToken(config.support_data_token());
