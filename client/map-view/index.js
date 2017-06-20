@@ -178,6 +178,8 @@ module.exports = function (el) {
 
         // realtime = mapModule.realtime();
 
+        map.draggable = true;
+
         L.modeify.map = map;
 
     } else if (config.map_provider && config.map_provider() === 'ESRI') {
