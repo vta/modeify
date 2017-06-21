@@ -93,13 +93,13 @@ module.exports = function (el) {
 
         var mapopts =  {
             // zoomSnap: 0.1,
-            zoomAnimation: false,
+            zoomAnimation: !L.Browser.mobile,
             maxBounds: L.latLngBounds(southWest, northEast),
             minZoom: 8,
             zoomControl:true,
             detectRetina: L.Browser.mobile,
-            dragging: true,
-            inertia: true
+            dragging: true
+            // inertia: true
         };
 
         map = L.map('map', mapopts).setView([center[1], center[0]], config.geocode().zoom);
