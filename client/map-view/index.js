@@ -1,10 +1,11 @@
 var config = require('config');
 var mapModule = require('map');
 var plugins = require('./leaflet_plugins');
-var polyUtil = require('./polyline_encoded.js');
-var routeboxer = require('./leaflet_routeboxer.js');
-var leaflet_label = require('./leaflet_label/leaflet.label-src.js');
-var collision = require('./leaflet_layergroup_collision.js');
+var polyUtil = require('./polyline_encoded');
+var routeboxer = require('./leaflet_routeboxer');
+var leaflet_label = require('./leaflet_label/leaflet.label-src');
+var collision = require('./leaflet_layergroup_collision');
+var utfgrid = require('./leaflet.utfgrid-src')
 
 var session = require('session');
 
@@ -99,8 +100,9 @@ module.exports = function (el) {
             minZoom: 8,
             zoomControl:true,
             detectRetina: L.Browser.mobile,
-            dragging: true
-            // inertia: true
+            dragging: true,
+            inertia: L.Browser.android,
+
         };
 
         map = L.map('map', mapopts).setView([center[1], center[0]], config.geocode().zoom);
@@ -152,6 +154,17 @@ module.exports = function (el) {
             type:'roadmap'
         });
         transitMutant.addGoogleLayer('TransitLayer');
+
+        var blurLayer = L.tileLayer(
+            'https://www.amigocloud.com/api/v1/users/' +
+            '23/projects/3019/datasets/23835/tiles/{z}/{x}/{y}.png?' +
+            'token=' + config.support_data_token(), {
+                name: 'Uncovered Area'
+            }
+        );
+
+        map.layersControl.addOverlay(blurLayer);
+        blurLayer.addTo(map);
 
         map.layersControl = L.control.layers({
             Roadmap: roadMutant,
