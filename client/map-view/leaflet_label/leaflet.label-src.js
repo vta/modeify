@@ -6,6 +6,7 @@
  http://leafletjs.com
  https://github.com/jacobtoye
  */
+/*
 (function (factory, window) {
 
     // define an AMD module that relies on 'leaflet'
@@ -21,7 +22,9 @@
     if (typeof window !== 'undefined' && window.L) {
         window.LeafletLabel = factory(L);
     }
-}(function (L) {
+}
+*/
+(function (L) {
     L.labelVersion = '0.2.4';
 
 
@@ -561,4 +564,8 @@
     });
 
     return LeafletLabel;
-}, window));
+}
+/*
+, window));
+ */
+)
