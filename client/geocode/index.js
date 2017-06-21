@@ -55,14 +55,25 @@ function reverseGoogle(ll, callback) {
  * Suggestions!
  */
 function suggestGoogle(text, callback) {
-  console.log('getting suggestions for "' + text + '"')
+    const regex = /(.*?,)(.*?,)(.*?,)(.*?,)\s(USA)/g;
+    // const str = `Gilroy Transit Center, 7250 Monterey Street, Gilroy, CA 95020, USA`;
+    const subst = '$2$3$4$5';
+
+    var str = text;
+    var suggest_text = str;
+    console.log('This text: '+suggest_text);
+
+    if (regex.test(str)) {
+        suggest_text = str.replace(regex, subst);
+    }
+    console.log('GoogleSuggestions text: '+suggest_text);
   var res = {
       "body": {
         "boundingbox": "-122.858905792236 36.818080227785,-121.452655792236 38.220919766831"
       }
     }
-  var query_text = text;
-  var query = geocodingOptions.googleSuggestions(text, res);
+  var query_text = suggest_text;
+  var query = geocodingOptions.googleSuggestions(suggest_text, res);
   query.get().then(function() {
     var res = query.futureRes;
     if (res.body.result) {

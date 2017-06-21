@@ -133,11 +133,13 @@ GoogleSuggestions.prototype = {
 
         var autocompleteCallback = function (results, status) {
             console.log('autocompleteCallback status='+status+', results=', results)
-            results.forEach(function (feature, idx) {
-                feature.formatted_address = feature.description;
-                feature.address_components = {};
-                feature.geometry = {location: { lat:0, lng:0 }}
-            });
+            if (results !== null) {
+                results.forEach(function (feature, idx) {
+                    feature.formatted_address = feature.description;
+                    feature.address_components = {};
+                    feature.geometry = {location: {lat: 0, lng: 0}}
+                });
+            }
             futureRes.body.result = results
             dfd.resolve();
         }
@@ -149,6 +151,7 @@ GoogleSuggestions.prototype = {
             input: this.text
         };
 
+        console.log(Object(request));
         var service = new google.maps.places.AutocompleteService();
         service.getPlacePredictions(request, autocompleteCallback);
         return dfd.promise();
