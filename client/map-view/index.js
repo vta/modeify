@@ -93,7 +93,8 @@ module.exports = function (el) {
 
         var mapopts =  {
             // zoomSnap: 0.1,
-            zoomAnimation: !L.Browser.mobile,
+            // zoomAnimation: !L.Browser.mobile,
+            zoomAnimation: false,
             maxBounds: L.latLngBounds(southWest, northEast),
             minZoom: 8,
             zoomControl:true,
