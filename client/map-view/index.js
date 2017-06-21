@@ -88,10 +88,12 @@ module.exports = function (el) {
             zoomAnimation: false,
             maxBounds: L.latLngBounds(southWest, northEast),
             minZoom: 8,
-            dragging: true
+            zoomControl:true,
         };
 
-        map = L.map(el, mapopts).setView([center[1], center[0]], config.geocode().zoom);
+        map = L.map('map', mapopts).setView([center[1], center[0]], config.geocode().zoom);
+
+        console.log(el);
 
         // map = (new L.map(el, mapopts)).setView([center[1], center[0]], config.geocode().zoom);
 
@@ -145,14 +147,15 @@ module.exports = function (el) {
 
         map.layersControl = L.control.layers({
             Roadmap: roadMutant,
-            Aerial: satMutant,
+            // Aerial: satMutant,
             Terrain: terrainMutant,
-            Hybrid: hybridMutant,
+            // Hybrid: hybridMutant,
+            Aerial: hybridMutant,
             // Styles: styleMutant,
             Traffic: trafficMutant,
             // Transit: transitMutant
         }, {}, {
-            collapsed: false
+            collapsed: true
         }).addTo(map);
 
         L.modeify.auth.setToken(config.support_data_token());
@@ -173,6 +176,8 @@ module.exports = function (el) {
         module.exports.activeMap = map;
 
         // realtime = mapModule.realtime();
+
+        map.draggable = !L.Browser.mobile;
 
         L.modeify.map = map;
 
