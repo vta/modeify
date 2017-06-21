@@ -5,7 +5,7 @@ var polyUtil = require('./polyline_encoded');
 var routeboxer = require('./leaflet_routeboxer');
 var leaflet_label = require('./leaflet_label/leaflet.label-src');
 var collision = require('./leaflet_layergroup_collision');
-var utfgrid = require('./leaflet.utfgrid-src')
+// var utfgrid = require('./leaflet.utfgrid-src')
 
 var session = require('session');
 
