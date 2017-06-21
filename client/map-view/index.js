@@ -90,10 +90,6 @@ module.exports = function (el) {
 
         // map = (new L.map(el, mapopts)).setView([center[1], center[0]], config.geocode().zoom);
 
-        var roadMutant = L.gridLayer.googleMutant({
-            maxZoom: 24,
-            type:'roadmap'
-        });
 
         var mapopts =  {
             // zoomSnap: 0.1,
@@ -103,11 +99,15 @@ module.exports = function (el) {
             zoomControl:true,
             detectRetina: L.Browser.mobile,
             dragging: true,
-            inertia: true,
-            layers: roadMutant
+            inertia: true
         };
 
         map = L.map('map', mapopts).setView([center[1], center[0]], config.geocode().zoom);
+
+        var roadMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type:'roadmap'
+        }).addTo(map);
 
         var satMutant = L.gridLayer.googleMutant({
             maxZoom: 24,
@@ -184,7 +184,8 @@ module.exports = function (el) {
 
         // realtime = mapModule.realtime();
 
-        map.draggable = !L.Browser.mobile;
+        // map.draggable = !L.Browser.mobile;
+        map.draggable = true;
 
         L.modeify.map = map;
 

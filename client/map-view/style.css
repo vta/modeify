@@ -2,17 +2,20 @@
 .MapView {
   position: relative;
   height: 100%;
-  /*width: 100%;*/
-  z-index: 0;
+  width: 100%;
+  /*z-index: 0;*/
 }
 
 #map {
-    width: calc(100vw - 16px);
-    margin-left: 8px;
+    /*width: calc(100vw - 16px);*/
+    /*margin-left: 8px;*/
+    /*display: block;*/
+    z-index: 1;
 }
 
-.leaflet-control-container { -webkit-transform: translate3d(0,0,0); }
+/*.leaflet-control-container { -webkit-transform: translate3d(0,0,0); }*/
 
+/*
 .amigocloud-attribution-logo {
   left: inherit;
   bottom: 15px;
@@ -22,6 +25,7 @@
 .amigocloud-attribution-logo img {
   vertical-align: inherit;
 }
+*/
 
 .leaflet-control-layers-separator,
 .leaflet-control-layers-overlays {
