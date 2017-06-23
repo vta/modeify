@@ -1,15 +1,16 @@
+#map {
+    width: 100%;
+    z-index: inherit;
+}
 
 .MapView {
-  position: relative;
-  height: 100%;
-  /*width: 100%;*/
-  z-index: 0;
+    width: inherit;
+    height: 100%;
+    position: relative;
 }
 
-#map {
-    width: calc(100vw - 16px);
-    margin-left: 8px;
-}
+/*.leaflet-control-container { -webkit-transform: translate3d(0,0,0); }*/
+
 
 .amigocloud-attribution-logo {
   left: inherit;
@@ -20,6 +21,7 @@
 .amigocloud-attribution-logo img {
   vertical-align: inherit;
 }
+
 
 .leaflet-control-layers-separator,
 .leaflet-control-layers-overlays {

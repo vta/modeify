@@ -1,10 +1,10 @@
 var config = require('config');
 var mapModule = require('map');
 var plugins = require('./leaflet_plugins');
-var polyUtil = require('./polyline_encoded.js');
-var routeboxer = require('./leaflet_routeboxer.js');
-var leaflet_label = require('./leaflet_label/leaflet.label-src.js');
-var collision = require('./leaflet_layergroup_collision.js');
+var polyUtil = require('./polyline_encoded');
+var routeboxer = require('./leaflet_routeboxer');
+var leaflet_label = require('./leaflet_label/leaflet.label-src');
+var collision = require('./leaflet_layergroup_collision');
 
 var session = require('session');
 
@@ -83,19 +83,28 @@ module.exports = function (el) {
         //
         // map = L.modeify.map;
         //
+
+        // map = L.map('map', mapopts).setView([center[1], center[0]], config.geocode().zoom);
+
+        // console.log(el);
+
+        // map = (new L.map(el, mapopts)).setView([center[1], center[0]], config.geocode().zoom);
+
+
         var mapopts =  {
             // zoomSnap: 0.1,
+            // zoomAnimation: !L.Browser.mobile,
             zoomAnimation: false,
             maxBounds: L.latLngBounds(southWest, northEast),
             minZoom: 8,
             zoomControl:true,
+            detectRetina: L.Browser.mobile,
+            dragging: true,
+            inertia: L.Browser.android,
+
         };
 
         map = L.map('map', mapopts).setView([center[1], center[0]], config.geocode().zoom);
-
-        console.log(el);
-
-        // map = (new L.map(el, mapopts)).setView([center[1], center[0]], config.geocode().zoom);
 
         var roadMutant = L.gridLayer.googleMutant({
             maxZoom: 24,
@@ -145,6 +154,14 @@ module.exports = function (el) {
         });
         transitMutant.addGoogleLayer('TransitLayer');
 
+        blurLayer = L.tileLayer(
+            'https://www.amigocloud.com/api/v1/users/' +
+            '23/projects/3019/datasets/23835/tiles/{z}/{x}/{y}.png?' +
+            'token=' + config.support_data_token(), {
+                name: 'Uncovered Area'
+            }
+        );
+
         map.layersControl = L.control.layers({
             Roadmap: roadMutant,
             // Aerial: satMutant,
@@ -157,6 +174,9 @@ module.exports = function (el) {
         }, {}, {
             collapsed: true
         }).addTo(map);
+
+        map.layersControl.addOverlay(blurLayer);
+        blurLayer.addTo(map);
 
         L.modeify.auth.setToken(config.support_data_token());
 
@@ -177,7 +197,8 @@ module.exports = function (el) {
 
         // realtime = mapModule.realtime();
 
-        map.draggable = !L.Browser.mobile;
+        // map.draggable = !L.Browser.mobile;
+        map.draggable = true;
 
         L.modeify.map = map;
 

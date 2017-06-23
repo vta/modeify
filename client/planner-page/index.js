@@ -439,7 +439,10 @@ function updateMapOnPlanChange(plan, map) {
   });
 }
 
-
+/**
+ * @TODO Investigate as walk distance
+ * @param new_plan
+ */
 function get_data_route(new_plan) {
   var itineraries = new_plan.plan.itineraries;
   var timeInTransit = 0;
