@@ -49,7 +49,8 @@
 .leaflet-container .leaflet-shadow-pane img,
 .leaflet-container .leaflet-tile-pane img,
 .leaflet-container img.leaflet-image-layer {
-	max-width: none !important;
+	/*max-width: none !important;*/
+	max-width: 1600px !important;
 	}
 
 .leaflet-container.leaflet-touch-zoom {
@@ -94,9 +95,9 @@
 
 .leaflet-marker-pane  { z-index: 600; }
 
-.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-tooltip-pane   { z-index: 700; }
 
-.leaflet-popup-pane   { z-index: 700; }
+.leaflet-popup-pane   { z-index: 800; }
 
 .leaflet-map-pane canvas { z-index: 100; }
 .leaflet-map-pane svg    { z-index: 200; }
@@ -116,7 +117,7 @@
 
 .leaflet-control {
 	position: relative;
-	z-index: 800;
+	z-index: 900;
 	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
 	pointer-events: auto;
 	}
@@ -232,7 +233,9 @@
 .leaflet-image-layer,
 .leaflet-pane > svg path,
 .leaflet-tile-container {
-	pointer-events: none;
+	/*pointer-events: none;*/
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
 	}
 
 .leaflet-marker-icon.leaflet-interactive,
