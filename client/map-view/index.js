@@ -92,19 +92,19 @@ module.exports = function (el) {
 
 
         var mapopts =  {
-            // zoomSnap: 0.1,
+            zoomSnap: 0.1,
             // zoomAnimation: !L.Browser.mobile,
-            zoomAnimation: false,
+            // zoomAnimation: false,
+            zoomAnimation: true,
             maxBounds: L.latLngBounds(southWest, northEast),
             minZoom: 8,
             zoomControl:true,
             detectRetina: L.Browser.mobile,
             dragging: true,
             inertia: L.Browser.android,
-
         };
 
-        map = L.map('map', mapopts).setView([center[1], center[0]], config.geocode().zoom);
+        map = new L.map(el, mapopts).setView([center[1], center[0]], config.geocode().zoom);
 
         var roadMutant = L.gridLayer.googleMutant({
             maxZoom: 24,
