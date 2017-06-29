@@ -1,6 +1,7 @@
-[![Stories in Ready](https://badge.waffle.io/vta/modeify.png?label=ready&title=Ready)](https://waffle.io/vta/modeify)
 # Modified TripPlanner
 
+[![Stories in Ready](https://badge.waffle.io/vta/modeify.png?label=ready&title=Ready)](https://waffle.io/vta/modeify)
+[![Tested with BrowserStack](https://d2ogrdw2mh0rsl.cloudfront.net/production/images/static/header/header-logo.svg")](https://www.browserstack.com)
 <!--[![Build status][travis-image]][travis-url]-->
 <!--[![Test coverage][coveralls-image]][coveralls-url]-->
 <!--[![Code Climate][code-climate-image]][code-climate-url]-->
@@ -17,7 +18,7 @@
 
 # Intermodal Tripplanner 
 
-####The changes include
+The changes include
 - Ported to OTP /plan API 
 - Modified UI
 - Added real-time locations of vehicles
