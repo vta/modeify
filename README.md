@@ -1,10 +1,10 @@
 # Modified TripPlanner
 
-[![Stories in Ready](https://badge.waffle.io/vta/modeify.png?label=ready&title=Ready)](https://waffle.io/vta/modeify)
-[![Stories in Progress](https://badge.waffle.io/vta/modeify.png?label=in%20progress&title=In%20Progress)](https://waffle.io/vta/modeify)
-[![Stories in Progress](https://badge.waffle.io/vta/modeify.png?label=testing&title=Testing)](https://waffle.io/vta/modeify)
-[![Stories in Progress](https://badge.waffle.io/vta/modeify.png?label=done&title=Done)](https://waffle.io/vta/modeify)
-[![Tested with BrowserStack](assets/images/application/browserstack.png | width=188)(https://www.browserstack.com)]
+[![Ready](https://badge.waffle.io/vta/modeify.png?label=ready&title=Ready)](https://waffle.io/vta/modeify)
+[![In Progress](https://badge.waffle.io/vta/modeify.png?label=in%20progress&title=In%20Progress)](https://waffle.io/vta/modeify)
+[![Testing](https://badge.waffle.io/vta/modeify.png?label=testing&title=Testing)](https://waffle.io/vta/modeify)
+[![Done](https://badge.waffle.io/vta/modeify.png?label=done&title=Done)](https://waffle.io/vta/modeify)
+[![BrowserStack](assets/images/application/browserstack.png)](https://www.browserstack.com)
 <!--[![Build status][travis-image]][travis-url]-->
 <!--[![Test coverage][coveralls-image]][coveralls-url]-->
 <!--[![Code Climate][code-climate-image]][code-climate-url]-->
