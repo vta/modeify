@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/vta/modeify.png?label=ready&title=Ready)](https://waffle.io/vta/modeify?utm_source=badge)
 [![Stories in Ready](https://badge.waffle.io/vta/modeify.png?label=ready&title=Ready)](https://waffle.io/vta/modeify)
 # Modeify
 
