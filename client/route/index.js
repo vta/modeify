@@ -156,6 +156,16 @@ Route.prototype.freeflowTime = function() {
   }
 };
 
+Route.prototype.planStartTime = function(){
+  var d = new Date(this.plan().startTime)
+  return convert.dateToHumanTime(d)
+}
+
+Route.prototype.planEndTime = function(){
+  var d = new Date(this.plan().endTime)
+  return convert.dateToHumanTime(d)
+}
+
 /**
  * Time in transit
  */
@@ -267,23 +277,6 @@ Route.prototype.totalCalories = function() {
   }
 
   return Math.round(cals);
-};
-
-/**
- * Frequency
- */
-
-Route.prototype.frequency = function() {
-  var trips = this.trips();
-  if (!trips) {
-    return false;
-  }
-
-  var plan = session.plan();
-  var start = plan.start_time();
-  var end = plan.end_time();
-
-  return Math.round(60 / (trips / (end - start)));
 };
 
 /**
@@ -541,3 +534,4 @@ function findKeyValuePair(array, key, value) {
     }
     return false;
 };
+

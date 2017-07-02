@@ -14,7 +14,7 @@
 }
 
 .Options .header {
-  background-color: var(--darkest);
+  background-color: var(--vta-black);
   color: var(--light-blue);
   padding: 4px 8px;
   border-top-left-radius: var(--border-radius);
@@ -63,6 +63,8 @@
 .RouteCard.expanded .simple {
   border-radius: 0;
 }
+
+.RouteCard .times-column { float:left; display:inline-block;margin: 0.7rem;}
 
 .Options .details-buttons {
   position: absolute;

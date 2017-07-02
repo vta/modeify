@@ -28,15 +28,11 @@ var LIMIT = 2;
 
 var Plan = module.exports = model('Plan')
   .use(defaults({
-    bike: true,
+    bike: false,
     bikeShare: false,
     bus: true,
     car: false,
     parkRide: false,
-    days: 'M—F',
-    date: moment().format('MM:DD:YYYY'),
-    arriveBy: false,
-    end_time: (new Date()).getHours() + 4,
     from: '',
     from_valid: false,
     loading: true,
@@ -44,14 +40,15 @@ var Plan = module.exports = model('Plan')
     dataplan: [],
     query: new ProfileQuery(),
     scorer: new ProfileScorer(),
-    start_time: (new Date()).getHours() - 1,
+    arriveBy: false,
+    date: moment().format('MM:DD:YYYY'),
+    hour: moment().hour(),
     minute: moment().minute(),
     to: '',
     to_valid: false,
     train: true,
-    tripsPerYear: 235,
     walk: true,
-    fast: true,
+    fast: false,
     safe: true,
     flat: true
   }))
@@ -61,9 +58,6 @@ var Plan = module.exports = model('Plan')
   .attr('car')
   .attr('parkRide')
   .attr('days')
-  .attr('date')
-  .attr('arriveBy')
-  .attr('end_time')
   .attr('from')
   .attr('from_id')
   .attr('from_ll')
@@ -73,7 +67,9 @@ var Plan = module.exports = model('Plan')
   .attr('options')
   .attr('query')
   .attr('scorer')
-  .attr('start_time')
+  .attr('arriveBy')
+  .attr('date')
+  .attr('hour')
   .attr('minute')
   .attr('to')
   .attr('to_id')
@@ -95,26 +91,25 @@ module.exports.load = function(ctx, next) {
 };
 
 /**
- * Sync plans with localStorage
+ * Sync plans with sessionStorage
  */
 
 Plan.on('change', function(plan, name, val) {
   log('plan.%s changed to %s', name, val);
 
-  // Store in localStorage & track the change
+  // Store in sessionStorage & track the change
   if (name !== 'options' && name !== 'journey' && name !== 'loading') plan.store();
 });
 
-/**
- * Keep start/end times in sync
- */
 
-Plan.on('change start_time', function(plan, val, prev) {
-  if (val >= plan.end_time()) plan.end_time(val + 1);
+Plan.on('change hour', function(plan, val, prev) {
+  // window.console.log('"change hour" event fired', {'val':val, 'prev':prev})
 });
-
-Plan.on('change end_time', function(plan, val, prev) {
-  if (val <= plan.start_time()) plan.start_time(val - 1);
+Plan.on('change minute', function(plan, val, prev) {
+  // window.console.log('"change minute" event fired', {'val':val, 'prev':prev})
+});
+Plan.on('change arriveBy', function(plan, val, prev) {
+  // window.console.log('"change arriveBy" event fired', {'val':val, 'prev':prev})
 });
 
 /**
@@ -122,6 +117,22 @@ Plan.on('change end_time', function(plan, val, prev) {
  */
 
 Plan.prototype.updateRoutes = debounce(function(opts, callback) {
+
+  // Removed: this is too aggressive in preventing duplicate searches, should find a different way to do this.
+  // check if we've already done the search for these from/to pairs and for the same time
+  //if (this.attrs.from_ll && this.attrs.to_ll && this.dataplan){
+  //  var current_fromto = [this.attrs.from_ll.lat + ',' + this.attrs.from_ll.lng, this.attrs.to_ll.lat + ',' + this.attrs.to_ll.lng]
+  //  var previous_fromto = [this.dataplan.requestParameters.fromPlace, this.dataplan.requestParameters.toPlace]
+  //  if (current_fromto[0] === previous_fromto[0] && current_fromto[1] === previous_fromto[1]){
+  //    var this_date_raw = this.attrs.date.split(':').concat([ this.attrs.hour, this.attrs.minute])
+  //    var this_date = new Date(this_date_raw[2], this_date_raw[0]-1, this_date_raw[1]).setHours(this_date_raw[3], this_date_raw[4])
+  //    if (this_date === this.dataplan.plan.date){
+  //      console.log('nope');
+  //      return;
+  //    }
+  //  }
+  //}
+
   updateRoutes(this, opts, callback);
   this.dataplan = updateRoutes.dataplan;
 }, DEBOUNCE_UPDATES);
@@ -194,61 +205,130 @@ Plan.prototype.validCoordinates = function() {
 Plan.prototype.setAddress = function(name, address, callback, extra) {
   callback = callback || function() {}; // noop callback
   var plan = this;
-  var c = address.split(',');
-  var isCoordinate = c.length === 2 && !isNaN(parseFloat(c[0])) && !isNaN(parseFloat(c[1]));
+  var isCoordinate = false;
+  var c = null;
+  var places_id = null;
+  var physical_addr = null;
+  console.log('setAddress:' + address);
+  if (address instanceof Object){
+    console.log('address instanceof Object');
+    console.log(Object(address));
+    physical_addr = address['physical_addr'] || null
+    places_id = address['places_id'] || null
+    c = (physical_addr || '').split(',')
+  } else {
+    c = address.split(',');
+  }
+  console.log('c: '+c);
+  
+  isCoordinate = c.length === 2 && !isNaN(parseFloat(c[0])) && !isNaN(parseFloat(c[1]));
 
   if (!address || address.length < 1) return callback();
 
-    if (isCoordinate) {
+  if (isCoordinate) {
+    var callbackGoogle = function (err, reverse) {
+      var changes = {};
+      if (reverse) {
+        var geocode_features = reverse.features;
+        changes[name] = name;
+        if (isCoordinate) {
+          if (!(extra === undefined)) {
+            changes[name] = extra.properties.label;
+          } else {
+            changes[name] = geocode_features[0].properties.label;
+          }
+        } else {
+          if (!(extra === undefined)) {
+            changes[name] = extra.properties.label;
+          } else {
+            changes[name] = geocode_features[0].properties.label;
+          }
+        }
+        changes[name + '_ll'] = {lat: parseFloat(geocode_features[0].geometry.coordinates[1]), lng: parseFloat(geocode_features[0].geometry.coordinates[0])};
+        changes[name + '_id'] = geocode_features[0].properties.id;
+        changes[name + '_valid'] = true;
 
-      var callbackAmigo = function (err, reverse) {
+        plan.set(changes);
+        callback(null, reverse);
+      } else {
+        if (isCoordinate) {
+          changes[name] = extra.properties.label;
+          changes[name + '_ll'] = { lat: parseFloat(c[1]),lng: parseFloat(c[0])};
+          changes[name + '_valid'] = true;
+          plan.set(changes);
+          callback(null, extra);
+        } else {
+          callback(err);
+        }
+      }
+    };
+    geocode.reverseGoogle(c, callbackGoogle);
+  } else if (places_id !== null){
+    // it's already got the placesId, so just do the lookup
+    // this happens when the user clicks on one of the suggestions
+    // or hits enter in the from/to textbox
+    console.log('Looking up the Google Places details for place_id='+places_id+'')
+    var cb_google_places =  function(err, place){
+      console.log('Places ID callback', place)
+      if (place){
+        console.log(Object(place));
+        var lat_lng = place.geometry.location.lat()+','+place.geometry.location.lng();
         var changes = {};
-            if (reverse) {
-              var geocode_features = reverse.features;
-              changes[name] = name;
-              if (isCoordinate) {
-                if (!(extra === undefined)) {
-                    changes[name] = extra.properties.label;
-                }else {
-                    changes[name] = geocode_features[0].properties.label;
-                }
-
-              }else {
-                if (!(extra === undefined)) {
-                    changes[name] = extra.properties.label;
-                }else {
-                    changes[name] = geocode_features[0].properties.label;
-                }
-
-              }
-
-
-              changes[name + '_ll'] = {lat: parseFloat(geocode_features[0].geometry.coordinates[1]), lng: parseFloat(geocode_features[0].geometry.coordinates[0])};
-              changes[name + '_id'] = geocode_features[0].properties.id;
-              changes[name + '_valid'] = true;
-
-              plan.set(changes);
-              callback(null, reverse);
-
-            } else {
-
-              if (isCoordinate) {
-                changes[name] = extra.properties.label;
-                changes[name + '_ll'] = { lat: parseFloat(c[1]),lng: parseFloat(c[0])};
-                changes[name + '_valid'] = true;
-                plan.set(changes);
-                callback(null, extra);
-              } else {
-                callback(err);
-              }
-
-            }
-        };
-
-        geocode.reverseAmigo(c, callbackAmigo);
-    }else {
-      plan.setAddress('', '', callback);
+        // if (place['types'][0] === "street_address" || place['types'][0] === "route" || place['types'][0] === "establishment"){
+          changes[name] = place['formatted_address'];
+        // } else {
+        //   changes[name] = place['name'] + ', ' + place['formatted_address'];
+        // }
+        changes[name + '_ll'] = {lat: parseFloat(place.geometry.location.lat()), lng: parseFloat(place.geometry.location.lng())};
+        changes[name + '_id'] = place.place_id;
+        changes[name + '_valid'] = true;
+        plan.set(changes);
+        callback(null, extra);
+      } else {
+        console.log('no ejecuta nada', {'err':err,'suggestions':suggestions})
+        plan.setAddress('', '', callback);
+      }
     }
+    geocode.lookupPlaceId(places_id, cb_google_places);
+  } else {
+    // it's whole or part of a physical address/place name
+    // this happens when opening a link to Trip Planner which has addresses already in place
+
+
+    // this works, but gives partially incomplete results sometimes.
+    // seems it's better to use the first result of the autocomplete
+    //var cb_Google =  function(err, suggestions){
+    //  if (suggestions && suggestions.length > 0){
+    //    var changes = {};
+    //    changes[name + '_ll'] = {lat: suggestions[0].geometry.location.lat, lng: suggestions[0].geometry.location.lng};
+    //    changes[name + '_id'] = suggestions[0].place_id;
+    //    changes[name + '_valid'] = true;
+    //    plan.set(changes);
+    //    callback(null, extra);
+    //  } else {
+    //    console.log('no ejecuta nada', {'err':err,'suggestions':suggestions})
+    //    plan.setAddress('', '', callback);
+    //  }
+    //}
+    //geocode.geocode(address, cb_Google);
+
+    var autocompleteCallback = function(err, suggestions, query_text) {
+      console.log('autocompleteCallback', err, suggestions, query_text)
+      if (err) {
+        log.error('%e', err);
+      } else {
+        if (suggestions && suggestions.length > 0) {
+          var item_suggestion = suggestions[0];
+          var suggestion_obj = {
+            "physical_addr": item_suggestion['formatted_address'],
+            "places_id": item_suggestion['place_id']
+          };
+          plan.setAddress(name, suggestion_obj, callback);
+        }
+      }
+    }
+    geocode.suggestGoogle(address, autocompleteCallback);
+  }
 };
 
 /**
@@ -303,11 +383,20 @@ Plan.prototype.modesCSV = function() {
   var modes = [];
   if (this.bike()) modes.push('BICYCLE');
   if (this.bikeShare()) modes.push('BICYCLE_RENT');
-  if (this.bus()) modes.push('BUSISH');
-  if (this.train()) modes.push('TRAINISH');
+  
+  if(this.bus() && this.train()){
+    modes.push('TRANSIT')
+  }
+  else{
+    if (this.bus()) modes.push('BUS');
+    if (this.train()) {
+        modes.push('TRAM')
+        modes.push('SUBWAY')
+        modes.push('RAIL')
+    }    
+  }
   if (this.walk()) modes.push('WALK');
-  if (this.car()) modes.push('CAR');
-
+  if (this.parkRide()) modes.push('CAR');
   return modes.join(',');
 };
 
@@ -318,30 +407,28 @@ Plan.prototype.modesCSV = function() {
 Plan.prototype.setModes = function(csv) {
   if (!csv || csv.length < 1) return;
   var modes = csv.split ? csv.split(',') : csv;
-
   this.bike(modes.indexOf('BICYCLE') !== -1);
-//  this.bikeShare(modes.indexOf('BICYCLE_RENT') !== -1);
-  this.bikeShare(false);
-  this.bus(true);
-//  this.bus(modes.indexOf('BUSISH') !== -1);
-  this.train(modes.indexOf('TRAINISH') !== -1);
-  this.car(modes.indexOf('CAR') !== -1);
+  this.bus(modes.indexOf('BUS') !== -1 || modes.indexOf('TRANSIT') !== -1);
+  this.train(modes.indexOf('TRAM') !== -1 || modes.indexOf('TRANSIT') !== -1);
+  this.walk(modes.indexOf('WALK') !== -1);
+  this.parkRide(modes.indexOf('CAR') !== -1);
 };
 
 Plan.prototype.triangulateBikeOptions = function () {
-  var totalOpts = 0,
-      opts = [this.flat(), this.safe(), this.fast()];
+  var opts = [this.flat(), this.safe(), this.fast()];
 
-  opts.forEach(function (opt) {
-    totalOpts += opt ? 1 : 0;
-  });
+  var sum = opts.reduce(function(a, b) {
+    return Number(a) + Number(b);
+  }, 0);
 
-  if (!totalOpts) {
+  if (sum === 0) {
     return [0.333, 0.333, 0.334];
   } else {
-    return opts.map(function (opt) {
-      return opt ? +(1 / totalOpts).toFixed(3) : 0;
+    var b_triangle = opts.map(function (opt) {
+      return opt ? +(1 / sum).toFixed(3) : 0;
     });
+    // console.log('bike triangle : ', b_triangle)
+    return b_triangle
   }
 }
 
@@ -372,28 +459,29 @@ Plan.prototype.generateQuery = function() {
 
   if (this.parkRide()) {
     modes.push('CAR');
-    modes.push('BUSISH');
-    modes.push('TRAINISH');
-  } else {
+
+  } 
+  if (this.bus() && this.train()){
+    modes.push('TRANSIT')
+  }else{
     if (this.bus()) {
-      modes.push('BUSISH');
+        modes.push('BUS');
     }
     if (this.train()) {
-      modes.push('TRAINISH');
+        modes.push('TRAM');
+        modes.push('SUBWAY');
+        modes.push('RAIL');
     }
   }
 
   if (modes.length==0) modes.push('WALK');
 
-  var startTime = this.start_time();
-  var endTime = this.end_time();
   var scorer = this.scorer();
   var arriveBy = this.arriveBy();
   var triangleFactors = this.triangulateBikeOptions();
 
   // Get correct hour, add minutes and convert to string
-  var time = arriveBy ? endTime : startTime;
-  time += ':' + this.minute()
+  var time = this.hour() + ':' + this.minute()
 
   return {
     date: this.nextDate(),
@@ -403,18 +491,18 @@ Plan.prototype.generateQuery = function() {
       toPlace: (to.lat + ',' + to.lng),
       numItineraries: 3,
       maxWalkDistance: 5000,
-      bikeSpeed: 10,
+      bikeSpeed: 4.9,
 //      bikeBoardCost: 15,
-//      walkReluctance: 10,
 //      clampInitialWait: 60,
 //      bikeBoardCost: 40,
-//      walkBoardCost: 30,
-      walkReluctance: 15,
-//      clampInitialWait: 60,
+      // walkBoardCost: 30,
+      walkReluctance: 0,
+     // clampInitialWait: 60,
       maxTransfers: 5,
 //      waitAtBeginningFactor: 0.5,
       triangleSlopeFactor: triangleFactors[0],
       triangleSafetyFactor: triangleFactors[1],
+      ///triangleTimeFactor : triangleFactors[2],
       triangleTimeFactor: (triangleFactors[2] === 0.333) ? triangleFactors[2] + 0.001 : triangleFactors[2], // must add to one
       optimize: 'TRIANGLE',
       arriveBy: arriveBy
@@ -430,7 +518,7 @@ Plan.prototype.store = debounce(function() {
 }, DEBOUNCE_UPDATES);
 
 /**
- * Clear localStorage
+ * Clear sessionStorage
  */
 
 Plan.prototype.clearStore = store.clear;
@@ -497,10 +585,13 @@ Plan.prototype.generateQueryString = function() {
     from: this.from(),
     to: this.to(),
     modes: this.modesCSV(),
-    start_time: this.start_time(),
-    end_time: this.end_time(),
     days: this.days(),
+    arriveBy : this.arriveBy(),
     date: this.date(),
-    minute: this.minute()
+    hour: this.hour(),
+    minute: this.minute(),
+    fast: Boolean(this.fast()),
+    safe: Boolean(this.safe()),
+    flat: Boolean(this.flat())
   });
 };

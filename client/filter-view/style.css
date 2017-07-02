@@ -21,24 +21,38 @@
 
 .FilterView > .bike-filters > button { 
   font-size: 15px;
-  height: 28px;
-  width: 60px;
-  padding: 0 15px 1px 0;
+  height: 1.85em;
+  line-height: 1.85em;
+  padding: 0 0 0 .5rem;
+  text-align: left;
 }
+.FilterView > .bike-filters > button[title="Fast"] { 
+  width:6rem;
+}
+.FilterView > .bike-filters > button[title="Friendly"] { 
+  width:10rem;
+}
+.FilterView > .bike-filters > button[title="Flat"] { 
+  width:6rem;
+}
+
 
 .mode-filters i, .bike-filters i {
   font-size: 16px;
   position: absolute;
   top: 23px;
-  left: 27px;
-  color: var(--vta-light-blue);
+  color: var(--vta-light-gray);
   text-shadow: 0px 1px 3px rgba(75, 106, 32, 0.4);
   visibility: hidden;
+}
+.mode-filters i{
+left: 27px;
 }
 
 .bike-filters i {
   top: 5px;
-  left: 42px;
+  right: 0;
+  margin-right: 0.3rem;
 }
 
 
@@ -66,13 +80,20 @@
   display: inline-block;
   font-size: 13px;
   background-color: var(--vta-dark-blue);
-  color: white;
+  color: var(--vta-light-gray);
+  text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.3);
   padding: 5px 0 0 4px;
-  width: 88px;
+  width: 42px;
   height: 28px;
   float: left;
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
+}
+.SidePanel .bike-filters .title .fa-bicycle{
+  top:0;
+  left: 7px;
+  visibility: visible;
+  line-height: 1.4em;
 }
 
 .submit {
@@ -101,9 +122,13 @@
 }
 
 .FilterView > .time-filters {
-  white-space: nowrap;
-  padding-bottom: 8px;
-  font-size: 15px;
+  padding-bottom: .8rem;
+      margin: .5rem 0 .5rem 0;
+  font-size: 1em;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
 }
 
 @media (--narrow-window) {
@@ -129,9 +154,31 @@
 .FilterView > .time-filters > .arrive-depart-btns {
   background-color: var(--vta-dark-blue);
   border-radius: 3px;
-  padding: 4px;
-  margin: 5px 3px 0 0;
-  float: left;
+  padding: .4rem;
+  display:flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  width: 7.5rem;
+}
+
+.time-filters select{
+  background-color: var(--vta-dark-blue);
+  color: var(--vta-light-gray);
+  padding: 0;
+  margin: 0 0.3rem;
+  width: 5rem;
+}
+.time-filters .arrive-depart-btns::after
+{
+  cursor: default;
+  display:inline-block;
+  content:"\25B2\000D\25BC";
+  background-color: var(--vta-dark-blue);
+  color: var(--vta-light-gray);
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 0.5em;
+  line-height: 2em;
+  width: 1rem;
 }
 
 .arrive-depart-btns > label {
@@ -159,21 +206,39 @@
   text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.3);
 }
 
-.FilterView > .time-filters > .date { 
-  width: 170px;
-  margin-top: 4px;
+.FilterView > .time-filters > .input-group { 
+  width: 17rem;
+}
+.FilterView > .time-filters > .filter-group ~ .filter-group {
+  margin-left:.4rem
 }
 
-.FilterView > .time-filters > .date .form-control {
-  width: 138px;
-  height: 40px;
+.FilterView > .time-filters > .input-group .form-control {
+  height: 4rem;
   padding: 6px 4px;
-  font-size: 13px;
+  font-size: 1em;
+  background-color: #fff;
+  text-align: center;
+
+}
+.FilterView > .time-filters > .input-group .form-control[type="text"] {
+    width: 7.3rem;
+}
+.FilterView > .time-filters > .filter-group{
+  height: 4rem;
 }
 
-.FilterView > .time-filters > .date .input-group-addon {
-  padding: 6px 10px;
-  font-size: 12px;
+.FilterView > .time-filters > .input-group .input-group-addon {
+  display: flex;
+  width: 4rem;
+  font-size: 1.5em;
+  align-items:center;
+  justify-content:center;
+}
+.time-filters .input-group-addon i.fa{
+    display: block;
+    font-size: 1em;
+    line-height: 1em;
 }
 
 #datepicker {
@@ -203,4 +268,80 @@
     background: none;
     background-color: #fff;
     border-radius: 3px;
+}
+
+
+.time_picker_wrapper, .time_picker_wrapper .times_list_wrapper {display:inline-block; -moz-box-sizing: border-box;-webkit-box-sizing:border-box;  box-sizing: border-box;}
+
+.time-filters .input-group .time_picker_wrapper {
+  position: relative;
+  height: 0;
+  width: 7rem;
+  display:flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+
+
+.time-filters .input-group .time_picker_wrapper input[type="text"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: default;
+  font-size: 1em;
+  line-height: 1.2em;
+  text-align: center;
+  text-overflow: '';
+  display: inline-block;
+  width: 5rem;
+  height:1.2em;
+  border:none;
+}
+
+.time-filters .input-group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.time-filters .input-group option {
+  font-size: 1em;
+  text-align: center;
+  display: block;
+  width: 5rem;
+}
+
+
+.time_picker_wrapper .times_list_wrapper {
+  display:none;
+  overflow:hidden;
+  background-color:#fff;
+  top:1.5rem;
+}
+
+.time_picker_wrapper.active .times_list_wrapper {
+  display: block;
+  position: absolute;
+  text-align: center;
+  height: 10rem;
+  width: 100%;
+  left: 0.2rem;
+  overflow: scroll;
+  overflow-x: hidden;
+  top: 4rem;
+  z-index:4;
+  border: .2rem solid var(--vta-light-gray);
+}
+
+.time_picker_wrapper .times_list_wrapper span{
+  display:block;
+  cursor: default;
+}
+.time_picker_wrapper .times_list_wrapper span:hover{
+  background-color: var(--vta-dark-blue);
+  color: var(--vta-light-gray);
+}
+.time_picker_wrapper .times_list_wrapper span.selected{
+  background-color: var(--vta-dark-blue);
+  color: var(--vta-light-gray);
 }

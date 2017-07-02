@@ -15,7 +15,9 @@ lib-cov
 *.mk
 *.obj
 *.ai
-*.idea
+.idea
+*.iml
+lockdown.json
 
 .DS_Store
 .env
@@ -26,6 +28,10 @@ lib-cov
 **/contextify/build
 **/kerberos/build
 **/weak/build
+/node_modules/*
 
 coverage
 deployment
+
+assets/robots.txt
+sftp-config.json

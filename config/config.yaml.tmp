@@ -1,16 +1,16 @@
 ---
-application: Modeify
-name: Modeify
-domain: modeify.co
+application: VTA Trip Planner
+name: VTA Trip Planner
+domain: vta.org
 
 announcements:
 
 organization:
-  name: Conveyal
-  url: http://conveyal.com
+  name: VTA
+  url: http://www.vta.org
 
-# Applicatio
-version: 1.2.1
+# Application
+version: 1.2.2
 
 # Support Email Address
 email:
@@ -27,10 +27,38 @@ geocode:
 api_url: /api
 base_url: http://localhost:5000
 
-google_site_verification:
+ignore_events_from:
 
+# Google configuration
+google_site_verification:
+google_api_key:
+ga_key:
+
+#map_provider: 'GoogleV3'
+map_provider: 'ESRI'
+#map_provider: 'AmigoCloud'
+
+# AmigoCloud configuration
+ac_key:
+ac_event_url:
+ac_event_table:
+realtime_access_token:
+realtime_dataset_url:
+support_data_token:
+bus_prediction_url:
+bus_routes_url:
+query_interval: 30000
+
+feedback_table_name:
+feedback_write_token:
+feedback_write_url:
+
+# Mapbox configuration
 mapbox_access_token:
 mapbox_map_id:
+
+bing_key:
+
 
 otp:
   host: localhost
@@ -48,6 +76,7 @@ environments:
 
   # Default & development
   development:
+    google_api_key:
 
   # Staging / QA / Production
   production:

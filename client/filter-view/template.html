@@ -2,7 +2,7 @@
   <div class="btn-group mode-filters">
     <button class="btn btn-default icon-train" data-active="train" title="Metro"><i class="fa fa-check-circle"></i></button>
     <button class="btn btn-default icon-bus" data-active="bus" title="Bus"><i class="fa fa-check-circle"></i></button>
-    <button class="btn btn-default icon-parknride" data-active="parkRide" title="Park & Ride"><i class="fa fa-check-circle"></i></button>
+    <button class="btn btn-default icon-parknride" data-active="parkRide" title="Park &amp; Ride"><i class="fa fa-check-circle"></i></button>
     <button class="btn btn-default icon-bike"
             id="bikeModeToggle"
             data-active="bike"
@@ -16,26 +16,24 @@
     <i data-visible="loading" class="fa fa-refresh fa-spin"></i>
   </button>
 
-  <div class="btn-group bike-filters">
-    <div class="title">Bike Options:</div>
+  <div class="btn-group bike-filters hidden">
+    <div class="title"><i class="fa fa-bicycle" title="bike options"></i></div>
     <button class="btn btn-default" data-active="fast" title="Fast">FAST<i class="fa fa-check-circle"></i></button>
-    <button class="btn btn-default" data-active="safe" title="Safe">SAFE<i class="fa fa-check-circle"></i></button>
+    <button class="btn btn-default" data-active="safe" title="Friendly">FRIENDLY<i class="fa fa-check-circle"></i></button>
     <button class="btn btn-default" data-active="flat" title="Flat">FLAT<i class="fa fa-check-circle"></i></button>
   </div>
 
   <div class="time-filters clearfix">
-    <div class="arrive-depart-btns btn-group" data-toggle="buttons">
-      <label class="btn btn-primary active" for="option1">
-        <input name="arriveBy" type="radio" id="option1" data-arrive-by="false" checked>Depart
-      </label>
-      <label class="btn btn-primary" for="option2">
-        <input name="arriveBy" type="radio" id="option2" data-arrive-by="true">Arrive
-      </label>
+    <div class="arrive-depart-btns btn-group filter-group" data-toggle="buttons">
+      <select name="arriveBy">
+        <option value="false" data-arrive-by="false">Depart</option>
+        <option value="true" data-arrive-by="true">Arrive</option>
+      </select>
     </div>
-    <div class='input-group date' data-date-time="datepicker1">
-      <input type='text' class="form-control" />
+    <div class='input-group date filter-group' data-date-time="datepicker1">
+      <input type="text" class="form-control"/>
       <span class="input-group-addon">
-          <span class="glyphicon glyphicon-calendar"></span>
+          <i class="fa fa-calendar" aria-hidden="true"></i>
       </span>
     </div>
   </div>

@@ -134,7 +134,7 @@ Modal.prototype.renderRoute = function(data) {
   data.calories = data.calories ? parseInt(data.calories).toLocaleString() + ' cals' : 'None';
   data.cost = data.cost ? '$' + data.cost.toFixed(2) : 'Free';
   data.emissions = data.emissions ? parseInt(data.emissions) : 'None';
-  data.walkDistance = data.walkDistance ? data.walkDistance + ' mi' : 'None';
+  data.walkDistance = data.walkDistance ? parseFloat(data.walkDistance).toFixed(1) + ' mi' : 'None';
 
   if (data.productiveTime) {
     if (data.productiveTime > 120) {
@@ -248,11 +248,11 @@ function rankRoutes(routes, primary, secondary) {
 
   var primaryColor = d3.scale.linear()
     .domain(primaryDomain)
-    .range(['#00587b', '#fff']);
+    .range(['#4CB4E7', '#fff']);  // --vta-light-blue
 
   var secondaryColor = d3.scale.linear()
     .domain(secondaryDomain)
-    .range(['#99c5d2', '#fff']);
+    .range(['#DaD9D6', '#fff']);  // --vta-light-gray
 
   routes = routes.map(function(r) {
     r.primaryRank = primaryScale(primary(r));
@@ -301,7 +301,7 @@ function getRouteData(route, multiplier, index) {
   };
 
   if (multiplier > 1) {
-    ['cost', 'calories', 'productiveTime', 'emissions'].forEach(function(type) {
+    ['cost', 'time', 'walkDistance', 'calories', 'productiveTime', 'emissions'].forEach(function(type) {
       data[type] = data[type] * multiplier;
     });
   }

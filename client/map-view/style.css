@@ -1,10 +1,16 @@
+#map {
+    width: 100%;
+    z-index: 1;
+}
 
 .MapView {
-  position: relative;
-  height: 100%;
-  width: 100%;
-  z-index: 0;
+    width: inherit;
+    height: 100%;
+    position: relative;
 }
+
+/*.leaflet-control-container { -webkit-transform: translate3d(0,0,0); }*/
+
 
 .amigocloud-attribution-logo {
   left: inherit;
@@ -16,13 +22,11 @@
   vertical-align: inherit;
 }
 
+
 .leaflet-control-layers-separator,
 .leaflet-control-layers-overlays {
   display: none;
 }
-
-
-
 
 @-webkit-keyframes fade_jona {
     0% {

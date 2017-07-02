@@ -5,7 +5,7 @@
 
 var each = require('each')
   , unserialize = require('unserialize')
-  , storage = window.localStorage
+  , storage = window.sessionStorage
   , type = require('type');
 
 /**

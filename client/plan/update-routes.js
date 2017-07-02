@@ -59,102 +59,109 @@ function updateRoutes(plan, opts, callback) {
   var scorer = plan.scorer();
 
   otp.plan(query, function(err, data) {
-      var planData, itineraries;
+    var planData, itineraries;
 
-     if (err || !data || !data.plan) {
-          plan.set({
-            options: [],
-            journey: {
-              places: plan.generatePlaces()
+    if (err || !data || !data.plan) {
+      plan.set({
+        options: [],
+        journey: {
+          places: plan.generatePlaces()
+        }
+      });
+      done(err, data);
+    } else {
+      planData = {
+        options: []
+      };
+
+      itineraries = data.plan.itineraries;
+      module.exports.dataplan = data.options;
+
+      var sesion_plan = JSON.parse(sessionStorage.getItem('dataplan'));
+      if (!(sesion_plan === null)) {
+        sessionStorage.removeItem('dataplan');
+        sessionStorage.removeItem('itineration');
+      }
+
+      sessionStorage.setItem('itineration', JSON.stringify({
+        "length": itineraries.length
+      }));
+      sessionStorage.setItem('dataplan', JSON.stringify(data.options));
+
+      // Track the commute
+      analytics.track('Found Route', {
+        plan: '',
+        results: data.plan.itineraries.length
+      });
+
+      analytics.send_ga({
+        category: 'route',
+        action: 'calculate route',
+        value: 1
+      });
+
+      var legs;
+      var fare;
+      var timeInTransit;
+      var bikeTime;
+      var bikeDistance;
+      var walkTime;
+      var walkDistance;
+      for (var i = 0; i < itineraries.length; i++) {
+        legs = itineraries[i].legs;
+        timeInTransit = 0;
+        bikeTime = 0;
+        bikeDistance = 0;
+        walkTime = 0;
+        walkDistance = 0;
+        for (var j = 0; j < legs.length; j++) {
+          if (legs[j].transitLeg) {
+            timeInTransit += legs[j].duration;
+          } else {
+            if (legs[j].mode === 'BICYCLE') {
+              bikeTime += legs[j].duration;
+              bikeDistance += legs[j].distance;
+            } else if (legs[j].mode === 'WALK') {
+              walkTime += legs[j].duration;
+              walkDistance += legs[j].distance;
             }
-          });
-          done(err, data);
-     } else {
-        planData = {options: []};
-
-        itineraries = data.plan.itineraries;
-        module.exports.dataplan = data.options;
-
-        var sesion_plan = JSON.parse(localStorage.getItem('dataplan'));
-        if (!(sesion_plan === null)) {
-            localStorage.removeItem('dataplan');
-            localStorage.removeItem('itineration');
+          }
         }
+        fare = (itineraries[i].fare ? itineraries[i].fare.fare.regular.cents : 0);
+        planData.options.push(
+          new Route({
+            from: data.plan.from.name,
+            to: data.plan.to.name,
+            time: timeInTransit + bikeTime + walkTime,
+            timeInTransit: timeInTransit / 60,
+            cost: fare / 100,
+            transitCost: fare / 100,
+            bikeTime: bikeTime,
+            bikeDistance: bikeDistance,
+            walkDistance: walkDistance,
+            walkTime: walkTime,
+            plan: itineraries[i]
+          })
+        );
+      }
+      plan.set({
+        options: planData.options,
+        journey: data.journey
+      });
+      done(null, data);
 
-        localStorage.setItem('itineration', JSON.stringify({"length":itineraries.length}));
-        localStorage.setItem('dataplan', JSON.stringify(data.options));
+      analytics.send_ac({
+        event_type: 'query',
+        url: location.href,
+        //results: JSON.stringify(data),
+        timestamp: (new Date()).toISOString(),
+        from_address: plan.from(),
+        to_address: plan.to()
+      });
 
-          // Track the commute
-          analytics.track('Found Route', {
-            plan: '',
-            results: data.plan.itineraries.length
-        });
+      return;
 
-        analytics.send_ga({
-            category: 'route',
-            action: 'calculate route',
-            value: 1
-        });
-
-	var legs;
-	var fare;
-	var timeInTransit;
-	var bikeTime;
-	var bikeDistance;
-	var walkTime;
-	var walkDistance;
-	for (var i = 0; i < itineraries.length; i++) {
-	    legs = itineraries[i].legs;
-	    timeInTransit = 0;
-	    bikeTime = 0;
-	    bikeDistance = 0;
-	    walkTime = 0;
-	    walkDistance = 0;
-	    for (var j = 0; j < legs.length; j++) {
-		if (legs[j].transitLeg) {
-		    timeInTransit += legs[j].duration;
-		} else {
-		    if (legs[j].mode === 'BICYCLE') {
-			bikeTime += legs[j].duration;
-			bikeDistance += legs[j].distance;
-		    } else if (legs[j].mode === 'WALK') {
-			walkTime += legs[j].duration;
-			walkDistance += legs[j].distance;
-		    }
-		}
-	    }
-	    fare = (itineraries[i].fare ? itineraries[i].fare.fare.regular.cents : 0);
-	    planData.options.push(
-		new Route({
-		    from: data.plan.from.name,
-		    to: data.plan.to.name,
-		    time: timeInTransit + bikeTime + walkTime,
-		    timeInTransit: timeInTransit / 60,
-		    cost: fare / 100,
-		    transitCost: fare / 100,
-		    bikeTime: bikeTime,
-		    bikeDistance: bikeDistance,
-		    walkDistance: walkDistance,
-		    walkTime: walkTime,
-		    plan: itineraries[i]
-		})
-	    );
-        }
-	plan.set({options: planData.options, journey: data.journey});
-	done(null, data);
-
-        analytics.send_ac({
-          event_type: 'query',
-          url: location.href,
-          results: JSON.stringify(data),
-          timestamp: (new Date()).toISOString(),
-          from_address: plan.from(),
-          to_address: plan.to()
-        });
-
-	return;
-
-       //Get the car data
+      //Get the car data
       var driveOption = new Route(data.options.filter(function(o) {
         return o.access[0].mode === 'CAR' && (!o.transit || o.transit.length < 1);
       })[0]);
@@ -172,7 +179,6 @@ function updateRoutes(plan, opts, callback) {
 
       // Populate segments
       populateSegments(data.options, data.journey);
-
 
       // Create a new Route object for each option
       for (var i = 0; i < data.options.length; i++) {
@@ -208,7 +214,6 @@ function populateSegments(options, journey) {
     for (var j = 0; j < option.transit.length; j++) {
       var segment = option.transit[j];
 
-
       for (var k = 0; k < segment.segmentPatterns.length; k++) {
         var pattern = segment.segmentPatterns[k];
         var patternId = pattern.patternId;
@@ -218,12 +223,8 @@ function populateSegments(options, journey) {
         var agency = routeId[0].toLowerCase();
         var line = routeId[1].toLowerCase();
 
-
-
         routeId = routeId[0] + ':' + routeId[1];
         var route = getRoute(routeId, journey.routes);
-
-
 
         pattern.longName = route.route_long_name;
         pattern.shortName = route.route_short_name;
@@ -231,7 +232,6 @@ function populateSegments(options, journey) {
         pattern.color = convert.routeToColor(route.route_type, agency, line,
           route.route_color);
         pattern.shield = getRouteShield(agency, route);
-
       }
     }
   }
@@ -273,11 +273,8 @@ function generateErrorMessage(plan, response) {
     msg += 'Add biking to see bike-to-transit results.';
   } else if (!plan.car()) {
     msg += 'Unfortunately we were unable to find non-driving results. Try turning on driving.';
-  } else if (plan.end_time() - plan.start_time() < 2) {
-    msg += 'Make sure the hours you specified are large enough to encompass the length of the journey.';
   } else if (plan.days() !== 'M—F') {
     msg += 'Transit runs less often on the weekends. Try switching to a weekday.';
   }
-
   return msg;
 }

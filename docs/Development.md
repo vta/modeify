@@ -3,7 +3,7 @@
 Clone to your local directory to begin.
 
 ```bash
-$ git clone git@github.com:conveyal/modeify.git
+$ git clone https://github.com/amigocloud/modified-tripplanner.git
 $ cd modeify
 ```
 ## Installation
@@ -17,7 +17,6 @@ This copies the configuration files into a `deployment` directory. On Macs this 
 * [Node.js](https://nodejs.org/) — Version 0.10 and up
 * [MongoDB](https://www.mongodb.org/) — Can set `MONGODB_URL` in `deployment/env`
 * [OpenTripPlanner](http://www.opentripplanner.org/) — Set `otp` `host` and `port` in `deployment/config.yaml`
-* [Mapbox](https://mapbox.com) — Set the key in `deployment/config.yaml`
 
 ## Running
 

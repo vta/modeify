@@ -1,5 +1,5 @@
 var d3 = require('d3');
-var localStorageSupported = require('localstorage-supported')();
+var sessionStorageSupported = require('webstorage-supported')();
 var log = require('./client/log')('plan:load');
 var ProfileScorer = require('otp-profile-score');
 var session = require('session');
@@ -28,7 +28,7 @@ function load(Plan, ctx, next) {
   // Get the plan from the session
   ctx.plan = session.plan();
 
-  // If no plan is in session, load it from localStorage or the server
+  // If no plan is in session, load it from sessionStorage or the server
   if (!ctx.plan) ctx.plan = loadPlan(Plan);
 
   next();
@@ -43,7 +43,7 @@ function loadPlan(Plan) {
 
   // check if we have a stored plan
   var opts = {};
-  if (localStorageSupported)
+  if (sessionStorageSupported)
     opts = store('plan') || {};
   if (session.isLoggedIn() && session.commuter())
     opts = loadCommuter(opts);
@@ -70,7 +70,7 @@ function loadCommuter(opts) {
 
   // if the stored plan is not the logged in commuters, change
   if (opts._commuter !== commuter._id()) {
-    log('load plan from the commuter instead of localStorage');
+    log('load plan from the commuter instead of sessionStorage');
 
     opts = commuter.opts();
     var org = commuter._organization();

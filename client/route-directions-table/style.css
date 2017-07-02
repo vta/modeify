@@ -46,7 +46,7 @@
 }
 
 .RouteDirections .icon-end {
-  color: var(--vta-burgundy);
+  color: var(--vta-red);
 }
 
 .RouteDirections .transfer > .station {
@@ -80,4 +80,8 @@
 .RouteDirections .address .description {
   color: var(--black);
   font-weight: bold;
+}
+
+.RouteDirections .start_stop_times {
+  float:right; display:inline-block; color:#84909d;
 }

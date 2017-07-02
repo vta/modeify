@@ -1,6 +1,9 @@
 var config = require('config');
 var debug = require('debug')(config.name() + ':map');
 var page = require('page');
+// var leaflet = require('leaflet');
+// var esri_leaflet = require('esri-leaflet');
+// var googleMutant = require('leaflet.gridlayer.googlemutant');
 var plugins = require('./leaflet-plugins');
 
 /**
@@ -13,8 +16,10 @@ module.exports = function(el, opts) {
     detectRetina: true
   };
 
-  // create a map in the el with given options
-  if (config.map_provider && config.map_provider() === 'AmigoCloud') {
+// create a map in the el with given options
+  if (config.map_provider && ( config.map_provider() === 'GoogleV3' || config.map_provider() === 'ESRI')) {
+      return new Map(L.modeify(el, opts));
+  } else if (config.map_provider && config.map_provider() === 'AmigoCloud') {
     return new Map(L.amigo.map(el, opts));
   } else {
     return new Map(L.mapbox.map(el, config.mapbox_map_id(), opts));
@@ -39,6 +44,15 @@ module.exports.createMarker = function(opts) {
       }),
       title: opts.title || ''
     });
+  } else if (config.map_provider && (config.map_provider() === 'GoogleV3' || config.map_provider() === 'ESRI')) {
+      marker = L.marker(new L.LatLng(opts.coordinate[1], opts.coordinate[0]), {
+          icon: L.modeify.marker.icon({
+              'marker-size': opts.size || 'medium',
+              'marker-color': opts.color || '#ccc',
+              'marker-symbol': opts.icon || ''
+          }),
+          title: opts.title || ''
+      });
   } else {
     marker = L.marker(new L.LatLng(opts.coordinate[1], opts.coordinate[0]), {
       icon: L.mapbox.marker.icon({
@@ -63,33 +77,34 @@ module.exports.createMarker = function(opts) {
  */
 
 
-if (config.map_provider() === 'AmigoCloud') {
+if (config.map_provider() !== 'Mapbox') {
     module.exports.realtime = function() {
-        debug('setting up socket connection');
+        debug('setting up empty socket connection');
 
-        L.amigo.realtime.setAccessToken(config.realtime_access_token());
-        L.amigo.realtime.connectDatasetByUrl(config.realtime_dataset_url());
+        // L.amigo.realtime.setAccessToken(config.realtime_access_token());
+        // L.amigo.realtime.connectDatasetByUrl(config.realtime_dataset_url());
     };
 }
 
 module.exports.getRealtimeVehicles = function (validVehicles) {
   var currRoutes = module.exports.currRoutes,
+      agencyForRoute = module.exports.agencyForRoute,
       requests = [],
-      endpoint = 'http://api.transitime.org/api/v1/key/5ec0de94/agency/vta/command/vehiclesDetails';
+      endpoint = '/api/transitime/vehiclesDetails';
 
   $.each(currRoutes, function (routeId, direction) {
     // currRoutes is on obj containing current route legs stored as:
     // key: routeId, value: direction of travel (1 or 0)
     requests.push($.get(endpoint, {
       r: routeId,
-      format: 'json'
+      format: 'json',
+      agency: agencyForRoute[routeId]
     }).then(function (data) {
       // find vehicles in route heading direction that matches legs in currRoutes
       var vehicle = {};
-
       for (var j = 0; j < data.vehicles.length; j++) {
         vehicle = data.vehicles[j];
-        if (vehicle.direction === currRoutes[vehicle.routeId]) {
+        if (vehicle.direction === currRoutes[vehicle.routeShortName]) {
           validVehicles.push(vehicle);
         }
       }
@@ -143,7 +158,7 @@ module.exports.toggleRealtime = function(viewMap) {
   var clearRealtime = function () {
       clearTimeout(module.exports.vehiclePoller);
       map.realtime.active = false;
-      L.amigo.realtime.socket.removeAllListeners('realtime'); // I left this in for reduncency when switching to polling - Luke
+      // L.amigo.realtime.socket.removeAllListeners('realtime'); // I left this in for reduncency when switching to polling - Luke
       for (var i = 0; i < map.realtime.points.length; i++) {
         map.removeLayer(map.realtime.points[i].marker);
       }
@@ -176,18 +191,17 @@ module.exports.drawRoute = function (marker) {
   queryUrl = projectUrl + '/sql?token=' + config.realtime_access_token() +
     '&query=' + query + '&limit=1000';
 
-  L.amigo.utils.get(queryUrl).
-    then(function (data) {
-      if (!data.data.length) {
-        return;
-      }
-
-      module.exports.activeRoute = L.geoJson(
-
-      JSON.parse(data.data[0].st_asgeojson), {
-	      style: routeStyle
-	    }).addTo(module.exports.realtimeMap);
-    });
+  if (config.map_provider() === 'Amigo') {
+      L.amigo.utils.get(queryUrl).then(function (data) {
+          if (!data.data.length) {
+              return;
+          }
+          module.exports.activeRoute = L.geoJson(
+              JSON.parse(data.data[0].st_asgeojson), {
+                  style: routeStyle
+              }).addTo(module.exports.realtimeMap);
+      });
+  };
 };
 
 module.exports.deleteRoute = function (marker) {
@@ -250,6 +264,7 @@ module.exports.hasVehicleMoved = function (oldPoint, newPoint) {
 
 module.exports.addPoint = function (map, point) {
   var routeId = point.routeId,
+      routeShortName = point.routeShortName,
       iconUrl = 'assets/images/graphics/',
       line, newPoint;
 
@@ -279,7 +294,7 @@ module.exports.addPoint = function (map, point) {
     iconAnchor: [20, 45],
     popupAnchor:  [0, -50],
     className: 'tint',
-    number: routeId
+    number: routeShortName
   }));
 
   newPoint.marker.realtimeData = point;
@@ -311,6 +326,7 @@ module.exports.addPoint = function (map, point) {
 
 module.exports.movePoint = function (map, point) {
   var routeId = point.routeId,
+      routeShortName = point.routeShortName,
       iconUrl = 'assets/images/graphics/',
       line, currentPoint;
 
@@ -333,7 +349,7 @@ module.exports.movePoint = function (map, point) {
     iconAnchor: [20, 45],
     popupAnchor:  [0, -50],
     className: 'tint',
-    number: routeId
+    number: routeShortName
   }));
 
   currentPoint.marker.realtimeData = point;
@@ -358,8 +374,8 @@ module.exports.makePopup = function (point) {
   }
 
   var string = '<div class="bus-popup"><div class="popup-header">';
-  string += '<h5><i class="fa fa-bus"></i> ' + point.routeId + ': ';
-  string += '<a target="_blank" href="http://www.vta.org/routes/rt' + point.routeId + '">';
+  string += '<h5><i class="fa fa-bus"></i> ' + point.routeShortName + ': ';
+  // string += '<a target="_blank" href="http://www.vta.org/routes/rt' + point.routeId + '">';
   string += routeName + '</a></h5></div>';
 
   string += '<div class="popup-body"><table>';
@@ -382,7 +398,9 @@ function Map(map) {
   this.map = map;
   if (config.map_provider && config.map_provider() === 'AmigoCloud') {
     this.featureLayer = L.amigo.featureLayer().addTo(map);
-  } else {
+  } else if (config.map_provider && (config.map_provider() === 'GoogleV3' || config.map_provider() === 'ESRI')) {
+      this.featureLayer = L.modeify.featureLayer().addTo(map);
+  }else {
     this.featureLayer = L.mapbox.featureLayer().addTo(map);
   }
 }

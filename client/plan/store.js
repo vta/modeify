@@ -1,4 +1,5 @@
-var localStorageSupported = require('localstorage-supported')();
+var 
+sessionStorageSupported = require('webstorage-supported')();
 var log = require('./client/log')('plan:store');
 var session = require('session');
 var store = require('store');
@@ -15,7 +16,8 @@ module.exports = storePlan;
 
 function storePlan(plan) {
   log('--> storing plan');
-  if (!localStorageSupported) return;
+  if (!sessionStorageSupported) 
+    return;
 
   // convert to "JSON", remove routes & patterns
   var json = {};
@@ -32,7 +34,7 @@ function storePlan(plan) {
     //commuter.save();
   }
 
-  // save in local storage
+  // save in session storage
   try {
     store('plan', json);
     log('<-- stored plan');
@@ -48,6 +50,6 @@ function storePlan(plan) {
  */
 
 module.exports.clear = function() {
-  if (localStorageSupported)
+  if (sessionStorageSupported)
     store('plan', null);
 };

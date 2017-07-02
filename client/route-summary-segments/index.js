@@ -68,20 +68,21 @@ module.exports = function(route, opts) {
 
     if (!leg.routeShortName) {
       if (leg.agencyId === 'caltrain-ca-us') {
-        switch (leg.routeId) {
-          case 'Bu-121':
-            name = 'BUL';
-            break;
-          case 'Lo-121':
-            name = 'LOC';
-            break;
-          case 'Li-121':
-            name = 'LIM';
-            break;
-          case 'TaSj-121':
-            name = 'TSJ';
-            break;
-        }
+        name = 'CT'
+        // switch (leg.route) {
+        //   case 'Baby Bullet':
+        //     name = 'CT';
+        //     break;
+        //   case 'Lo-121':
+        //     name = 'LOC';
+        //     break;
+        //   case 'Limited':
+        //     name = 'LIM';
+        //     break;
+        //   case 'TaSj-121':
+        //     name = 'TSJ';
+        //     break;
+        // }
       } else if (leg.agencyId === '123') {
         name = '123';
       } else {
