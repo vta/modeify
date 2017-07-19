@@ -259,7 +259,7 @@ GoogleReverse.prototype = {
     getParameter: function () {
         return {
             latlng: this.ll[1] + ', ' + this.ll[0],
-            'key': config.google_api_key()
+            'key': config.google_geocode_api_key()
         }
     }
 };
