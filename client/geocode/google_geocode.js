@@ -78,7 +78,7 @@ GoogleGeocoder.prototype = {
         var endpoint = 'https://maps.googleapis.com/maps/api/geocode/json';
         var parameter = {
             'address': text,
-            'key': config.google_api_key(),
+            'key': config.google_geocode_api_key(),
             'components': 'administrative_area:CA|country:US'
         };
 
