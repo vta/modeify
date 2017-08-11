@@ -33,6 +33,7 @@
 .leaflet-safari .leaflet-tile-container {
 	width: 1600px;
 	height: 1600px;
+	transform-origin: 0 0;
 	-webkit-transform-origin: 0 0;
 	}
 .leaflet-marker-icon,
@@ -46,7 +47,9 @@
 .leaflet-container .leaflet-shadow-pane img,
 .leaflet-container .leaflet-tile-pane img,
 .leaflet-container img.leaflet-image-layer {
-	max-width: none !important;
+	/*max-width: none !important;*/
+	max-width: 1600px !important;
+	max-height: 1600px !important;
 	}
 
 .leaflet-container.leaflet-touch-zoom {

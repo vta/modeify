@@ -397,9 +397,9 @@ module.exports.makePopup = function (point) {
 function Map(map) {
   this.map = map;
   if (config.map_provider && config.map_provider() === 'AmigoCloud') {
-    this.featureLayer = L.amigo.featureLayer().addTo(map);
+    this.featureLayer = L.amigo.featureLayer.addTo(map);
   } else if (config.map_provider && (config.map_provider() === 'GoogleV3' || config.map_provider() === 'ESRI')) {
-      this.featureLayer = L.modeify.featureLayer().addTo(map);
+      this.featureLayer = L.modeify.featureLayer.addTo(map);
   }else {
     this.featureLayer = L.mapbox.featureLayer().addTo(map);
   }

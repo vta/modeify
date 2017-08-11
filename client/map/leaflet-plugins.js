@@ -72,6 +72,9 @@ L.AnimatedMarker = L.Marker.extend({
       speed = this._latlngs[this._i-1].distanceTo(this._latlngs[this._i]) / this.options.distance * this.options.interval;
     }
 
+      /**
+       * @todo Fix this crap! Found it finally...
+       */
     // Only if CSS3 transitions are supported
     if (L.DomUtil.TRANSITION) {
       if (this._icon) { this._icon.style[L.DomUtil.TRANSITION] = ('all ' + speed + 'ms linear'); }

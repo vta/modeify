@@ -9,7 +9,11 @@
     position: relative;
 }
 
-/*.leaflet-control-container { -webkit-transform: translate3d(0,0,0); }*/
+.leaflet-control-container {
+    transform: translate3d(0px, 0px , 0px);
+    -webkit-transform: translate3d(0px, 0px, 0px);
+    -moz-transform: translate3d(0px, 0px, 0px);
+}
 
 
 .amigocloud-attribution-logo {
@@ -28,13 +32,15 @@
   display: none;
 }
 
-@-webkit-keyframes fade_jona {
+@-webkit-keyframes fade-down {
     0% {
+        -moz-opacity: 0.99;
         opacity: 0.99;
         color:#2B2922;
     }
 
     100% {
+        -moz-opacity: 0.30;
         opacity: 0.30;
         color:#000000;
     }
@@ -42,30 +48,31 @@
 
 
 @-webkit-keyframes fade-out {
-  0% { opacity: 0.80;}
-  50% { opacity: 0.60;}
-  100% {opacity:0.40;}
+  0% { -moz-opacity: 0.80; opacity: 0.80;}
+  50% { -moz-opacity: 0.60; opacity: 0.60;}
+  100% { -moz-opacity: 0.40; opacity:0.40;}
 }
 
 .fade-out {
-    -webkit-animation: fade-out .3s ease-out;
+    -webkit-animation: fade-down .3s ease-out;
     -webkit-animation-fill-mode: forwards;
     -webkit-animation-iteration-count: 1;
     width: 100px;
     height: 100px;
+    -moz-opacity: 0.99;
     opacity: 0.99;
        -moz-box-shadow: 2px 2px 16px #fff;
     -webkit-box-shadow: 2px 2px 16px #fff ;
      box-shadow:2px 2px 16px #fff;
 }
 
-/* .fade-out.one {-webkit-animation-delay: .5s;}
+.fade-out.one {-webkit-animation-delay: .5s;}
 .fade-out.two {-webkit-animation-delay: 1.5s;}
-.fade-out.three {-webkit-animation-delay: 2.5s;} */
-.fade-out .four {-webkit-animation-delay: 0.1s;}
+.fade-out.three {-webkit-animation-delay: 2.5s;}
+.fade-out.four {-webkit-animation-delay: 0.1s;}
 
 .message_ {
-    -webkit-animation: fade_jona 1s;
+    -webkit-animation: fade-out 1s;
     -webkit-animation-fill-mode: both;
 }
 
@@ -87,19 +94,28 @@
     text-align: center;
     border-radius: 50%;
     filter: alpha(opacity=50);
+    -moz-opacity: 0.5;
     opacity: 0.5;
     outline: none;
 }
 
 .leaflet-div-icon2 .leaflet-label{
     visibility: hidden;
+    -moz-opacity: 0;
     opacity: 0;
 }
 
+/*body {*/
+    /*counter-reset: vehicle-layer 600;*/
+/*}*/
 
+/*.realtimemarker {*/
+    /*counter-increment: vehicle-layer;*/
+    /*--realtime-layer: counter(vehicle-layer);*/
+    /*z-index: var(--realtime-layer, 1);*/
+/*}*/
 
 .legend-fadeout{
-  -webkit-opacity: 1;
   -moz-opacity: 1;
   color: #E0E0E0;
   stroke: #E0E0E0;
@@ -107,8 +123,8 @@
   zoom: 1;
     filter: alpha(opacity=50);
     opacity: 0.5;
-    -webkit-transition: opacity .5s ease-in-out;
     transition: opacity .5s ease-in-out;
+    -webkit-transition: opacity .5s ease-in-out;
 }
 
 .stops-icon {

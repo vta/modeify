@@ -4407,11 +4407,11 @@ var map = L.Map.extend({
 L.modeify = {
     map: {},
     marker: marker,
-    // featureLayer: featureLayer,
+    featureLayer: featureLayer,
     constants: constants,
     utils: utils,
     auth: auth,
-    // realtime: realtime,
+    realtime: realtime,
     events: events,
     // GoogleRoadmap: L.gridLayer.googleMutant({
     //     maxZoom: 24,

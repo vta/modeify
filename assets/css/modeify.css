@@ -11,8 +11,8 @@
 .leaflet-image-layer,
 .leaflet-layer {
 	position: absolute;
-	left: 0;
-	top: 0;
+	left: 0px;
+	top: 0px;
 	}
 .leaflet-container {
 	overflow: hidden;
@@ -34,7 +34,6 @@
 .leaflet-safari .leaflet-tile-container {
 	width: 1600px;
 	height: 1600px;
-	-webkit-transform-origin: 0 0;
 	}
 
 .leaflet-marker-icon,
@@ -49,8 +48,7 @@
 .leaflet-container .leaflet-shadow-pane img,
 .leaflet-container .leaflet-tile-pane img,
 .leaflet-container img.leaflet-image-layer {
-	/*max-width: none !important;*/
-	max-width: 1600px !important;
+	max-width: none !important;
 	}
 
 .leaflet-container.leaflet-touch-zoom {
@@ -167,34 +165,34 @@
 	}
 .leaflet-fade-anim .leaflet-popup {
 	opacity: 0;
+	transition: opacity 0.2s linear;
 	-webkit-transition: opacity 0.2s linear;
 	   -moz-transition: opacity 0.2s linear;
 	     -o-transition: opacity 0.2s linear;
-	        transition: opacity 0.2s linear;
 	}
 .leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
 	opacity: 1;
 	}
 .leaflet-zoom-animated {
-	-webkit-transform-origin: 0 0;
-	    -ms-transform-origin: 0 0;
-	        transform-origin: 0 0;
+	transform-origin: 0px 0px;
+	-webkit-transform-origin: 0px 0px;
+	    -ms-transform-origin: 0px 0px;
 	}
 .leaflet-zoom-anim .leaflet-zoom-animated {
 	will-change: transform;
 	}
 .leaflet-zoom-anim .leaflet-zoom-animated {
+	transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
 	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
 	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
 	     -o-transition:      -o-transform 0.25s cubic-bezier(0,0,0.25,1);
-	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
 	}
 .leaflet-zoom-anim .leaflet-tile,
 .leaflet-pan-anim .leaflet-tile {
+	transition: none;
 	-webkit-transition: none;
 	   -moz-transition: none;
 	     -o-transition: none;
-	        transition: none;
 	}
 
 .leaflet-zoom-anim .leaflet-zoom-hide {
@@ -499,7 +497,7 @@
 	   -moz-transform: rotate(45deg);
 	    -ms-transform: rotate(45deg);
 	     -o-transform: rotate(45deg);
-	        transform: rotate(45deg);
+	transform: rotate(45deg);
 	}
 .leaflet-popup-content-wrapper,
 .leaflet-popup-tip {
