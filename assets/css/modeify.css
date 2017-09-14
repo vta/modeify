@@ -34,7 +34,7 @@
 .leaflet-safari .leaflet-tile-container {
 	width: 1600px;
 	height: 1600px;
-	-webkit-transform-origin: 0 0;
+	-webkit-transform-origin: 0px 0px;
 	}
 
 .leaflet-marker-icon,

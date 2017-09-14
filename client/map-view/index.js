@@ -154,13 +154,13 @@ module.exports = function (el) {
         });
         transitMutant.addGoogleLayer('TransitLayer');
 
-        blurLayer = L.tileLayer(
-            'https://www.amigocloud.com/api/v1/users/' +
-            '23/projects/3019/datasets/23835/tiles/{z}/{x}/{y}.png?' +
-            'token=' + config.support_data_token(), {
-                name: 'Uncovered Area'
-            }
-        );
+        // blurLayer = L.tileLayer(
+        //     'https://www.amigocloud.com/api/v1/users/' +
+        //     '23/projects/3019/datasets/23835/tiles/{z}/{x}/{y}.png?' +
+        //     'token=' + config.support_data_token(), {
+        //         name: 'Uncovered Area'
+        //     }
+        // );
 
         map.layersControl = L.control.layers({
             Roadmap: roadMutant,
@@ -175,8 +175,8 @@ module.exports = function (el) {
             collapsed: true
         }).addTo(map);
 
-        map.layersControl.addOverlay(blurLayer);
-        blurLayer.addTo(map);
+        // map.layersControl.addOverlay(blurLayer);
+        // blurLayer.addTo(map);
 
         L.modeify.auth.setToken(config.support_data_token());
 

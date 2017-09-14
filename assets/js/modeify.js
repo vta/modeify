@@ -506,6 +506,11 @@ var io = ('undefined' === typeof module ? {} : module.exports);
   util.ua.iDevice = 'undefined' != typeof navigator
       && /iPad|iPhone|iPod/i.test(navigator.userAgent);
 
+  util.ua.iOS = parseFloat(
+            ('' + (/CPU.*OS ([0-9_]{1,5})|(CPU like).*AppleWebKit.*Mobile/i.exec(navigator.userAgent) || [0,''])[1])
+                .replace('undefined', '3_2').replace('_', '.').replace('_', '')
+        ) || false;
+
 })('undefined' != typeof io ? io : module.exports, this);
 /**
  * socket.io
@@ -4400,6 +4405,7 @@ var map = L.Map.extend({
  **/
 
 
+
 /**
  * Modeify map container with layers
  * @type {{map, marker: {icon: marker.icon}, featureLayer: L.featureGroup, constants: {amigoLayersData: *[], baseUrl: string, socketServerUrl: string, amigoLogoUrl: string, apiUrl: string}, utils: {parseUrl: utils.parseUrl, http: utils.http, me: utils.me, get: utils.get, post: utils.post, params: utils.params, buildPopupHTML: utils.buildPopupHTML, buildPopupQuery: utils.buildPopupQuery, showPopup: utils.showPopup, processAdditionalDatasetConfig: utils.processAdditionalDatasetConfig, processPopupDatasetConfig: utils.processPopupDatasetConfig}, auth: {setToken: auth.setToken, getToken: auth.getToken, getTokenParam: auth.getTokenParam}, realtime: {authenticate: realtime.authenticate, emit: realtime.emit, on: realtime.on, setAccessToken: realtime.setAccessToken, connectDatasetById: realtime.connectDatasetById, connectDatasetByUrl: realtime.connectDatasetByUrl, startListening: realtime.startListening}, events: {token: string, socket, authenticate: events.authenticate, emit: events.emit, on: events.on, startListening: events.startListening}, GoogleRoadmap, GoogleSatellite, GoogleTerrain, GoogleHybrid, GoogleTraffic: *, version: string}}
@@ -4411,8 +4417,11 @@ L.modeify = {
     constants: constants,
     utils: utils,
     auth: auth,
+    realtime: {},
+    events: {},
+    animate_vehicles: (io.util.ua.iDevice == true || io.util.ua.iOS !== false || L.Browser.safari == true) ? false : true,
     // realtime: realtime,
-    events: events,
+    // events: events,
     // GoogleRoadmap: L.gridLayer.googleMutant({
     //     maxZoom: 24,
     //     type:'roadmap',
