@@ -6,6 +6,7 @@ var page = require('page');
 // var googleMutant = require('leaflet.gridlayer.googlemutant');
 var plugins = require('./leaflet-plugins');
 
+
 /**
  * Expose `map`
  */
@@ -136,19 +137,21 @@ module.exports.toggleRealtime = function(viewMap) {
         var validVehicles = [];
         getValidVehicles = module.exports.getRealtimeVehicles(validVehicles);
         $.when.apply($, getValidVehicles).done(function () {
-          if (map.realtime.active && validVehicles.length) {
-            for (var i = 0; i < validVehicles.length; i++) {
-              var existingPoint = module.exports.findPoint(map, validVehicles[i]);
-              if (existingPoint === -1) {
-                module.exports.addPoint(map, validVehicles[i]);
-              } else if (module.exports.hasVehicleMoved(map.realtime.points[existingPoint], validVehicles[i])) {
-                module.exports.movePoint(map, validVehicles[i]);
-              }
+            if (map.realtime.active && validVehicles.length) {
+                for (var i = 0; i < validVehicles.length; i++) {
+                    var existingPoint = module.exports.findPoint(map, validVehicles[i]);
+                    if (existingPoint === -1) {
+                        module.exports.addPoint(map, validVehicles[i]);
+                    } else if (module.exports.hasVehicleMoved(map.realtime.points[existingPoint], validVehicles[i])) {
+                        module.exports.movePoint(map, validVehicles[i]);
+                    }
+                }
             }
-          }
-          module.exports.vehiclePoller = setTimeout(function () {
-            pollForVehicles();
-          }, 3000);
+            if (L.modeify.animate_vehicles == true) {
+                module.exports.vehiclePoller = setTimeout(function () {
+                    pollForVehicles();
+                }, 3000);
+            }
         });
       };
 
