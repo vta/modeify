@@ -537,7 +537,7 @@ Plan.prototype.saveURL = function() {
 
 Plan.prototype.nextDate = function() {
   var now = new Date();
-  var date = now.getDate();
+  var date = (this.date !== null) ? this.date : now.getDate();
   var dayOfTheWeek = now.getDay();
   switch (this.days()) {
     case 'M—F':
