@@ -149,14 +149,23 @@ function updateRoutes(plan, opts, callback) {
         journey: data.journey
       });
       done(null, data);
-
       analytics.send_ac({
         event_type: 'query',
         url: location.href,
         //results: JSON.stringify(data),
         timestamp: (new Date()).toISOString(),
         from_address: plan.from(),
-        to_address: plan.to()
+        to_address: plan.to(),
+        from_lng: plan.from_ll().lng,
+        from_lat: plan.from_ll().lat,
+        to_lng: plan.to_ll().lng,
+        to_lat: plan.to_ll().lat,
+        bike: plan.bike(),
+        parkride: plan.parkRide(),
+        car: plan.car(),
+        train: plan.train(),
+        walk: plan.walk(),
+        bus: plan.bus()
       });
 
       return;
