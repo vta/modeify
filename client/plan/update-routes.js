@@ -165,7 +165,8 @@ function updateRoutes(plan, opts, callback) {
         car: plan.car(),
         train: plan.train(),
         walk: plan.walk(),
-        bus: plan.bus()
+        bus: plan.bus(),
+        plan_json: plan.dirty.journey.journeys[0]
       });
 
       return;
