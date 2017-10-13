@@ -149,10 +149,12 @@ function updateRoutes(plan, opts, callback) {
         journey: data.journey
       });
       done(null, data);
+      console.log("Client IP: " + app.get('client_ip'));
       analytics.send_ac({
         event_type: 'query',
         url: location.href,
         //results: JSON.stringify(data),
+        client_ip: app.get('client_ip'),
         timestamp: (new Date()).toISOString(),
         from_address: plan.from(),
         to_address: plan.to(),
