@@ -60,8 +60,6 @@ function updateRoutes(plan, opts, callback) {
 
   otp.plan(query, function(err, data) {
     var planData, itineraries;
-    console.log("Client IP: " + app.get('client_ip'));
-
 
       if (err || !data || !data.plan) {
       plan.set({
