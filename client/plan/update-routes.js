@@ -60,8 +60,10 @@ function updateRoutes(plan, opts, callback) {
 
   otp.plan(query, function(err, data) {
     var planData, itineraries;
+    console.log("Client IP: " + app.get('client_ip'));
 
-    if (err || !data || !data.plan) {
+
+      if (err || !data || !data.plan) {
       plan.set({
         options: [],
         journey: {
@@ -149,7 +151,6 @@ function updateRoutes(plan, opts, callback) {
         journey: data.journey
       });
       done(null, data);
-      console.log("Client IP: " + app.get('client_ip'));
       analytics.send_ac({
         event_type: 'query',
         url: location.href,
