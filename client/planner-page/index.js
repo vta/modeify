@@ -24,7 +24,6 @@ var dateTime = require('view/dateTime');
 var FROM = config.geocode().start_address;
 var TO = config.geocode().end_address;
 
-var isMobile = window.innerWidth <= 480;
 var center = config.geocode().center.split(',').map(parseFloat);
 
 var View = view(require('./template.html'), function(view, model) {
@@ -50,6 +49,8 @@ module.exports = function(ctx, next) {
 
   var plan = ctx.plan;
   var query = querystring.parse(window.location.search);
+
+  console.log(query);
 
   // Set up the views
   var views = {
@@ -359,8 +360,10 @@ function showQuery(query) {
   // console.log('bike triangle set to ', {'flat':plan.flat(), 'safe':plan.safe(), 'fast':plan.fast()})
 
 
+    console.log("showQuery date "+query.date)
+    
   // set dateTimePicker to match query
-  dateTime.picker.setTime(dateTime.picker.generateMoment());
+  dateTime.picker.setTime(dateTime.picker.generateMoment(query));
 
   // If has valid coordinates, load
   if (plan.validCoordinates() && sameAddresses) {

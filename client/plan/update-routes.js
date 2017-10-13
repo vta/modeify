@@ -78,7 +78,7 @@ function updateRoutes(plan, opts, callback) {
       module.exports.dataplan = data.options;
 
       var sesion_plan = JSON.parse(sessionStorage.getItem('dataplan'));
-      if (!(sesion_plan === null)) {
+      if (sesion_plan !== '') {
         sessionStorage.removeItem('dataplan');
         sessionStorage.removeItem('itineration');
       }

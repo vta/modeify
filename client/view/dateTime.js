@@ -5,7 +5,8 @@
 var evnt = require('event')
 var ua = require('user-agent');
 
-var is_mobile = (ua.os.name === 'Android' || ua.os.name === 'iOS');
+// var is_mobile = (ua.os.name === 'Android' || ua.os.name === 'iOS');
+var is_mobile = L.Browser.mobile;
 
 /**
  * Utils
@@ -40,11 +41,14 @@ function getUIDateTime(){
   var val = dtp.val()
   var time = null;
   if (!val || val.length < 1){
+    console.log("dtp val empty!")
     return;
   }
   var selected_date = new Date(val)
   if (is_mobile){
-    if (ua.os.name === 'iOS'){
+    var str = ua.os.name
+    if (str.match('/iOS/i')) {
+    // if (ua.os.name === 'iOS'){
        // WTF Apple, seriously.
        // Mobile Safari and Chrome on iOS does not honor the local time input as local time,
        // and instead uses UTC as the time zone
@@ -55,7 +59,6 @@ function getUIDateTime(){
        selected_date.setDate(date_parts[2])
        selected_date.setHours(time.split(':')[0])
     }
-    console.log('date changed to ', selected_date)
     time = moment(selected_date)
   } else {
     time = moment(selected_date);
@@ -64,6 +67,7 @@ function getUIDateTime(){
     time.hour(timepicker_moment.hour());
     time.minute(timepicker_moment.minute());
   }
+  console.log('getUIDateTime date changed to ', selected_date)
   return time
 }
 
@@ -129,8 +133,14 @@ function initDesktopPicker(view, el){
 
 
 function initMobilePicker(view, el){
+
+  console.log("Firing mobile picker...")
   var dtp = $(el).find('input')
   dtp.attr('type','datetime-local')
+
+    console.log("DTP")
+    console.log(dtp)
+
 
   // native datetime-local input type needs
   // the time in a certain format, like
@@ -151,11 +161,12 @@ function initMobilePicker(view, el){
   dtp.on('blur', function(){
     // Note: on Mobile Chrome, for this element, the [type="datetime-local"],
     // the blur event does not fire when the native picker closes.
-
     var val = dtp.val()
-    if (!val || val.length < 1){
-      return;
-    }
+      if (!val || val.length < 1){
+          return;
+      }
+    var selected_date = moment(new Date(val))
+
     var time = getUIDateTime()
     console.log('date changed to ', time)
 
@@ -207,7 +218,7 @@ module.exports.plugin = function (reactive) {
 
 
     //is_mobile = false // debug only
-    console.log((is_mobile ? 'is':'not')+' mobile!')
+    // console.log((is_mobile ? 'is':'not')+' mobile!')
 
 
     // picker is extracted as a separate method so that it can be accessed elsewhere in app (planner-page)
@@ -223,17 +234,19 @@ module.exports.plugin = function (reactive) {
     }
 
     $.extend(picker, {
-      generateMoment: function () {
+      generateMoment: function (query) {
         // used to convert model values – used by otp – into moment obj understood by datetimepicker
-        var date = getModel(view, 'date'),
-          hour = getModel(view, 'hour'),
-          min = getModel(view, 'minute')
+        var date = (query.date !== '') ? query.date : getModel(view, 'date'),
+          hour = (query.hour !== '') ? query.hour : getModel(view, 'hour'),
+          min = (query.minute !== '') ? query.minute : getModel(view, 'minute')
 
         var year = parseInt(date.slice(date.lastIndexOf(':') + 1), 10),
           day = parseInt(date.slice(date.indexOf(':') + 1, date.lastIndexOf(':')), 10),
           month = parseInt(date.slice(0, date.indexOf(':')), 10) - 1
 
-        return moment().year(year).month(month).date(day).hour(hour).minute(min)
+        var result = moment().year(year).month(month).date(day).hour(hour).minute(min)
+          console.log("generateMoment = " + result)
+        return result
       },
 
       isCurrTime: function (dateTime) {
@@ -285,7 +298,7 @@ module.exports.plugin = function (reactive) {
         // set datetimepicker
         if (is_mobile){
           console.log('setTime picker val (A): '+picker.val())
-          if (ua.browser.name !== 'Mobile Safari'){
+          if (L.Browser.mobile == true ){
             picker.val(moment.format('YYYY-MM-DDTH:mm'))
           }
           console.log('setTime picker val (B): '+picker.val())

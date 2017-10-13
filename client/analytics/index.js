@@ -42,9 +42,9 @@ module.exports.send_ac = function (e) {
 	new: e
       }]
     };
-    $.post(
-      url,
-      $.param({change: JSON.stringify(changeset)})
-    );
+    // $.post(
+    //   url,
+    //   $.param({change: JSON.stringify(changeset)})
+    // );
   }
 };
