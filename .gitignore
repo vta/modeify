@@ -35,3 +35,10 @@ deployment
 
 assets/robots.txt
 sftp-config.json
+
+apache2/
+nginx/
+*.conf
+production
+*.patch
+*.diff
