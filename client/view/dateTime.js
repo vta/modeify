@@ -5,12 +5,18 @@
 var evnt = require('event')
 var ua = require('user-agent');
 
-var is_mobile = (ua.os.name === 'Android' || ua.os.name === 'iOS');
+// var is_mobile = (ua.os.name === 'Android' || ua.os.name === 'iOS');
+var is_mobile = L.Browser.mobile;
 
 /**
  * Utils
  */
 
+/**
+ * Set day of week
+ * @param day
+ * @returns {*}
+ */
 function setDayOfWeek (day) {
   if (day === 6) {
     return 'Sat'
@@ -21,6 +27,12 @@ function setDayOfWeek (day) {
   }
 }
 
+/**
+ * Get current view model attributes
+ * @param view
+ * @param attr
+ * @returns {*}
+ */
 function getModel (view, attr) {
   if (view[attr]) {
     return view[attr]()
@@ -31,10 +43,19 @@ function getModel (view, attr) {
   }
 }
 
+/**
+ * Get Arrive By from View Model
+ * @param view
+ * @returns {boolean}
+ */
 function getArriveBy(view) {
   return Boolean(getModel(view, 'arriveBy'))
 }
 
+/**
+ *
+ * @returns {*}
+ */
 function getUIDateTime(){
   var dtp = $('.input-group.date input')
   var val = dtp.val()
@@ -42,6 +63,7 @@ function getUIDateTime(){
   if (!val || val.length < 1){
     return;
   }
+
   var selected_date = new Date(val)
   if (is_mobile){
     if (ua.os.name === 'iOS'){
@@ -55,7 +77,6 @@ function getUIDateTime(){
        selected_date.setDate(date_parts[2])
        selected_date.setHours(time.split(':')[0])
     }
-    console.log('date changed to ', selected_date)
     time = moment(selected_date)
   } else {
     time = moment(selected_date);
@@ -67,6 +88,10 @@ function getUIDateTime(){
   return time
 }
 
+/**
+ * Alternate Arrive and Depart buttons
+ * @param view
+ */
 function setUIDepartArriveByButtonsActive(view){
   var arriveBy = getArriveBy(view)
   if (arriveBy){
@@ -76,8 +101,13 @@ function setUIDepartArriveByButtonsActive(view){
   }
 }
 
+/**
+ * Desktop date time picker
+ * @param view
+ * @param el
+ * @returns {jQuery|*}
+ */
 function initDesktopPicker(view, el){
-  console.log('initDesktopPicker')
   $(makeTimeDDL(view)).insertBefore(el)
   picker = $(el).datetimepicker({
       defaultDate: new Date(),
@@ -91,14 +121,12 @@ function initDesktopPicker(view, el){
       $('#main').off('mouseup')
 
       var ui_time = getUIDateTime();
-      console.log('UI time shows : '+ui_time.format())
       e.date.hour(ui_time.hour())
       e.date.minute(ui_time.minute())
       var time = picker.setTime(e.date)
-      console.log('have now set "hour" to : '+time.hour)
       view.emit('active', 'days', time.day)
       view.emit('active', time.endOrStartTime, time.hour)
-    })
+    });
 
     var picker_input = $(el).find('input');
     picker_input.on('blur', function(){
@@ -107,13 +135,10 @@ function initDesktopPicker(view, el){
         return;
       }
       var selected_date = moment(new Date(val))
-      console.log('date changed to ', selected_date.format())
       var ui_time = getUIDateTime();
-      console.log('UI time shows : '+ui_time.format())
       selected_date.hour(ui_time.hour())
       selected_date.minute(ui_time.minute())
       var time = picker.setTime(selected_date)
-      console.log('firing "active" event for days:'+time.day+' and endOrStartTime:'+time.endOrStartTime+', hour:'+time.hour)
       view.emit('active', 'days', time.day)
       view.emit('active', time.endOrStartTime, time.hour)
     });
@@ -127,7 +152,12 @@ function initDesktopPicker(view, el){
     return picker;
 }
 
-
+/**
+ * Mobile date time picker
+ * @param view
+ * @param el
+ * @returns {jQuery}
+ */
 function initMobilePicker(view, el){
   var dtp = $(el).find('input')
   dtp.attr('type','datetime-local')
@@ -191,12 +221,10 @@ function initMobilePicker(view, el){
   return dtp
 }
 
-
-
 /**
- * Expose `plugin`
+ * Expose plugin
+ * @param reactive
  */
-
 module.exports.plugin = function (reactive) {
   reactive.bind('data-date-time', function (el, name) {
     var view = this.reactive.view, picker
@@ -308,7 +336,6 @@ module.exports.plugin = function (reactive) {
     
     evnt.bind($(el).parent().parent()[0], 'change', function (e) {
       e.stopPropagation()
-      console.log('arrive or depart was clicked', e)
 
       var el = e.target
       var val = $('[name="arriveBy"]').val()  === 'true'
@@ -317,7 +344,6 @@ module.exports.plugin = function (reactive) {
       if (view.model[attr]) {
         view.model[attr](val)
       } else {
-        console.log('returning early')
         return
       }
 
@@ -343,26 +369,11 @@ module.exports.plugin = function (reactive) {
   })
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**
- *     Desktop Time Picker
+ * Produce human readable output
+ * @param m
+ * @returns {string}
  */
-
-
 function minutesToHumanTime(m) {
   var hours, minutes, ampm;
   hours = Math.floor(m / 60);
@@ -378,20 +389,36 @@ function minutesToHumanTime(m) {
   return hours + ':' + minutes + ' ' + ampm
 }
 
+/**
+ * ISO 8601 to Human readable format
+ * @param iso_string
+ */
 function isoDateToHumanTime(iso_string) {
   return moment(iso_string).format('h:mm a')
 }
 
+/**
+ * Datepicker Moment to ISO 8601
+ * @param m
+ */
 function momentToIsoDate(m) {
   return m.format()
 }
 
+/**
+ * Human readable time to Datepicker Moment
+ * @param t
+ * @returns {*}
+ */
 function humanTimeToMoment(t) {
   return moment(t, ['h:m a', 'H:m'])
 }
 
+/**
+ * Find closest time to now
+ * @param t
+ */
 function selectClosestTimeOption(t) {
-  console.log('')
   var m_t = moment(t)
   var m = m_t.minute()
   // m_t.minute(m === 0 ? 0 : m <= 15 ? 15 : m <= 30 ? 30 : m <= 45 ? 45 : 60)  // next 15 minutes
@@ -399,7 +426,6 @@ function selectClosestTimeOption(t) {
   var h = '' + m_t.hour()
   m = '' + m_t.minute()
 
-  console.log('selecting closest time option', m_t.format())
   var time_opts = $('.times_list_wrapper span')
   time_opts.removeClass('selected')
   for (var i = time_opts.length - 1; i >= 0; i--) {
@@ -409,7 +435,10 @@ function selectClosestTimeOption(t) {
     }
   }
 }
-
+/**
+ * @todo write test cases and  create matrix to verify these work...
+ * @date 2017-10-24
+ */
 function selectPreviousTimeOption() {
   var current = $('.times_list_wrapper span.selected')
   var previous = current.prev()
@@ -436,24 +465,29 @@ function scrollToSelected() {
   $('.times_list_wrapper')[0].scrollTop = abs_top
 }
 
+/**
+ * Create time options
+ * @see http://stackoverflow.com/a/22709868/940217
+ * @param view
+ * @returns {Function|*|jQuery}
+ */
 function makeTimeDDL(view) {
-  // http://stackoverflow.com/a/8918365/940217
-  // http://stackoverflow.com/a/22709868/940217
+
   var time_ddl_wrapper = $('<div/>').attr({
     'class': 'time_picker_wrapper input-group time filter-group'
-  })
+  });
 
   var v = view;
 
   var blurAction = function(){
     if (time_ddl_wrapper.hasClass('active')){
       if (time_input[0].dataset.time) {
-        time_input.val(isoDateToHumanTime(time_input[0].dataset.time))
-        selectClosestTimeOption(time_input[0].dataset.time)
-        var selected_moment = moment(time_input[0].dataset.time)
+        time_input.val(isoDateToHumanTime(time_input[0].dataset.time));
+        selectClosestTimeOption(time_input[0].dataset.time);
+        var selected_moment = moment(time_input[0].dataset.time);
 
         var hour = selected_moment.hour(),
-          min = selected_moment.minute()
+          min = selected_moment.minute();
 
         if (hour === view.model.hour() &&
           min === view.model.minute()) {
@@ -467,56 +501,46 @@ function makeTimeDDL(view) {
         }, {
           key: 'hour',
           value: hour
-        }]
-        console.log('timeddl_blur: setting hour and minute to be ' + hour + ':' + min)
+        }];
           // update each of the models w/ their new values
         newModelAttrs.forEach(function(attr) {
           if (view.model[attr.key]) {
             view.model[attr.key](attr.value)
           }
-        })
+        });
         view.emit('active', 'hour', hour)
       }
-      time_ddl_wrapper.removeClass('active')
+      time_ddl_wrapper.removeClass('active');
       $('.time_picker_wrapper .input-group-addon').removeClass('active')
     }
-  }
+  };
 
   var times_list_wrapper = $('<div/>').attr({
     'class': 'times_list_wrapper',
     'aria-hidden': 'true',
     'aria-label': 'time options'
-  }).appendTo(time_ddl_wrapper)
-
+  }).appendTo(time_ddl_wrapper);
 
   var time_input = $('<input/>').attr({
     'type': 'text',
     'role': 'textbox',
     'class': 'form-control'
-      //'aria-label': 'time',
-      //'aria-haspopup':'true'
   }).focus(function() {
-    console.log('ddl focused')
     if (!time_ddl_wrapper.hasClass('active')) {
       time_ddl_wrapper.addClass('active')
     }
     scrollToSelected()
   }).blur(function(e) {
-    console.log('ddl blurred')
-    
     blurAction()
   }).keydown(function(e) {
-  // http://stackoverflow.com/a/6011119/940217
   var selected_iso_time = null;
   switch (e.which) {
     case 38: // up
-      console.log('arrow up')
       selected_iso_time = selectPreviousTimeOption()
       this.dataset.time = selected_iso_time;
       break;
 
     case 40: // down
-      console.log('arrow down')
       selected_iso_time = selectNextTimeOption()
       this.dataset.time = selected_iso_time
       break;
@@ -530,67 +554,60 @@ function makeTimeDDL(view) {
   }
   e.preventDefault(); // prevent the default action (scroll / move caret)
 }).change(function() {
-  console.log('input changed')
   time_input[0].dataset.time = momentToIsoDate(humanTimeToMoment(time_input.val()))
 }).appendTo(time_ddl_wrapper)
 
 
 $('<span class="input-group-addon"><i class="fa fa-clock-o time-dl-btn" aria-hidden="true"></i></span>')
   .mouseup(function() {
-    console.log('button was clicked')
-    var $this = $(this)
-    var pick_wrapper = $('.time_picker_wrapper')
+    var $this = $(this);
+    var pick_wrapper = $('.time_picker_wrapper');
     if ($this.hasClass('active') && pick_wrapper.hasClass('active')) {
-      // console.log('button case 1')
       // the button has been clicked and the picker is open
-      pick_wrapper.removeClass('active')
-      $this.removeClass('active')
+      pick_wrapper.removeClass('active');
+      $this.removeClass('active');
       time_input.blur()
     } else if ($this.hasClass('active') && !pick_wrapper.hasClass('active')) {
-      // console.log('button case 2')
       // the button has been clicked and the picker is already closed
       $this.removeClass('active')
     } else if (!$this.hasClass('active') && !pick_wrapper.hasClass('active')) {
-      // console.log('button case 3')
       // the button has been clicked and the picker is closed
-      pick_wrapper.addClass('active')
-      $this.addClass('active')
+      pick_wrapper.addClass('active');
+      $this.addClass('active');
       time_input.focus()
     } else if (!$this.hasClass('active') && pick_wrapper.hasClass('active')) {
-      // console.log('button case 4')
       // the button has been clicked and the picker is already open
       $this.addClass('active')
     }
-  }).appendTo(time_ddl_wrapper)
+  }).appendTo(time_ddl_wrapper);
 
-for (var i = 0; i < 1440; i += 30) {
-  var mins = minutesToHumanTime(i)
-  var time_span = $('<span/>')
-    .text(mins)
-    .on('touchstart mousedown', function(e) {
-      console.log('clicked!', this);
-      time_input[0].dataset.time = this.dataset.value;
-      //time_input[0].blur()
-      blurAction()
-        // now the blur() event happens, updating the time.
-    })
-  var moment_t = humanTimeToMoment(mins)
-  time_span[0].dataset.hour = moment_t.hour();
-  time_span[0].dataset.minute = moment_t.minute();
-  time_span[0].dataset.value = momentToIsoDate(moment_t);
-  times_list_wrapper.append(time_span);
-}
-setTimeout(function() {
-  var time_set_hour = v.model.hour()
-  var time_set_min = v.model.minute()
-  var m = moment()
-  m.hour(time_set_hour)
-  m.minute(time_set_min)
-  // console.log('setting UI time to '+m.format()+' from hours='+time_set_hour+' and minutes='+time_set_min)
-  time_input.val(isoDateToHumanTime(m.format()))
-  time_input[0].dataset.time = m.format()
-  selectClosestTimeOption(time_input[0].dataset.time)
-}, 50);
+  for (var i = 0; i < 1440; i += 30) {
+    var mins = minutesToHumanTime(i);
+    var time_span = $('<span/>')
+      .text(mins)
+      .on('touchstart mousedown', function(e) {
+        console.log('clicked!', this);
+        time_input[0].dataset.time = this.dataset.value;
+        //time_input[0].blur()
+        blurAction()
+          // now the blur() event happens, updating the time.
+      });
+    var moment_t = humanTimeToMoment(mins);
+    time_span[0].dataset.hour = moment_t.hour();
+    time_span[0].dataset.minute = moment_t.minute();
+    time_span[0].dataset.value = momentToIsoDate(moment_t);
+    times_list_wrapper.append(time_span);
+  }
+  setTimeout(function() {
+    var time_set_hour = v.model.hour();
+    var time_set_min = v.model.minute();
+    var m = moment();
+    m.hour(time_set_hour);
+    m.minute(time_set_min);
+    time_input.val(isoDateToHumanTime(m.format()));
+    time_input[0].dataset.time = m.format();
+    selectClosestTimeOption(time_input[0].dataset.time)
+  }, 50);
 
-return time_ddl_wrapper
+  return time_ddl_wrapper
 }
