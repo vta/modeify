@@ -1,7 +1,6 @@
 #!/bin/bash
-
+sudo killall node
+sleep 5
 cd /home/ubuntu/modeify/
-
-source ./deployment/env
-node server.js
-
+npm start
+exit
