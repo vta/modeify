@@ -67,7 +67,8 @@
 .RouteCard .times-column { float:left; display:inline-block;margin: 0.7rem;}
 
 .Options .details-buttons {
-  position: absolute;
+  position: relative;
+  float: right;
   bottom: 0;
   right: 0;
   margin-right: 4px;
@@ -97,7 +98,8 @@
   padding: 6px;
   background-color: var(--light-gray);
   border-bottom-left-radius: var(--border-radius);
-  min-height: 90px;
+  height: auto;
+  min-height: 42px;
 }
 
 .RouteCard.expanded .segments {
@@ -120,7 +122,6 @@
 
 .RouteCard > .simple > .minutes-column {
   padding-top: 8px;
-  float: right;
   text-align: right;
   margin-right: 8px;
   margin-bottom: 8px;
