@@ -106,7 +106,7 @@ function milesToString(miles)
 {
   if (miles > 10) 
   {
-    return miles.toFixed(0);
+    return miles.toFixed(0) + " mi";
   } 
   else if (miles > 0.1)
   {
