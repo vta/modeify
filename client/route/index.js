@@ -302,8 +302,10 @@ Route.prototype.bikeDistances = function() {
 Route.prototype.walkDistances = function() {
     var legs = this.plan().legs;
     var distance = 0;
-    for (var i = 0; i < legs.length; i++) {
-        if (legs[i].mode === 'WALK') {
+    for (var i = 0; i < legs.length; i++) 
+    {
+        if (legs[i].mode === 'WALK') 
+        {
             distance += legs[i].distance;
         }
     }
@@ -315,6 +317,7 @@ Route.prototype.distances = function(mode, val) {
   if (this.modes().indexOf(mode) === -1) {
     return false;
   } else {
+    console.log("d: " + this[val]());
     return convert.metersToMiles(this[val]());
   }
 };

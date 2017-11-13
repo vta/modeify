@@ -66,12 +66,13 @@
 
 .RouteCard .times-column { float:left; display:inline-block;margin: 0.7rem;}
 
-.Options .details-buttons {
+.Options .details-buttons 
+{
   position: relative;
   float: right;
-  bottom: 0;
+  top: 0;
   right: 0;
-  margin-right: 4px;
+  margin: 9px 1px 5px 0;
 }
 
 .Options .show-details,
@@ -99,7 +100,7 @@
   background-color: var(--light-gray);
   border-bottom-left-radius: var(--border-radius);
   height: auto;
-  min-height: 42px;
+  min-height: 134px;
 }
 
 .RouteCard.expanded .segments {

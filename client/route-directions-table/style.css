@@ -45,6 +45,11 @@
   color: var(--vta-dark-blue);
 }
 
+.RouteDirections td.distance
+{
+  width: 50px;
+}
+
 .RouteDirections .icon-end {
   color: var(--vta-red);
 }

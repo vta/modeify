@@ -13,9 +13,29 @@ exports.secondsToMinutes = function(s) {
  * Meters to miles
  */
 
-exports.metersToMiles = function(meters) {
+exports.metersToMiles = function(meters) 
+{
   return milesToString(meters * 0.000621371);
 };
+
+/*
+ * Convert meters to miles
+ * if meters are under 300 convert to feet
+*/
+exports.metersToAny = function(meters)
+{
+  if (meters > 335.28)
+  {
+    // return 1 decimal point for miles
+    return Math.round(meters * 0.000621371 * 10) / 10 + " mi";
+  }
+  // convert to feet if less than 0.2 mile
+  else if (meters < 335.28)
+  {
+    return parseInt(meters * 3.28084) + " ft";
+  }
+};
+
 
 /**
  * MPH to m/s
@@ -82,14 +102,22 @@ exports.milesToString = milesToString;
  * Miles to string
  */
 
-function milesToString(miles) {
-  if (miles > 10) {
+function milesToString(miles) 
+{
+  if (miles > 10) 
+  {
     return miles.toFixed(0);
-  } else if (miles > 1) {
-    return ((miles * 10) | 0) / 10;
-  } else {
-    return ((miles * 100) | 0) / 100;
+  } 
+  else if (miles > 0.1)
+  {
+    return ((miles * 10) | 0) / 10 + " mi";
   }
+  // convert to feet instead
+  else if (miles < 0.1 && miles > 0)
+  {
+    return parseInt(miles * 5280) + " ft";
+  }
+  else return 0;
 }
 
 
