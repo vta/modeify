@@ -327,12 +327,12 @@ function narrativeDirectionsForSteps(steps, mode)
         case "CAR":
           // car speed in m/s
           newStep.speed = 17.8816;
+          break;
         default:
           // set the default to walking
           newStep.speed = 1.33;
           break;
       };
-      
       // Description of the current step
       newStep.description = MODE_TO_ACTION[step.mode] + ' ' + step.absoluteDirection.toLowerCase() + streetSuffix;
       
@@ -370,7 +370,7 @@ function narrativeDirectionsForSteps(steps, mode)
     }
 
     return row.render(newStep);
-    
+
   }).join('');
 }
 
