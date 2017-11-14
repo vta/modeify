@@ -13,27 +13,23 @@
     </div>
     <div class="minutes-column">
       <div class="heading"><strong>{average}</strong> mins</div>
-
       <div data-visible="freeflowTime">{freeflowTime} without traffic</div>
       <div data-visible="hasTransit">
         <div class="distance" data-visible="bikeDistances">{bikeTime} min biking</div>
         <div class="distance" data-visible="walkDistances">{walkTime} min walking</div>
       </div>
       <div data-hidden="hasTransit">
-        <div class="distance" data-visible="bikeDistances">{bikeDistances}  biking</div>
-        <div class="distance" data-visible="walkDistances">{walkDistances}  walking</div>
+        <div class="distance" data-visible="bikeDistances">{bikeDistances} biking</div>
+        <div class="distance" data-visible="walkDistances">{walkDistances} walking</div>
       </div>
       <div class="details-buttons">
         <button class="btn btn-sm btn-dark show-hide show-details" href="#" on-tap="showDetails">
           <i class="fa fa-fw fa-plus-circle"></i> details</button>
         <button class="btn btn-sm btn-dark show-hide hide-details" href="#" on-tap="hideDetails">
           <i class="fa fa-fw fa-minus-circle"></i> hide</button>
-    </div>      
-
+      </div>      
     </div>
-
-<!--    <button class="btn btn-default select-button" on-tap="selectOption">select</button> -->
-
+  <!-- <button class="btn btn-default select-button" on-tap="selectOption">select</button> -->
   </div>
   <div class="details">
     <div reactive="calculator"></div>

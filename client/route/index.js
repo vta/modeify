@@ -283,41 +283,55 @@ Route.prototype.totalCalories = function() {
  * Walk/Bike distances rounded
  */
 
-Route.prototype.driveDistances = function() {
+Route.prototype.driveDistances = function() 
+{
   return this.distances('car', 'driveDistance');
 };
 
-Route.prototype.bikeDistances = function() {
+Route.prototype.bikeDistances = function() 
+{
     var legs = this.plan().legs;
     var distance = 0;
-    for (var i = 0; i < legs.length; i++) {
-        if (legs[i].mode === 'BICYCLE') {
-            distance += legs[i].distance;
+    for (var i = 0; i < legs.length; i++) 
+    {
+        if (legs[i].mode === 'BICYCLE') 
+        {
+          distance += legs[i].distance;
         }
     }
     return convert.metersToMiles(distance);
   return this.distances('bicycle', 'bikeDistance') || this.distances('bicycle_rent', 'bikeDistance');
 };
 
-Route.prototype.walkDistances = function() {
+Route.prototype.walkDistances = function() 
+{
+
     var legs = this.plan().legs;
     var distance = 0;
+    var modes = [];
     for (var i = 0; i < legs.length; i++) 
     {
+        modes.push(legs[i].mode);
         if (legs[i].mode === 'WALK') 
         {
-            distance += legs[i].distance;
+          distance += legs[i].distance;
         }
     }
-    return convert.metersToMiles(distance);
-  return this.distances('walk', 'walkDistance');
+    // substring to search for within array
+    var sub = "BICYCLE";
+    // if the mode does not include biking - display walk distance
+    if (modes.indexOf(sub) !== 0) return convert.metersToMiles(distance);
+  if (modes.indexOf(sub) !== 0) return this.distances('walk', 'walkDistance');
 };
 
-Route.prototype.distances = function(mode, val) {
-  if (this.modes().indexOf(mode) === -1) {
+Route.prototype.distances = function(mode, val) 
+{
+  if (this.modes().indexOf(mode) === -1) 
+  {
     return false;
-  } else {
-    console.log("d: " + this[val]());
+  } 
+  else 
+  {
     return convert.metersToMiles(this[val]());
   }
 };

@@ -3,7 +3,7 @@ var hogan = require('hogan.js');
 var session = require('session');
 var toSentenceCase = require('to-sentence-case');
 var view = require('view');
-
+var mode_speed = "";
 var rowTemplate = require('./row.html');
 var template = require('./template.html');
 
@@ -22,6 +22,15 @@ View.prototype.to = function() {
   return session.plan().to().split(',')[0];
 };
 
+
+function set_mode_speed(speed)
+{
+  mode_speed = speed;
+}
+function get_mode_speed()
+{
+  return mode_speed;
+}
 
 
 /**
@@ -302,19 +311,66 @@ function narrativeDirectionsForSteps(steps, mode)
     // if the description includes steps use MODE_TO_ACTION to create
     else if (step.mode) 
     {
+      
+      // Setting the speed based on the travel mode
+      // to help us get an ETA per step using (m/s)
+      switch(step.mode)
+      {
+        case "WALK":
+          // walk speed in m/s
+          newStep.speed = 1.33;
+          break;
+        case "BICYCLE":
+          // bike speed in m/s
+          newStep.speed = 4.9;
+          break;
+        case "CAR":
+          // car speed in m/s
+          newStep.speed = 17.8816;
+        default:
+          // set the default to walking
+          newStep.speed = 1.33;
+          break;
+      };
+      
+      // Description of the current step
       newStep.description = MODE_TO_ACTION[step.mode] + ' ' + step.absoluteDirection.toLowerCase() + streetSuffix;
-      newStep.distance = convert.metersToAny(step.distance);
+      
+      // Icon based off the mode: Car, Bike, Walk
       newStep.icon = MODE_TO_ICON[step.mode];
+      
+      // Travel time based on distance(meters), speed(m/s), and Time(s)
+      newStep.travelTime = convert.metersToTime(step.distance, newStep.speed);
+      
+      // Travel distance converted from Meters to Miles (current step)
+      newStep.distance = convert.metersToAny(step.distance);
+      
+      /* this will set the global mode / speed
+       * allowing us to get current speeds when it is using
+       * relative directions rather than modes
+      */
+      set_mode_speed(newStep.speed);
     }
     // If the description is using a relative direction rather than mode
     else 
     {
+      
+      // Description of the current direction
       newStep.description = toSentenceCase(step.relativeDirection) + streetSuffix;
+      
+      // current direction being used to navigate the user based on mode
       newStep.direction = DIRECTION_TO_CARDINALITY[step.relativeDirection];
+      
+      // Travel distance converted from Meters to Miles
       newStep.distance = convert.metersToAny(step.distance);
+      
+      // Travel time based on distance(meters), speed(m/s), and Time(s)
+      newStep.travelTime = convert.metersToTime(step.distance, get_mode_speed());
+    
     }
 
     return row.render(newStep);
+    
   }).join('');
 }
 

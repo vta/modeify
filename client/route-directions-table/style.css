@@ -47,7 +47,19 @@
 
 .RouteDirections td.distance
 {
-  width: 50px;
+  width: auto;
+  font-size: 12px;
+  max-width: 75px;
+  white-space: nowrap;
+  padding: 0;
+  min-width: 60px;
+  text-align: right;
+}
+
+.RouteDirections td.distance > span
+{
+  position: relative;
+  right: 10px;
 }
 
 .RouteDirections .icon-end {

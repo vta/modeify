@@ -9,6 +9,50 @@ exports.secondsToMinutes = function(s) {
   return m + ':' + sec;
 };
 
+
+/**
+ * Meters to MPH
+*/
+exports.metersToMph = function(meters)
+{
+  return meters * 2.23694;
+};
+
+/* This will take meters/s and distance
+ * and will return an estimated arrival time
+ * based on the two variables
+ * @param: speed: double : speed of mode in meters
+ * @param: distance: double : distance in meters for step
+*/
+exports.metersToTime = function(distance, speed)
+{
+  // time is generated into seconds
+  var time = distance / speed;
+  return exports.secondsToHms(time);
+};
+/* This will be used when converting seconds
+ * To hours, minutes, or maintaing seconds if under 60
+ * If there are hours, minutes, and seconds they will be added together
+ * @param : t(time) : number : seconds for the ETA based on distance / speed
+*/
+exports.secondsToHms = function(t)
+{
+    t = Number(t);
+    var h = Math.floor(t / 3600);
+    var m = Math.floor(t % 3600 / 60);
+    var s = Math.floor(t % 3600 % 60);
+    // add all possible times together - hr + min +_sec
+    // make plural if more or less than 1
+    var hs = h > 0 ? h + (h == 1 ? "h, " : "h, ") : "";
+    var ms = m > 0 ? m + (m == 1 ? "m, " : "m, ") : "";
+    var ss = s > 0 ? s + (s == 1 ? "s" : "s") : "";
+    var a = hs + ms + ss;
+    // only show one untill more room is provided on sidebar
+    // ex : 25m instead of 1hr, 25m, 35s
+    // only show biggest time ex: hr first
+    return a.split(",")[0] + " - "; 
+};
+
 /**
  * Meters to miles
  */

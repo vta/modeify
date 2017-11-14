@@ -68,25 +68,27 @@
 
 .Options .details-buttons 
 {
-  position: relative;
-  float: right;
-  top: 0;
-  right: 0;
+  position: absolute;
+  bottom: 0;
+  right: 5px;
   margin: 9px 1px 5px 0;
 }
 
 .Options .show-details,
-.Options .hide-details {
+.Options .hide-details 
+{
   float: right;
   margin-bottom: 4px;
 }
 
 .Options .RouteCard.expanded .simple .show-details,
-.Options .RouteCard .simple .hide-details {
+.Options .RouteCard .simple .hide-details 
+{
   display: none;
 }
 
-.Options .RouteCard.expanded .simple .hide-details {
+.Options .RouteCard.expanded .simple .hide-details 
+{
   display: inline-block;
 }
 
@@ -94,34 +96,50 @@
  * Route Summary
  */
 
-.RouteCard .segments {
+.RouteCard .segments 
+{
   float: left;
   padding: 6px;
-  background-color: var(--light-gray);
   border-bottom-left-radius: var(--border-radius);
+  z-index: 9;
+  min-height: 98px;
   height: auto;
-  min-height: 134px;
+  background-color: var(--light-gray);
 }
 
-.RouteCard.expanded .segments {
+
+.RouteCard.expanded .segments 
+{
   border-radius: 0;
+  z-index: 1;
 }
 
-.RouteCard .RouteSegment > .mode {
+.RouteCard .RouteSegment
+{
+  z-index: 1;
+}
+
+.RouteCard .RouteSegment > .mode 
+{
   font-size: 20px;
+  z-index: 1;
 }
 
-.RouteCard .RouteSegment > .shield {
+.RouteCard .RouteSegment > .shield 
+{
   font-size: 12px;
   height: 17px;
   margin-top: 3px;
+  z-index: 1;
 }
 
-.RouteCard .RouteSegment > .mode > .fa-caret-down {
+.RouteCard .RouteSegment > .mode > .fa-caret-down 
+{
   margin-top: -4px;
 }
 
-.RouteCard > .simple > .minutes-column {
+.RouteCard > .simple > .minutes-column 
+{
   padding-top: 8px;
   text-align: right;
   margin-right: 8px;
@@ -131,8 +149,9 @@
   color: var(--gray);
 }
 
-.simple > .minutes-column > .heading {
-  margin: 0 0 8px;
+.simple > .minutes-column > .heading 
+{
+  margin: 0 0 9px;
   color: var(--black);
   font-size: var(--h3);
 }
@@ -141,7 +160,8 @@
  * Expanded
  */
 
-.RouteCard.expanded > .details {
+.RouteCard.expanded > .details 
+{
   max-height: 10000px;
   opacity: 1;
   visibility: visible;
