@@ -274,32 +274,32 @@ select:focus {
  */
 
 .fa-north {
-  transform: rotate(270deg);
+  transform: rotate(270deg) !important;
 }
 
 .fa-northeast {
-  transform: rotate(315deg);
+  transform: rotate(315deg) !important;
 }
 
 .fa-east {
 }
 
 .fa-southeast {
-  transform: rotate(45deg);
+  transform: rotate(45deg) !important;
 }
 
 .fa-south {
-  transform: rotate(90deg);
+  transform: rotate(90deg) !important;
 }
 
 .fa-southwest {
-  transform: rotate(135deg);
+  transform: rotate(135deg) !important;
 }
 
 .fa-west {
-  transform: rotate(180deg);
+  transform: rotate(180deg) !important;
 }
 
 .fa-northwest {
-  transform: rotate(225deg);
+  transform: rotate(225deg) !important;
 }

@@ -151,12 +151,55 @@ View.prototype.selectRoute = function (e) {
     }
 };
 
+
+View.prototype.printDetails = function(content) 
+{
+    var print_window = window.open('', 'PRINT', 'scrollbars=1, resizable=1, toolbar=1, height='+screen.height+', width='+screen.width);
+    
+    var routeInfo = "table.RouteDirections";
+    var t = $(this.el);
+    print_window.document.write(
+    '<html>'
+        +'<head>'
+            +'<title>' + document.title  + '</title>'
+            +'<link href="assets/build/planner-app/build.css" rel="stylesheet">'
+            +'<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">'
+            +'<style>'
+                +'body, html { overflow-y: scroll; }'
+                +'div.simple.clearfix, div.benefits-badge, div.header, div.feedback { display:none; }'
+                +'p.p_d_title { text-align: center; font-size: 18px; padding: 20px 0 0 0; }'
+                +'@media print { * { -webkit-print-color-adjust: exact; } }'
+            +'</style>'
+        +'</head>'
+        +'<body>'
+            +'<p class="p_d_title">' 
+                + "VTA Trip Planner : " + t.find(".header").html() + " - "
+                + t.find("div.startstoptimes").html() + " - "
+                + t.find("div.minutes-column > div.heading").html()
+            + '</p>'
+            + t.html()
+       +'</body>'
+   +'</html>'
+   );
+
+    print_window.document.close(); // necessary for IE >= 10
+    print_window.focus(); // necessary for IE >= 10*/
+
+    print_window.print();
+    print_window.close();
+
+    return true;
+};
+
+
 /**
  * Show/hide
  */
 
-View.prototype.showDetails = function (e) {
-    if (optionsView.lastCardSelected && optionsView.lastCardSelected.model.index !== this.model.index) {
+View.prototype.showDetails = function (e) 
+{
+    if (optionsView.lastCardSelected && optionsView.lastCardSelected.model.index !== this.model.index) 
+    {
         optionsView.lastCardSelected.isSelected = false;
         optionsView.lastCardSelected.mouseleave();
         optionsView.lastCardSelected.hideDetails(e);
@@ -174,11 +217,12 @@ View.prototype.showDetails = function (e) {
     e.preventDefault();
     mapView.clearExistingRoutes();
     var el = this.el;
+    
     var expanded = document.querySelector('.option.expanded');
     if (expanded) expanded.classList.remove('expanded');
-
+    // expand the contents of the route
     el.classList.add('expanded');
-
+    // send analytics report back that a user has viewed route details
     analytics.track('Expanded Route Details', {
         plan: session.plan().generateQuery(),
         route: {
@@ -189,9 +233,8 @@ View.prototype.showDetails = function (e) {
 
     var scrollable = document.querySelector('.scrollable');
     scrollable.scrollTop = el.offsetTop - 52;
-
+    // select this as the route being used
     this.isSelected = true;
-    console.log(this);
     mapView.mapRouteStops(this.model.attrs.plan.legs);
     mapView.activeMap.on('zoomend', function () {
         if (optionsView.lastCardSelected) {
