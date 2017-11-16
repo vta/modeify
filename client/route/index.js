@@ -3,7 +3,7 @@ var model = require('model');
 var defaults = require('model-defaults');
 var session = require('session');
 var each = require('each');
-
+var Modes;
 /**
  * MPS to MPH
  */
@@ -317,6 +317,7 @@ Route.prototype.walkDistances = function()
           distance += legs[i].distance;
         }
     }
+    Modes = modes;
     // substring to search for within array
     var sub = "BICYCLE";
     // if the mode does not include biking - display walk distance
@@ -352,14 +353,14 @@ Route.prototype.walkSpeedMph = function() {
  * Walk/bike time in minutes
  */
 
-/*Route.prototype.bikeTime = function() {
-  return timeFromSpeedAndDistance(this.bikeSpeed(), this.bikeDistance());
+Route.prototype.bikeTime = function() {
+  if (Modes.length > 1) return ", about " + convert.metersToTime(this.bikeDistance(), this.bikeSpeed()).replace(" - ", "");
 };
 
 Route.prototype.walkTime = function() {
-  return timeFromSpeedAndDistance(this.walkSpeed(), this.walkDistance());
+  if (Modes.length > 1) return ", about " + convert.metersToTime(this.walkDistance(), this.walkSpeed()).replace(" - ", "");
 };
-*/
+
 function timeFromSpeedAndDistance(s, d) {
   var t = d / s;
   if (t < 60) {
