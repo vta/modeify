@@ -354,11 +354,11 @@ Route.prototype.walkSpeedMph = function() {
  */
 
 Route.prototype.bikeTime = function() {
-  if (Modes.length > 1) return ", about " + convert.metersToTime(this.bikeDistance(), this.bikeSpeed()).replace(" - ", "");
+  if (Modes.length > 1) return "/ about " + convert.metersToTime(this.bikeDistance(), this.bikeSpeed()).replace(" - ", "");
 };
 
 Route.prototype.walkTime = function() {
-  if (Modes.length > 1) return ", about " + convert.metersToTime(this.walkDistance(), this.walkSpeed()).replace(" - ", "");
+  if (Modes.length > 1) return "/ about " + convert.metersToTime(this.walkDistance(), this.walkSpeed()).replace(" - ", "");
 };
 
 function timeFromSpeedAndDistance(s, d) {
