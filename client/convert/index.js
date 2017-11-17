@@ -43,9 +43,9 @@ exports.secondsToHms = function(t)
     var s = Math.floor(t % 3600 % 60);
     // add all possible times together - hr + min +_sec
     // make plural if more or less than 1
-    var hs = h > 0 ? h + (h == 1 ? "h, " : "h, ") : "";
-    var ms = m > 0 ? m + (m == 1 ? "m, " : "m, ") : "";
-    var ss = s > 0 ? s + (s == 1 ? "s" : "s") : "";
+    var hs = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
+    var ms = m > 0 ? m + (m == 1 ? " min, " : " mins, ") : "";
+    var ss = s > 0 ? s + (s == 1 ? " sec" : " secs") : "";
     var a = hs + ms + ss;
     // only show one untill more room is provided on sidebar
     // ex : 25m instead of 1hr, 25m, 35s

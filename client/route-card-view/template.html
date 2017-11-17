@@ -13,14 +13,14 @@
     </div>
     <div class="minutes-column">
       <div class="heading"><strong>{average}</strong> mins</div>
-      <div data-visible="freeflowTime">{freeflowTime} without traffic</div>
+      <!--<div data-visible="freeflowTime">{freeflowTime} without traffic</div>-->
       <div data-visible="hasTransit">
         <div class="distance" data-visible="bikeDistances">{bikeTime} min biking</div>
         <div class="distance" data-visible="walkDistances">{walkTime} min walking</div>
       </div>
       <div data-hidden="hasTransit">
-        <div class="distance" data-visible="bikeDistances">{bikeDistances} biking</div>
-        <div class="distance" data-visible="walkDistances">{walkDistances} walking</div>
+        <div class="distance" data-visible="bikeDistances">{bikeDistances} {bikeTime} biking</div>
+        <div class="distance" data-visible="walkDistances">{walkDistances} {walkTime} walking</div>
       </div>
       <div class="details-buttons">
         <button class="btn btn-sm btn-dark print-details" href="#" on-tap="printDetails">
