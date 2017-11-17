@@ -321,8 +321,8 @@ Route.prototype.walkDistances = function()
     // substring to search for within array
     var sub = "BICYCLE";
     // if the mode does not include biking - display walk distance
-    if (modes.indexOf(sub) !== 0) return convert.metersToMiles(distance);
-  if (modes.indexOf(sub) !== 0) return this.distances('walk', 'walkDistance');
+    if (modes.indexOf(sub) == -1) return convert.metersToMiles(distance);
+  if (modes.indexOf(sub) == -1) return this.distances('walk', 'walkDistance');
 };
 
 Route.prototype.distances = function(mode, val) 
