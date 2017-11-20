@@ -89,12 +89,12 @@ module.exports = function (el) {
         // console.log(el);
 
         // map = (new L.map(el, mapopts)).setView([center[1], center[0]], config.geocode().zoom);
-
-
+        L_PREFER_CANVAS = true;
         var mapopts =  {
             zoomSnap: 0.1,
             // zoomAnimation: !L.Browser.mobile,
             // zoomAnimation: false,
+            preferCanvas: true,
             zoomAnimation: true,
             maxBounds: L.latLngBounds(southWest, northEast),
             minZoom: 8,

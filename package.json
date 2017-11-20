@@ -20,6 +20,7 @@
     "js-yaml": "^3.2.7",
     "juice": "~1.0.0",
     "leaflet": "^1.0.3",
+    "leaflet-image": "^0.4.0",
     "leaflet-label": "^0.2.1-0",
     "leaflet-routeboxer": "^1.0.0",
     "leaflet.gridlayer.googlemutant": "^0.6.2",

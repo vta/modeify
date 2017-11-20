@@ -151,44 +151,65 @@ View.prototype.selectRoute = function (e) {
     }
 };
 
-
-View.prototype.printDetails = function(content) 
+/* Print the route which the customer has selected to use
+ * Creates a "snapshot" of the route on the map and inserts
+ * Above turn by turn directions using canvas
+*/
+View.prototype.printDetails = function()
 {
-    var print_window = window.open('', 'PRINT', 'scrollbars=1, resizable=1, toolbar=1, height='+screen.height+', width='+screen.width);
-    
-    var routeInfo = "table.RouteDirections";
     var t = $(this.el);
-    print_window.document.write(
-    '<html>'
-        +'<head>'
-            +'<title>' + document.title  + '</title>'
-            +'<link href="assets/build/planner-app/build.css" rel="stylesheet">'
-            +'<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">'
-            +'<style>'
-                +'body, html { overflow-y: scroll; }'
-                +'div.simple.clearfix, div.benefits-badge, div.header, div.feedback { display:none; }'
-                +'p.p_d_title { text-align: center; font-size: 18px; padding: 20px 0 0 0; }'
-                +'@media print { * { -webkit-print-color-adjust: exact; } }'
-            +'</style>'
-        +'</head>'
-        +'<body>'
-            +'<p class="p_d_title">' 
-                + "VTA Trip Planner : " + t.find(".header").html() + " - "
-                + t.find("div.startstoptimes").html() + " - "
-                + t.find("div.minutes-column > div.heading").html()
-            + '</p>'
-            + t.html()
-       +'</body>'
-   +'</html>'
-   );
+    // get the map object and copy it to canvas
+    // This will allow us to get a "screenshot" of the trip
+    // rather than inserting the whole map / api's into the print page
+    /*leafletImage(L.modeify.map, function(err, canvas)
+    {
+        var img = document.createElement('img');
+        var dimensions = L.modeify.map.getSize();
+        img.width = dimensions.x;
+        img.height = dimensions.y;
+        img.src = canvas.toDataURL();
+    */
 
-    print_window.document.close(); // necessary for IE >= 10
-    print_window.focus(); // necessary for IE >= 10*/
+        var print_window = window.open('', 'PRINT', 'scrollbars=1, resizable=1, toolbar=1, height='+screen.height+', width='+screen.width);
+        var routeInfo = "table.RouteDirections";
 
-    print_window.print();
-    print_window.close();
+        print_window.document.write(
+        '<html>'
+            +'<head>'
+                +'<title>' + document.title  + '</title>'
+                +'<link href="assets/build/planner-app/build.css" rel="stylesheet">'
+                +'<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">'
+                +'<style>'
+                    +'body { max-width:980px; margin:0 auto;}'
+                    +'div.simple.clearfix, div.benefits-badge, div.header, div.feedback { display:none; }'
+                    +'p.p_d_title { text-align: center; font-size: 18px; padding: 20px 0 0 0; }'
+                    +'@media print { * { -webkit-print-color-adjust: exact; } }'
+                    +'div.mapBody { width: 100%;height:100%; }'
+                +'</style>'
+            +'</head>'
+            +'<body>'
+                +'<p class="p_d_title">'
+                    + "VTA Trip Planner : " + t.find(".header").html() + " - "
+                    + t.find("div.startstoptimes").html() + " - "
+                    + t.find("div.minutes-column > div.heading").html()
+                + '</p>'
+                /*+ "<div class='mapBody'>" + '<img src="'+ img.src +'">' + "</div>"*/
+                + t.html()
+            +'</body>'
+        +'</html>');
+        setTimeout(function()
+        {
+            print_window.document.close(); // necessary for IE >= 10
+            print_window.focus(); // necessary for IE >= 10*/
+            print_window.print();
+        }, 500);
+
+    
+
+    //print_window.close();
 
     return true;
+    //});
 };
 
 
