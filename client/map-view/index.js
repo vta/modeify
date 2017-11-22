@@ -89,19 +89,20 @@ module.exports = function (el) {
         // console.log(el);
 
         // map = (new L.map(el, mapopts)).setView([center[1], center[0]], config.geocode().zoom);
-        L_PREFER_CANVAS = true;
+        //L_PREFER_CANVAS = true;
         var mapopts =  {
             zoomSnap: 0.1,
             // zoomAnimation: !L.Browser.mobile,
             // zoomAnimation: false,
-            preferCanvas: true,
+            //preferCanvas: true,
             zoomAnimation: true,
             maxBounds: L.latLngBounds(southWest, northEast),
             minZoom: 8,
+            zoom: 9,
             zoomControl:true,
             detectRetina: L.Browser.mobile,
             dragging: true,
-            inertia: L.Browser.android,
+            inertia: L.Browser.android
         };
 
         map = new L.map(el, mapopts).setView([center[1], center[0]], config.geocode().zoom);
@@ -154,14 +155,14 @@ module.exports = function (el) {
         });
         transitMutant.addGoogleLayer('TransitLayer');
 
-        // blurLayer = L.tileLayer(
-        //     'https://www.amigocloud.com/api/v1/users/' +
-        //     '23/projects/3019/datasets/23835/tiles/{z}/{x}/{y}.png?' +
-        //     'token=' + config.support_data_token(), {
-        //         name: 'Uncovered Area'
-        //     }
-        // );
-
+    /*     blurLayer = L.tileLayer(
+             'https://www.amigocloud.com/api/v1/users/' +
+             '23/projects/3019/datasets/23835/tiles/{z}/{x}/{y}.png?' +
+             'token=' + config.support_data_token(), {
+                 name: 'Uncovered Area'
+             }
+         );
+    */
         map.layersControl = L.control.layers({
             Roadmap: roadMutant,
             // Aerial: satMutant,
@@ -202,7 +203,19 @@ module.exports = function (el) {
 
         L.modeify.map = map;
 
-    } else if (config.map_provider && config.map_provider() === 'ESRI') {
+        var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(L.modeify.map);
+        L.easyPrintPage = L.easyPrint(
+        {
+          title: 'Print',
+          position: 'bottomright',
+          sizeModes: ['Current'],
+          hidden: true,
+          exportOnly: true,
+          tileWait: 20000,
+          tileLayer: tiles
+        }).addTo(L.modeify.map);
+    }
+    else if (config.map_provider && config.map_provider() === 'ESRI') {
         southWest = L.latLng(35.946877085397, -123.480610897013);
         northEast = L.latLng(40.763279543715, -118.789317362500);
 
