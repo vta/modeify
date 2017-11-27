@@ -116,8 +116,17 @@ var View = module.exports = view(require('./template.html'), function (view, mod
     if (L.Browser.mobile)
     {
         // @todo / create function to hide buttons "on-mobile"
-        setTimeout(function() { $("button.print-details").hide(); }, 500);
+        setTimeout(function ()
+        {
+            $("button.print-details").hide();
+        }, 500);
     }
+    // @todo - find where scales are initially set to get rid of setTimeout
+    setTimeout(function()
+    {
+        L.modeify.map.zoomScale = L.modeify.map.getZoom() - 0.25;
+        L.modeify.map.centerScale = L.modeify.map.getCenter();
+    }, 1000);
 });
 
 View.prototype.calculator = function () {
@@ -159,7 +168,8 @@ View.prototype.selectRoute = function (e) {
 };
 View.prototype.isSafari = function()
 {
-    if (navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1)  {
+    if (navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1)
+    {
         return true;
     }
     else return false;
@@ -207,10 +217,10 @@ View.prototype.printDetails = function()
 {
     var t = $(this.el);
     // perfect zoom scale when print the map
-    // make sure zoom is at 12 before printing
-    L.modeify.map.setZoom(12);
-
-
+    // make sure the map is centered before zooming in / out
+    L.modeify.map.panTo(L.modeify.map.centerScale);
+    // give a small delay to allow centering before setting the zoom
+    setTimeout(function() { L.modeify.map.setZoom(L.modeify.map.zoomScale); }, 500);
     if ($.browser.mozilla || this.isSafari())
     {
         var d = '<div class="mapBody" style="display:none;"></div>';
@@ -232,12 +242,6 @@ View.prototype.printDetails = function()
             _this.openPrintPage(t, d);
         });
     }
-
-
-    //print_window.close();
-
-    return true;
-
 };
 
 
