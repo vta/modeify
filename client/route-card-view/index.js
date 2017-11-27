@@ -22,6 +22,7 @@ var mapView = require('map-view');
 
 var View = module.exports = view(require('./template.html'), function (view, model) {
     view.isSelected = false;
+
     view.mouseenter = function () {
         if (optionsView.lastCardSelected && optionsView.lastCardSelected.model.index !== view.model.index) {
             return;
@@ -112,6 +113,11 @@ var View = module.exports = view(require('./template.html'), function (view, mod
         }
     };
     mouseleave(view.el, view.mouseleave);
+    if (L.Browser.mobile)
+    {
+        // @todo / create function to hide buttons "on-mobile"
+        setTimeout(function() { $("button.print-details").hide(); }, 500);
+    }
 });
 
 View.prototype.calculator = function () {

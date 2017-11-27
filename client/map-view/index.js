@@ -203,7 +203,7 @@ module.exports = function (el) {
 
         L.modeify.map = map;
 
-        var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(L.modeify.map);
+        //var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(L.modeify.map);
         L.easyPrintPage = L.easyPrint(
         {
           title: 'Print',
@@ -211,8 +211,8 @@ module.exports = function (el) {
           sizeModes: ['Current'],
           hidden: true,
           exportOnly: true,
-          tileWait: 20000,
-          tileLayer: tiles
+          tileWait: 20000
+          //tileLayer: tiles
         }).addTo(L.modeify.map);
     }
     else if (config.map_provider && config.map_provider() === 'ESRI') {
