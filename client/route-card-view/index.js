@@ -151,6 +151,47 @@ View.prototype.selectRoute = function (e) {
         this.mouseenter();
     }
 };
+View.prototype.isSafari = function()
+{
+    if (navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1)  {
+        return true;
+    }
+    else return false;
+};
+View.prototype.openPrintPage = function(t, d)
+{
+    var print_window = window.open('', 'PRINT', 'scrollbars=1, resizable=1, toolbar=1, height='+screen.height+', width='+screen.width);
+    print_window.document.write(
+        '<html>'
+        + '<head>'
+        + '<title>' + document.title + '</title>'
+        + '<link href="assets/build/planner-app/build.css" rel="stylesheet">'
+        + '<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">'
+        + '<style>'
+        + 'body { max-width:980px; margin:0 auto; padding: 0 0 50px 0; }'
+        + 'div.simple.clearfix, div.benefits-badge, div.header, div.feedback { display:none; }'
+        + 'p.p_d_title { text-align: center; font-size: 18px; padding: 20px 0 0 0; }'
+        + '@media print { * { -webkit-print-color-adjust: exact; } }'
+        + 'div.mapBody { width: 80%;height:325px; margin: 0 auto; }'
+        + 'div.mapBody > img { position:relative; left:30px; max-width: 100%; width:100%; height: 350px; }'
+        + '</style>'
+        + '</head>'
+        + '<body>'
+        + '<p class="p_d_title">'
+        + "VTA Trip Planner : " + t.find(".header").html() + " - "
+        + t.find("div.startstoptimes").html() + " - "
+        + t.find("div.minutes-column > div.heading").html()
+        + '</p>'
+        + d
+        + t.html()
+        + '</body>'
+        + '</html>');
+    setTimeout(function () {
+        print_window.document.close(); // necessary for IE >= 10
+        print_window.focus(); // necessary for IE >= 10*/
+        print_window.print();
+    }, 1500);
+};
 
 /* Print the route which the customer has selected to use
  * Creates a "snapshot" of the route on the map and inserts
@@ -159,56 +200,32 @@ View.prototype.selectRoute = function (e) {
 View.prototype.printDetails = function()
 {
     var t = $(this.el);
-      // perfect zoom scale when print the map
-      // make sure zoom is at 12 before printing
-      L.modeify.map.setZoom(12);
-      // give the user some time to re-load the tiles
-      // after the zoom out / in has been initiated
-      setTimeout(function()
-      {
-          L.easyPrintPage.printMap("CurrentSize", "current.png");
-      }, 1500);
+    // perfect zoom scale when print the map
+    // make sure zoom is at 12 before printing
+    L.modeify.map.setZoom(12);
 
-      //  var routeInfo = "table.RouteDirections";
-        L.modeify.map.on("easyPrint-finished", function()
+
+    if ($.browser.mozilla || this.isSafari())
+    {
+        var d = '<div class="mapBody" style="display:none;"></div>';
+        this.openPrintPage(t, d);
+    }
+    else
+    {
+        var _this = this;
+        // give the user some time to re-load the tiles
+        // after the zoom out / in has been initiated
+        setTimeout(function()
         {
-          if ($.browser.mozilla) var d = '<div class="mapBody" style="display:none;"></div>';
-          else
-          {
-              var d = "<div class='mapBody'>" + '<img src="' + L.latestSnapshot + '">' + "</div>";
-          }
-          var print_window = window.open('', 'PRINT', 'scrollbars=1, resizable=1, toolbar=1, height='+screen.height+', width='+screen.width);
-          print_window.document.write(
-              '<html>'
-              + '<head>'
-              + '<title>' + document.title + '</title>'
-              + '<link href="assets/build/planner-app/build.css" rel="stylesheet">'
-              + '<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">'
-              + '<style>'
-              + 'body { max-width:980px; margin:0 auto; padding: 0 0 50px 0; }'
-              + 'div.simple.clearfix, div.benefits-badge, div.header, div.feedback { display:none; }'
-              + 'p.p_d_title { text-align: center; font-size: 18px; padding: 20px 0 0 0; }'
-              + '@media print { * { -webkit-print-color-adjust: exact; } }'
-              + 'div.mapBody { width: 80%;height:325px; margin: 0 auto; }'
-              + 'div.mapBody > img { position:relative; left:30px; max-width: 100%; width:100%; height: 350px; }'
-              + '</style>'
-              + '</head>'
-              + '<body>'
-              + '<p class="p_d_title">'
-              + "VTA Trip Planner : " + t.find(".header").html() + " - "
-              + t.find("div.startstoptimes").html() + " - "
-              + t.find("div.minutes-column > div.heading").html()
-              + '</p>'
-              + d
-              + t.html()
-              + '</body>'
-              + '</html>');
-          setTimeout(function () {
-              print_window.document.close(); // necessary for IE >= 10
-              print_window.focus(); // necessary for IE >= 10*/
-              print_window.print();
-          }, 1500);
+            L.easyPrintPage.printMap("CurrentSize", "current.png");
+        }, 1500);
+        L.modeify.map.on("easyPrint-finished", function ()
+        {
+            L.modeify.map.off("easyPrint-finished");
+            var d = "<div class='mapBody'>" + '<img src="' + L.latestSnapshot + '">' + "</div>";
+            _this.openPrintPage(t, d);
         });
+    }
 
 
     //print_window.close();

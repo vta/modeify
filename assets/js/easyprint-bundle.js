@@ -152,7 +152,7 @@ L.Control.EasyPrint = L.Control.extend({
     var pageSize = this.options.sizeModes.filter(function (item) {
         return item.className.indexOf(sizeMode) > -1;
     });
-    pageSize = pageSize[0]
+    pageSize = pageSize[0];
     this.mapContainer.style.width = pageSize.width + 'px';
     this.mapContainer.style.height = pageSize.height + 'px';
     if (this.mapContainer.style.width > this.mapContainer.style.height) {
@@ -227,8 +227,8 @@ L.Control.EasyPrint = L.Control.extend({
 
   _sendToBrowserPrint: function (img, orientation) {
     this._page.resizeTo(600, 800); 
-    var pageContent = this._createNewWindow(img, orientation, this)
-    this._page.document.body.innerHTML = ''
+    var pageContent = this._createNewWindow(img, orientation, this);
+    this._page.document.body.innerHTML = '';
     this._page.document.write(pageContent);
     this._page.document.close();  
   },
