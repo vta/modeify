@@ -188,8 +188,8 @@ View.prototype.openPrintPage = function(t, d)
         + 'div.simple.clearfix, div.benefits-badge, div.header, div.feedback { display:none; }'
         + 'p.p_d_title { text-align: center; font-size: 18px; padding: 20px 0 0 0; }'
         + '@media print { * { -webkit-print-color-adjust: exact; } }'
-        + 'div.mapBody { width: 80%;height:325px; margin: 0 auto; }'
-        + 'div.mapBody > img { position:relative; left:30px; max-width: 100%; width:100%; height: 350px; }'
+        + 'div.mapBody { width: 100%; min-width: 640px; max-width: 980px; height:350px; }'
+        + 'div.mapBody > img { position:relative; max-width: 100%; min-width: 640px; width:100%; height: 350px; }'
         + '</style>'
         + '</head>'
         + '<body>'
@@ -233,7 +233,7 @@ View.prototype.printDetails = function()
         // after the zoom out / in has been initiated
         setTimeout(function()
         {
-            L.easyPrintPage.printMap("CurrentSize", "current.png");
+            L.easyPrintPage.printMap("customMapSize", "current.png");
         }, 1500);
         L.modeify.map.on("easyPrint-finished", function ()
         {

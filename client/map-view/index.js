@@ -208,7 +208,7 @@ module.exports = function (el) {
         {
           title: 'Print',
           position: 'bottomright',
-          sizeModes: ['Current'],
+          sizeModes: ['customMapSize'],
           hidden: true,
           exportOnly: true,
           tileWait: 20000
