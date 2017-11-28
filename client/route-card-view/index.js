@@ -176,8 +176,8 @@ View.prototype.isSafari = function()
 };
 View.prototype.openPrintPage = function(t, d)
 {
-    var print_window = window.open('', 'PRINT', 'scrollbars=1, resizable=1, toolbar=1, height='+screen.height+', width='+screen.width);
-    print_window.document.write(
+    L.print_window.document.body.innerHTML = '';
+    L.print_window.document.write(
         '<html>'
         + '<head>'
         + '<title>' + document.title + '</title>'
@@ -204,9 +204,9 @@ View.prototype.openPrintPage = function(t, d)
         + '</body>'
         + '</html>');
     setTimeout(function () {
-        print_window.document.close(); // necessary for IE >= 10
-        print_window.focus(); // necessary for IE >= 10*/
-        print_window.print();
+        L.print_window.document.close(); // necessary for IE >= 10
+        L.print_window.focus(); // necessary for IE >= 10*/
+        L.print_window.print();
     }, 1500);
 };
 
@@ -223,12 +223,21 @@ View.prototype.printDetails = function(e)
         optionsView.lastCardSelected.hideDetails(e);
         this.mouseenter();
     }
+    L.print_window = window.open('', 'PRINT', 'scrollbars=1, resizable=1, toolbar=1, height='+screen.height+', width='+screen.width);
+    L.print_window.document.write(
+        "<style>"
+        +"div.loadingP { position: relative; height: 100%; width: 100%; text-align: center; }"
+        +"div.loadingP > span { position: relative; top: 35%; font-size: 32px; font-family: arial; }"
+        +"</style>"
+        +"<title>Preparing route details for printing... </title>"
+        +"<div class='loadingP'><span>Preparing route details...</span></div>");
+
     var t = $(this.el);
-    // perfect zoom scale when print the map
+    // adjust to perfect zoom scale when printing the map
     // make sure the map is centered before zooming in / out
     L.modeify.map.panTo(L.modeify.map.centerScale);
     // give a small delay to allow centering before setting the zoom
-    setTimeout(function() { L.modeify.map.setZoom(L.modeify.map.zoomScale); }, 500);
+    setTimeout(function() { L.modeify.map.setZoom(L.modeify.map.zoomScale); L.print_window.blur(); }, 500);
     if ($.browser.mozilla || this.isSafari())
     {
         var d = '<div class="mapBody" style="display:none;"></div>';
