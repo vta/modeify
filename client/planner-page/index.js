@@ -120,6 +120,9 @@ module.exports = function(ctx, next) {
     // Clear plan & cookies for now, plan will re-save automatically on save
     var from = plan.from_ll();
     var to = plan.to_ll();
+      /**
+       * @todo Figure out why this has been commented out, it's sticky :)
+       */
     //plan.clearStore();
 
     // If it's a shared URL or welcome is complete skip the welcome screen
