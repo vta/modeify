@@ -240,12 +240,12 @@ View.prototype.printDetails = function(e)
         // hide details / real-time tracking before print
         var hide = t.find("button.hide-details");
         if (hide.is(":visible")) hide.trigger("click");
-        t.focus();
         var _this = this;
         // give the user some time to re-load the tiles
         // after the zoom out / in has been initiated
         setTimeout(function()
         {
+            _this.mouseenter();
             L.easyPrintPage.printMap("customMapSize", "current.png");
         }, 1500);
         L.modeify.map.on("easyPrint-finished", function ()
