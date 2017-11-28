@@ -214,8 +214,15 @@ View.prototype.openPrintPage = function(t, d)
  * Creates a "snapshot" of the route on the map and inserts
  * Above turn by turn directions using canvas
 */
-View.prototype.printDetails = function()
+View.prototype.printDetails = function(e)
 {
+    if (optionsView.lastCardSelected && optionsView.lastCardSelected.model.index !== this.model.index)
+    {
+        optionsView.lastCardSelected.isSelected = false;
+        optionsView.lastCardSelected.mouseleave();
+        optionsView.lastCardSelected.hideDetails(e);
+        this.mouseenter();
+    }
     var t = $(this.el);
     // perfect zoom scale when print the map
     // make sure the map is centered before zooming in / out
@@ -231,8 +238,9 @@ View.prototype.printDetails = function()
     else
     {
         // hide details / real-time tracking before print
-        var hide = $("button.hide-details");
+        var hide = t.find("button.hide-details");
         if (hide.is(":visible")) hide.trigger("click");
+        t.focus();
         var _this = this;
         // give the user some time to re-load the tiles
         // after the zoom out / in has been initiated
