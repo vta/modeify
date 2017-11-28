@@ -190,6 +190,7 @@ View.prototype.openPrintPage = function(t, d)
         + '@media print { * { -webkit-print-color-adjust: exact; } }'
         + 'div.mapBody { width: 100%; min-width: 640px; max-width: 980px; height:350px; }'
         + 'div.mapBody > img { position:relative; max-width: 100%; min-width: 640px; width:100%; height: 350px; }'
+        + 'form.RouteCostCalculator { height: 10px !important; padding: 0 !important; background-color: rgba(0,0,0,0) !important; border: none !important; }'
         + '</style>'
         + '</head>'
         + '<body>'
@@ -226,8 +227,12 @@ View.prototype.printDetails = function()
         var d = '<div class="mapBody" style="display:none;"></div>';
         this.openPrintPage(t, d);
     }
+    // if the browser supports printing images of map
     else
     {
+        // hide details / real-time tracking before print
+        var hide = $("button.hide-details");
+        if (hide.is(":visible")) hide.trigger("click");
         var _this = this;
         // give the user some time to re-load the tiles
         // after the zoom out / in has been initiated
