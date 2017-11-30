@@ -188,9 +188,10 @@ View.prototype.openPrintPage = function(t, d)
         + 'div.simple.clearfix, div.benefits-badge, div.header, div.feedback { display:none; }'
         + 'p.p_d_title { text-align: center; font-size: 18px; padding: 20px 0 0 0; }'
         + '@media print { * { -webkit-print-color-adjust: exact; } }'
-        + 'div.mapBody { width: 100%; min-width: 640px; max-width: 980px; height:350px; }'
+        + 'div.mapBody { width: 100%; min-width: 640px; max-width: 980px; height:350px; padding: 15px 0; }'
         + 'div.mapBody > img { position:relative; max-width: 100%; min-width: 640px; width:100%; height: 350px; }'
         + 'form.RouteCostCalculator { height: 10px !important; padding: 0 !important; background-color: rgba(0,0,0,0) !important; border: none !important; }'
+        + 'div#map { transform: scaleX(0.6) scaleY(0.4) !important; }'
         + '</style>'
         + '</head>'
         + '<body>'
@@ -201,6 +202,7 @@ View.prototype.openPrintPage = function(t, d)
         + '</p>'
         + d
         + t.html()
+        //+ "<script type='text/javascript'> var img = new Image();  </script>"
         + '</body>'
         + '</html>');
     setTimeout(function () {
@@ -237,15 +239,15 @@ View.prototype.printDetails = function(e)
     // make sure the map is centered before zooming in / out
     L.modeify.map.panTo(L.modeify.map.centerScale);
     // give a small delay to allow centering before setting the zoom
-    setTimeout(function() { L.modeify.map.setZoom(L.modeify.map.zoomScale); L.print_window.blur(); }, 500);
-    if ($.browser.mozilla || this.isSafari())
+    setTimeout(function() { L.modeify.map.setZoom(L.modeify.map.zoomScale); }, 500);
+    /*if ($.browser.mozilla) //|| this.isSafari())
     {
         var d = '<div class="mapBody" style="display:none;"></div>';
         this.openPrintPage(t, d);
     }
     // if the browser supports printing images of map
     else
-    {
+    {*/
         // hide details / real-time tracking before print
         var hide = t.find("button.hide-details");
         if (hide.is(":visible")) hide.trigger("click");
@@ -259,11 +261,14 @@ View.prototype.printDetails = function(e)
         }, 1500);
         L.modeify.map.on("easyPrint-finished", function ()
         {
+            //var img = L.latestSnapshot.replace(new RegExp('"', "g"), "'");
+
+          
             L.modeify.map.off("easyPrint-finished");
-            var d = "<div class='mapBody'>" + '<img src="' + L.latestSnapshot + '">' + "</div>";
-            _this.openPrintPage(t, d);
+            var d = "<div class='mapBody'>" + L.latestSnapshot + "</div>"; //"<img src='" + L.latestSnapshot + "' /></div>";
+            _this.openPrintPage(t, d); 
         });
-    }
+    //}
 };
 
 

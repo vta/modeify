@@ -135,7 +135,7 @@ L.Control.EasyPrint = L.Control.extend({
 
   _createImagePlaceholder: function (sizeMode) {
     var plugin = this;
-    domtoimage.toPng(this.mapContainer, {
+    domtoimage.toSvg(this.mapContainer, {
         width: parseInt(this.originalState.mapWidth.replace('px')),
         height: parseInt(this.originalState.mapHeight.replace('px'))
       })
@@ -197,12 +197,12 @@ L.Control.EasyPrint = L.Control.extend({
     if (this.originalState.widthWasAuto && sizemode === 'CurrentSize' || this.originalState.widthWasPercentage && sizemode === 'CurrentSize') {
         widthForExport = this.originalState.mapWidth;
     }
-    domtoimage.toPng(plugin.mapContainer, {
+    domtoimage.toSvg(plugin.mapContainer, {
         width: parseInt(widthForExport),
         height: parseInt(plugin.mapContainer.style.height.replace('px'))
       })
       .then(function (dataUrl) {
-          var blob = plugin._dataURItoBlob(dataUrl);
+          //var blob = plugin._dataURItoBlob(dataUrl);
           if (plugin.options.exportOnly)
           {
             L.latestSnapshot = dataUrl;

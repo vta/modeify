@@ -325,7 +325,18 @@
                 return node;
             });
     }
-
+    function reEncode(data) {
+        data = encodeURIComponent(data);
+        data = data.replace(/%([0-9A-F]{2})/g, function(match, p1) {
+          var c = String.fromCharCode('0x'+p1);
+          return c === '%' ? '%25' : c;
+        });
+        return decodeURIComponent(data);
+    }
+    function getSvgB64(svg)
+    {
+         return window.btoa(reEncode(svg));
+    }
     function makeSvgDataUri(node, width, height) {
         return Promise.resolve(node)
             .then(function (node) {
@@ -334,14 +345,14 @@
             })
             .then(util.escapeXhtml)
             .then(function (xhtml) {
-                return '<foreignObject x="0" y="0" width="100%" height="100%">' + xhtml + '</foreignObject>';
+                return '<foreignObject width="100%" height="100%" x="-320" y="-290">' + xhtml + '</foreignObject>';
             })
             .then(function (foreignObject) {
-                return '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '">' +
+                return '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="100%" width="100%" viewBox="0 0 50 50" preserveAspectRatio="none">' +
                     foreignObject + '</svg>';
             })
             .then(function (svg) {
-                return 'data:image/svg+xml;charset=utf-8,' + svg;
+                return svg;//'data:image/svg+xml;base64,' + getSvgB64(svg);
             });
     }
 
