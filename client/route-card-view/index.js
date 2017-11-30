@@ -27,7 +27,7 @@ var View = module.exports = view(require('./template.html'), function (view, mod
         if (optionsView.lastCardSelected && optionsView.lastCardSelected.model.index !== view.model.index) {
             return;
         }
-        clearTimeout();
+        //clearTimeout();
         var itineration = JSON.parse(sessionStorage.getItem('itineration'));
         for (var i = 0; i < itineration.length; i++) {
             var r3 = d3.selectAll(".iteration-" + i);
@@ -166,6 +166,14 @@ View.prototype.selectRoute = function (e) {
         this.mouseenter();
     }
 };
+View.prototype.isIE = function()
+{
+    if (document.documentMode || /Edge/.test(navigator.userAgent)) 
+    {
+        return true
+    }
+    else return false;
+}
 View.prototype.isSafari = function()
 {
     if (navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1)
@@ -202,13 +210,13 @@ View.prototype.openPrintPage = function(t, d)
         + '</p>'
         + d
         + t.html()
-        //+ "<script type='text/javascript'> var img = new Image();  </script>"
         + '</body>'
         + '</html>');
     setTimeout(function () {
         L.print_window.document.close(); // necessary for IE >= 10
         L.print_window.focus(); // necessary for IE >= 10*/
         L.print_window.print();
+        L.print_window.close();
     }, 1500);
 };
 
@@ -240,14 +248,14 @@ View.prototype.printDetails = function(e)
     L.modeify.map.panTo(L.modeify.map.centerScale);
     // give a small delay to allow centering before setting the zoom
     setTimeout(function() { L.modeify.map.setZoom(L.modeify.map.zoomScale); }, 500);
-    /*if ($.browser.mozilla) //|| this.isSafari())
+    if ($.browser.mozilla || this.isIE())
     {
         var d = '<div class="mapBody" style="display:none;"></div>';
         this.openPrintPage(t, d);
     }
     // if the browser supports printing images of map
     else
-    {*/
+    {
         // hide details / real-time tracking before print
         var hide = t.find("button.hide-details");
         if (hide.is(":visible")) hide.trigger("click");
@@ -260,15 +268,12 @@ View.prototype.printDetails = function(e)
             L.easyPrintPage.printMap("customMapSize", "current.png");
         }, 1500);
         L.modeify.map.on("easyPrint-finished", function ()
-        {
-            //var img = L.latestSnapshot.replace(new RegExp('"', "g"), "'");
-
-          
+        {          
             L.modeify.map.off("easyPrint-finished");
-            var d = "<div class='mapBody'>" + L.latestSnapshot + "</div>"; //"<img src='" + L.latestSnapshot + "' /></div>";
+            var d = "<div class='mapBody'>" + L.latestSnapshot + "</div>";
             _this.openPrintPage(t, d); 
         });
-    //}
+    }
 };
 
 

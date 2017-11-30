@@ -352,7 +352,7 @@
                     foreignObject + '</svg>';
             })
             .then(function (svg) {
-                return svg;//'data:image/svg+xml;base64,' + getSvgB64(svg);
+                return svg;
             });
     }
 
