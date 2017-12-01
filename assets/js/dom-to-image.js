@@ -337,7 +337,8 @@
     {
          return window.btoa(reEncode(svg));
     }
-    function makeSvgDataUri(node, width, height) {
+    function makeSvgDataUri(node, width, height) 
+    {
         return Promise.resolve(node)
             .then(function (node) {
                 node.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
@@ -345,17 +346,16 @@
             })
             .then(util.escapeXhtml)
             .then(function (xhtml) {
-                return '<foreignObject width="100%" height="100%" x="-320" y="-290">' + xhtml + '</foreignObject>';
+                return '<foreignObject x="0" y="0" width="100%" height="100%">' + xhtml + '</foreignObject>';
             })
             .then(function (foreignObject) {
-                return '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="100%" width="100%" viewBox="0 0 50 50" preserveAspectRatio="none">' +
+                return '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '">' +
                     foreignObject + '</svg>';
             })
             .then(function (svg) {
-                return svg;
+                return 'data:image/svg+xml;charset=utf-8,' + svg;
             });
     }
-
     function newUtil() {
         return {
             escape: escape,

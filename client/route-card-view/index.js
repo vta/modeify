@@ -15,7 +15,6 @@ var optionsView = require('options-view');
 //var transitive = require('transitive');
 var view = require('view');
 var mapView = require('map-view');
-
 /**
  * Expose `View`
  */
@@ -196,10 +195,10 @@ View.prototype.openPrintPage = function(t, d)
         + 'div.simple.clearfix, div.benefits-badge, div.header, div.feedback { display:none; }'
         + 'p.p_d_title { text-align: center; font-size: 18px; padding: 20px 0 0 0; }'
         + '@media print { * { -webkit-print-color-adjust: exact; } }'
-        + 'div.mapBody { width: 100%; min-width: 640px; max-width: 980px; height:350px; padding: 15px 0; }'
-        + 'div.mapBody > img { position:relative; max-width: 100%; min-width: 640px; width:100%; height: 350px; }'
+        + 'div.mapBody { width: 100%; min-width: 640px; max-width: 980px; height:450px; padding: 15px 0; }'
+        + 'div.mapBody > img { position:relative; max-width: 100%; min-width: 640px; width:100%; height: 450px; }'
         + 'form.RouteCostCalculator { height: 10px !important; padding: 0 !important; background-color: rgba(0,0,0,0) !important; border: none !important; }'
-        + 'div#map { transform: scaleX(0.6) scaleY(0.4) !important; }'
+        //+ 'div#map { transform: scaleX(0.6) scaleY(0.4) !important; }'
         + '</style>'
         + '</head>'
         + '<body>'
@@ -216,7 +215,7 @@ View.prototype.openPrintPage = function(t, d)
         L.print_window.document.close(); // necessary for IE >= 10
         L.print_window.focus(); // necessary for IE >= 10*/
         L.print_window.print();
-        L.print_window.close();
+        //L.print_window.close();
     }, 1500);
 };
 
@@ -226,6 +225,7 @@ View.prototype.openPrintPage = function(t, d)
 */
 View.prototype.printDetails = function(e)
 {
+    var _this = this;
     if (optionsView.lastCardSelected && optionsView.lastCardSelected.model.index !== this.model.index)
     {
         optionsView.lastCardSelected.isSelected = false;
@@ -248,18 +248,25 @@ View.prototype.printDetails = function(e)
     L.modeify.map.panTo(L.modeify.map.centerScale);
     // give a small delay to allow centering before setting the zoom
     setTimeout(function() { L.modeify.map.setZoom(L.modeify.map.zoomScale); }, 500);
-    if ($.browser.mozilla || this.isIE())
+    if ($.browser.mozilla || this.isSafari() || this.isIE())
     {
-        var d = '<div class="mapBody" style="display:none;"></div>';
-        this.openPrintPage(t, d);
+        html2canvas($("div#map"),
+        {   
+            useCORS: true,
+            onrendered: function(canvas)
+            {
+                var d = "<div class='mapBody'>" + "<img src='" + canvas.toDataURL() + "' alt='map' />" + "</div>";
+                _this.openPrintPage(t, d);
+            }
+        });
     }
-    // if the browser supports printing images of map
+    // if the browser supports printing images of map (chrome)
     else
     {
         // hide details / real-time tracking before print
         var hide = t.find("button.hide-details");
         if (hide.is(":visible")) hide.trigger("click");
-        var _this = this;
+        
         // give the user some time to re-load the tiles
         // after the zoom out / in has been initiated
         setTimeout(function()
@@ -270,7 +277,7 @@ View.prototype.printDetails = function(e)
         L.modeify.map.on("easyPrint-finished", function ()
         {          
             L.modeify.map.off("easyPrint-finished");
-            var d = "<div class='mapBody'>" + L.latestSnapshot + "</div>";
+            var d = "<div class='mapBody'>" + "<img src='" +  L.latestSnapshot + "' alt='map' />" + "</div>";
             _this.openPrintPage(t, d); 
         });
     }

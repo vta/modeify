@@ -135,7 +135,7 @@ L.Control.EasyPrint = L.Control.extend({
 
   _createImagePlaceholder: function (sizeMode) {
     var plugin = this;
-    domtoimage.toSvg(this.mapContainer, {
+    domtoimage.toPng(this.mapContainer, {
         width: parseInt(this.originalState.mapWidth.replace('px')),
         height: parseInt(this.originalState.mapHeight.replace('px'))
       })
@@ -190,36 +190,43 @@ L.Control.EasyPrint = L.Control.extend({
     }, plugin.options.tileWait);
   },
 
-  _printOpertion: function (sizemode) {
-    //L.latestSnapshot = false;
+  _printOpertion: function (sizemode) 
+  {
     var plugin = this;
     var widthForExport = this.mapContainer.style.width;
-    if (this.originalState.widthWasAuto && sizemode === 'CurrentSize' || this.originalState.widthWasPercentage && sizemode === 'CurrentSize') {
+    if (this.originalState.widthWasAuto && sizemode === 'CurrentSize' || this.originalState.widthWasPercentage && sizemode === 'CurrentSize') 
+    {
         widthForExport = this.originalState.mapWidth;
     }
-    domtoimage.toSvg(plugin.mapContainer, {
+    domtoimage.toPng(plugin.mapContainer, {
         width: parseInt(widthForExport),
         height: parseInt(plugin.mapContainer.style.height.replace('px'))
       })
-      .then(function (dataUrl) {
-          //var blob = plugin._dataURItoBlob(dataUrl);
+      .then(function (dataUrl) 
+      {
           if (plugin.options.exportOnly)
           {
             L.latestSnapshot = dataUrl;
-            //fileSaver.saveAs(blob, plugin.options.filename + '.png');
-          } else {
+          } 
+          else 
+          {
             plugin._sendToBrowserPrint(dataUrl, plugin.orientation);
           }
           plugin._toggleControls(true);
           plugin._toggleClasses(plugin.options.hideClasses, true);
 
-          if (plugin.outerContainer) {
-            if (plugin.originalState.widthWasAuto) {
+          if (plugin.outerContainer) 
+          {
+            if (plugin.originalState.widthWasAuto) 
+            {
               plugin.mapContainer.style.width = 'auto'
-            } else if (plugin.originalState.widthWasPercentage) {
+            } 
+            else if (plugin.originalState.widthWasPercentage) 
+            {
               plugin.mapContainer.style.width = plugin.originalState.percentageWidth
             }
-            else {
+            else 
+            {
               plugin.mapContainer.style.width = plugin.originalState.mapWidth;              
             }
             plugin.mapContainer.style.height = plugin.originalState.mapHeight;
