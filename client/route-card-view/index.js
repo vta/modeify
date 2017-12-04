@@ -243,7 +243,7 @@ View.prototype.printDetails = function(e)
     {
         $("div#map").css({"height":"450px", "width":"980px"});
         if ($("div.dummyMap")) $("div.dummyMap").remove();
-        $("html").prepend(
+        $("body").prepend(
             "<div class='dummyMap'>"
             +"</div>"
         );
@@ -258,7 +258,8 @@ View.prototype.printDetails = function(e)
         L.print_to_main = setTimeout(function() 
         { 
             _this.mouseenter();
-            $("div.dummyMap").append("<div style='margin:0 auto; width:980px;'></div>");
+            $("div.dummyMap").append("<div style='margin:0 auto; width:980px;'><div class='closeDummyMap'><span>Close</span></div>");
+            $("div.closeDummyMap").bind("click", _this.resetAfterDummy);
             L.modeify.map.invalidateSize();
             L.modeify.map.setZoom(L.modeify.map.zoomScale - 1);
             L.print_to1 = setTimeout(function() 
@@ -276,19 +277,7 @@ View.prototype.printDetails = function(e)
                 dm.append(tt.html());
                 $("body").children().not("div.dummyMap").hide();
                 window.print();
-                L.print_to2 = setTimeout(function() 
-                { 
-                    $("div.dummyMap").remove();
-                    $("div#map").css({"height":"100%", "width":"100%"});
-                    L.print_to3 = setTimeout(function() 
-                    {  
-                        L.modeify.map.invalidateSize();
-                        L.modeify.map.setZoom(L.modeify.map.zoomScale);
-
-                    }, 400);
-                    
-                    $("body").children().show();
-                }, 500);
+                if (!_this.isSafari()) _this.resetAfterDummy();
             }, 800);
         
         }, 500);
@@ -326,6 +315,22 @@ View.prototype.printDetails = function(e)
     }
 };
 
+View.prototype.resetAfterDummy = function()
+{
+    L.print_to2 = setTimeout(function() 
+    { 
+        $("div.dummyMap").remove();
+        $("div#map").css({"height":"100%", "width":"100%"});
+        L.print_to3 = setTimeout(function() 
+        {  
+            L.modeify.map.invalidateSize();
+            L.modeify.map.setZoom(L.modeify.map.zoomScale);
+
+        }, 400);
+                    
+        $("body").children().show();
+    }, 500);
+};
 
 /**
  * Show/hide
