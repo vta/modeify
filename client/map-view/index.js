@@ -94,7 +94,7 @@ module.exports = function (el) {
             zoomSnap: 0.1,
             // zoomAnimation: !L.Browser.mobile,
             // zoomAnimation: false,
-            preferCanvas: true,
+            //preferCanvas: true,
             zoomAnimation: true,
             maxBounds: L.latLngBounds(southWest, northEast),
             minZoom: 8,

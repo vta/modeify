@@ -248,17 +248,19 @@ View.prototype.printDetails = function(e)
     L.modeify.map.panTo(L.modeify.map.centerScale);
     // give a small delay to allow centering before setting the zoom
     setTimeout(function() { L.modeify.map.setZoom(L.modeify.map.zoomScale); }, 500);
-    if ($.browser.mozilla || this.isSafari() || this.isIE())
+    if ($.browser.mozilla || /*this.isSafari() ||*/ this.isIE())
     {
-        html2canvas($("div#map"),
-        {   
-            useCORS: true,
-            onrendered: function(canvas)
-            {
-                var d = "<div class='mapBody'>" + "<img src='" + canvas.toDataURL() + "' alt='map' />" + "</div>";
-                _this.openPrintPage(t, d);
-            }
-        });
+        // html2canvas($("div#map"),
+        // {   
+        //     useCORS: true,
+        //     onrendered: function(canvas)
+        //     {
+        //         var d = "<div class='mapBody'>" + "<img src='" + canvas.toDataURL() + "' alt='map' />" + "</div>";
+        //         _this.openPrintPage(t, d);
+        //     }
+        // });
+         var d = "<div class='mapBody' style='display:none'></div>";
+         _this.openPrintPage(t, d);
     }
     // if the browser supports printing images of map (chrome)
     else
