@@ -233,8 +233,71 @@ View.prototype.printDetails = function(e)
         optionsView.lastCardSelected.hideDetails(e);
         this.mouseenter();
     }
-    L.print_window = window.open('', 'PRINT', 'scrollbars=1, resizable=1, toolbar=1, height='+screen.height+', width='+screen.width);
-    L.print_window.document.write(
+    var t = $(this.el);
+    // adjust to perfect zoom scale when printing the map
+    // make sure the map is centered before zooming in / out
+    L.modeify.map.panTo(L.modeify.map.centerScale);
+    // give a small delay to allow centering before setting the zoom
+    
+    if ($.browser.mozilla || this.isSafari() || this.isIE())
+    {
+        $("div#map").css({"height":"450px", "width":"980px"});
+        if ($("div.dummyMap")) $("div.dummyMap").remove();
+        $("html").prepend(
+            "<div class='dummyMap'>"
+            +"</div>"
+        );
+        // hide details / real-time tracking before print
+        var hide = t.find("button.hide-details");
+        if (hide.is(":visible")) hide.trigger("click");
+        // Clear any existing timeouts from previous print
+        if (L.print_to_main) clearTimeout(L.print_to_main);
+        if (L.print_to1) clearTimeout(L.print_to1);
+        if (L.print_to2) clearTimeout(L.print_to2);
+        if (L.print_to3) clearTimeout(L.print_to3);
+        L.print_to_main = setTimeout(function() 
+        { 
+            _this.mouseenter();
+            $("div.dummyMap").append("<div style='margin:0 auto; width:980px;'></div>");
+            L.modeify.map.invalidateSize();
+            L.modeify.map.setZoom(L.modeify.map.zoomScale - 1);
+            L.print_to1 = setTimeout(function() 
+            { 
+                var dm = $("div.dummyMap > div");
+                dm.append('<p class="p_d_title">'
+                    + "VTA Trip Planner : " + t.find(".header").html() + " - "
+                    + t.find("div.startstoptimes").html() + " - "
+                    + t.find("div.minutes-column > div.heading").html()
+                    + '</p>');
+                dm.append($("#map").clone());
+                var tt = t.clone();
+                tt.find("div.simple.clearfix, div.benefits-badge, div.header, div.feedback").remove();
+  
+                dm.append(tt.html());
+                $("body").children().not("div.dummyMap").hide();
+                window.print();
+                L.print_to2 = setTimeout(function() 
+                { 
+                    $("div.dummyMap").remove();
+                    $("div#map").css({"height":"100%", "width":"100%"});
+                    L.print_to3 = setTimeout(function() 
+                    {  
+                        L.modeify.map.invalidateSize();
+                        L.modeify.map.setZoom(L.modeify.map.zoomScale);
+
+                    }, 400);
+                    
+                    $("body").children().show();
+                }, 500);
+            }, 800);
+        
+        }, 500);
+    }
+    // if the browser supports printing images of map (chrome)
+    else
+    {
+        L.print_window = window.open('', 'PRINT', 'scrollbars=1, resizable=1, toolbar=1, height='+screen.height+', width='+screen.width);
+        L.print_window.document.write(
         "<style>"
         +"div.loadingP { position: relative; height: 100%; width: 100%; text-align: center; }"
         +"div.loadingP > span { position: relative; top: 35%; font-size: 32px; font-family: arial; }"
@@ -242,29 +305,7 @@ View.prototype.printDetails = function(e)
         +"<title>Preparing route details for printing... </title>"
         +"<div class='loadingP'><span>Preparing route details...</span></div>");
 
-    var t = $(this.el);
-    // adjust to perfect zoom scale when printing the map
-    // make sure the map is centered before zooming in / out
-    L.modeify.map.panTo(L.modeify.map.centerScale);
-    // give a small delay to allow centering before setting the zoom
-    setTimeout(function() { L.modeify.map.setZoom(L.modeify.map.zoomScale); }, 500);
-    if ($.browser.mozilla || /*this.isSafari() ||*/ this.isIE())
-    {
-        // html2canvas($("div#map"),
-        // {   
-        //     useCORS: true,
-        //     onrendered: function(canvas)
-        //     {
-        //         var d = "<div class='mapBody'>" + "<img src='" + canvas.toDataURL() + "' alt='map' />" + "</div>";
-        //         _this.openPrintPage(t, d);
-        //     }
-        // });
-         var d = "<div class='mapBody' style='display:none'></div>";
-         _this.openPrintPage(t, d);
-    }
-    // if the browser supports printing images of map (chrome)
-    else
-    {
+        setTimeout(function() { L.modeify.map.setZoom(L.modeify.map.zoomScale); }, 500);
         // hide details / real-time tracking before print
         var hide = t.find("button.hide-details");
         if (hide.is(":visible")) hide.trigger("click");
