@@ -202,18 +202,20 @@ module.exports = function (el) {
         map.draggable = true;
 
         L.modeify.map = map;
-
-        //var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(L.modeify.map);
-        L.easyPrintPage = L.easyPrint(
+        if (!document.documentMode && !/Edge/.test(navigator.userAgent))
         {
-          title: 'Print',
-          position: 'bottomright',
-          sizeModes: ['customMapSize'],
-          hidden: true,
-          exportOnly: true,
-          tileWait: 20000
-          //tileLayer: tiles
-        }).addTo(L.modeify.map);
+            //var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(L.modeify.map);
+            L.easyPrintPage = L.easyPrint(
+            {
+              title: 'Print',
+              position: 'bottomright',
+              sizeModes: ['customMapSize'],
+              hidden: true,
+              exportOnly: true,
+              tileWait: 20000
+              //tileLayer: tiles
+            }).addTo(L.modeify.map);
+        }
     }
     else if (config.map_provider && config.map_provider() === 'ESRI') {
         southWest = L.latLng(35.946877085397, -123.480610897013);

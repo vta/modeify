@@ -261,7 +261,7 @@ View.prototype.printDetails = function(e)
             $("div.dummyMap").append("<div style='margin:0 auto; width:980px;'><div class='closeDummyMap'><span>Close</span></div>");
             $("div.closeDummyMap").bind("click", _this.resetAfterDummy);
             L.modeify.map.invalidateSize();
-            L.modeify.map.setZoom(L.modeify.map.zoomScale - 1);
+            L.modeify.map.setZoom(L.modeify.map.zoomScale - 1.3);
             L.print_to1 = setTimeout(function() 
             { 
                 var dm = $("div.dummyMap > div");
@@ -277,7 +277,8 @@ View.prototype.printDetails = function(e)
                 dm.append(tt.html());
                 $("body").children().not("div.dummyMap").hide();
                 window.print();
-                if (!_this.isSafari()) _this.resetAfterDummy();
+                if (!_this.isSafari() && !_this.isIE()) _this.resetAfterDummy();
+                
             }, 800);
         
         }, 500);
