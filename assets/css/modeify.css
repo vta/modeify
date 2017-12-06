@@ -15,7 +15,19 @@ div.dummyMap
 div.dummyMap form.RouteCostCalculator { height: 10px !important; padding: 0 !important; background-color: rgba(0,0,0,0) !important; border: none !important; }
 
 p.p_d_title { text-align: center; font-size: 18px; padding: 20px 0 0 0; }
-@media print { * { -webkit-print-color-adjust: exact; } }
+@media print 
+{ 
+	* { -webkit-print-color-adjust: exact; }
+	a[href]:after{ content:none !important; }
+	div.closeDummyMap, div.leaflet-control-container { display: none !important; }
+	a 
+	{
+	    line-height: 0 !important; 
+	    font-size: 0 !important;
+	    color: transparent !important; 
+	}
+
+}
 
 div.closeDummyMap
 {

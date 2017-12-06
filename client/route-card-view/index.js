@@ -272,8 +272,8 @@ View.prototype.printDetails = function(e)
                     + '</p>');
                 dm.append($("#map").clone());
                 var tt = t.clone();
-                tt.find("div.simple.clearfix, div.benefits-badge, div.header, div.feedback").remove();
-  
+                tt.find("div.simple.clearfix, div.benefits-badge, div.header, div.feedback, div.leaflet-control-container").remove();
+                tt.parent().find("a").text("");
                 dm.append(tt.html());
                 $("body").children().not("div.dummyMap").hide();
                 window.print();
@@ -283,7 +283,7 @@ View.prototype.printDetails = function(e)
         
         }, 500);
     }
-    // if the browser supports printing images of map (chrome)
+    // if the browser supports printing images of map (chrome / opera)
     else
     {
         L.print_window = window.open('', 'PRINT', 'scrollbars=1, resizable=1, toolbar=1, height='+screen.height+', width='+screen.width);
@@ -292,7 +292,7 @@ View.prototype.printDetails = function(e)
         +"div.loadingP { position: relative; height: 100%; width: 100%; text-align: center; }"
         +"div.loadingP > span { position: relative; top: 35%; font-size: 32px; font-family: arial; }"
         +"</style>"
-        +"<title>Preparing route details for printing... </title>"
+        +"<title>" + document.title + "</title>"
         +"<div class='loadingP'><span>Preparing route details...</span></div>");
 
         setTimeout(function() { L.modeify.map.setZoom(L.modeify.map.zoomScale); }, 500);
