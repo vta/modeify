@@ -19,9 +19,9 @@ var mapView = require('map-view');
  * Expose `View`
  */
 
-var View = module.exports = view(require('./template.html'), function (view, model) {
+var View = module.exports = view(require('./template.html'), function (view, model) 
+{
     view.isSelected = false;
-
     view.mouseenter = function () {
         if (optionsView.lastCardSelected && optionsView.lastCardSelected.model.index !== view.model.index) {
             return;
@@ -70,6 +70,7 @@ var View = module.exports = view(require('./template.html'), function (view, mod
                 d3.select(this).node().parentNode.appendChild(this);
             }
         });
+
     };
 
     mouseenter(view.el, view.mouseenter);
@@ -126,7 +127,53 @@ var View = module.exports = view(require('./template.html'), function (view, mod
         L.modeify.map.zoomScale = L.modeify.map.getZoom() - 0.25;
         L.modeify.map.centerScale = L.modeify.map.getCenter();
     }, 1000);
+    setTimeout(function()
+    {
+        displayFirst(view, model);
+    }, 50);
 });
+/* The purpose of this is to display the best route (1st in list)
+ * When the route / plans first load rather than showing all three routes
+ * at the same time
+*/
+var displayFirst = View.prototype.displayFirst = function(view, model) 
+{
+    // gather number of total possible routes
+    var itineration = JSON.parse(sessionStorage.getItem('itineration'));
+    // loop through the routes hiding all but the first
+    for (var i = 0; i < itineration.length; i++) 
+    {
+        // make sure it is the first route
+        if (i != 0)
+        {
+            var r3 = d3.selectAll(".iteration-" + i);
+            r3.classed("hideMe", true);
+            r3.attr("data-show", "0");
+        }
+    }
+    var r3 = d3.selectAll(".iteration-0");
+
+    if (config.map_provider() !== 'AmigoCloud') r3.classed("hideMe", false);
+    r3.attr("data-show", "1");
+    // show the first route
+    var orden = 0;
+    d3.selectAll(".iteration-200").each(function (e)
+    {
+        var element = d3.select(this);
+        var parent = d3.select(element.node().parentNode);
+        parent.attr("class", "g-element");
+        parent.attr("data-orden", orden.toString());
+        if (Boolean(parseInt(element.attr("data-show")))) parent.attr("data-show", "1");
+        else parent.attr("data-show", "0");
+        orden++;
+    });
+
+    d3.selectAll(".g-element").each(function (a, b) 
+    {
+        if (Boolean(parseInt(d3.select(this).attr("data-show")))) d3.select(this).node().parentNode.appendChild(this);
+    });
+};
+
 
 View.prototype.calculator = function () {
     return new Calculator(this.model);
