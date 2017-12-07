@@ -113,20 +113,13 @@ var View = module.exports = view(require('./template.html'), function (view, mod
         }
     };
     mouseleave(view.el, view.mouseleave);
-    if (L.Browser.mobile)
-    {
-        // @todo / create function to hide buttons "on-mobile"
-        setTimeout(function ()
-        {
-            $("button.print-details").hide();
-        }, 500);
-    }
-    // @todo - find where scales are initially set to get rid of setTimeout
+    
     setTimeout(function()
     {
         L.modeify.map.zoomScale = L.modeify.map.getZoom() - 0.25;
         L.modeify.map.centerScale = L.modeify.map.getCenter();
     }, 1000);
+    
     setTimeout(function()
     {
         displayFirst(view, model);
