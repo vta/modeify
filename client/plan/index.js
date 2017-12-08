@@ -275,7 +275,8 @@ Plan.prototype.setAddress = function(name, address, callback, extra) {
         var lat_lng = place.geometry.location.lat()+','+place.geometry.location.lng();
         var changes = {};
         // if (place['types'][0] === "street_address" || place['types'][0] === "route" || place['types'][0] === "establishment"){
-          changes[name] = place['formatted_address'];
+          changes[name] = c;//place['formatted_address'];
+          console.log("chganges ahfnashnfdjasd: " + c)
         // } else {
         //   changes[name] = place['name'] + ', ' + place['formatted_address'];
         // }

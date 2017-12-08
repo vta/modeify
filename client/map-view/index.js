@@ -8,7 +8,21 @@ var collision = require('./leaflet_layergroup_collision');
 
 var session = require('session');
 
-var center = config.geocode().center.split(',').map(parseFloat)
+var center = config.geocode().center.split(',').map(parseFloat);
+
+/* Make sure there are no pluses in the location.href before continueing
+ * This may occur when redirecting from vta.org
+*/
+var loc = location.href;
+var substr = "+";
+if (loc.indexOf(substr) != -1)
+{
+    console.log("href" + location.href);
+    var l = location.href.replace(new RegExp(/\+/, 'g'), '%20');
+    location.href = l;
+}
+/* * * * * * * * * *** * * ** */
+
 if (config.map_provider && config.map_provider() === 'Mapbox') {
     L.mapbox.accessToken = config.mapbox_access_token();
 }
