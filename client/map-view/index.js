@@ -17,7 +17,6 @@ var loc = location.href;
 var substr = "+";
 if (loc.indexOf(substr) != -1)
 {
-    console.log("href" + location.href);
     var l = location.href.replace(new RegExp(/\+/, 'g'), '%20');
     location.href = l;
 }
