@@ -187,7 +187,8 @@ function checkWarnIncognito(){
  * Reverse Commute
  */
 
-View.prototype.reverseCommute = function(e) {
+View.prototype.reverseCommute = function(e) 
+{
   e.preventDefault();
   var plan = session.plan();
   plan.set({
@@ -200,9 +201,57 @@ View.prototype.reverseCommute = function(e) {
   });
 
   plan.updateRoutes();
-
-
 };
+
+copyToClipboardPopup = function()
+{
+  var msgTo = function()
+  {
+    setTimeout(function() { $("div.shareableLinkMsg > span").text(""); }, 6000);
+  };
+  var div = $("div.shareableWindowCon");
+  if (div.length) div.remove();
+  var location = window.location.href;
+  // append a popup to the main window - over all other windows
+  $("div#main").prepend(
+    "<div class='shareableWindowCon'>"
+      +"<div class='shareableWindow'>"
+        +"<div class='shareableLinkHeader'><span> X </span></div>"
+        +"<div class='shareableWindowConLink'>"
+          + "<input value='" + location + "' readonly />"
+        +"</div>"
+        +"<div class='shareableLinkFooter'>"
+          +"<div class='shareableLinkMsg noselect'><span>Link copied to clipboard.</span></div>"
+          +"<div class='shareableLinkButton noselect'>"
+            +"<span class='noselect'>Copy Link</span>"
+          +"</div>"
+        +"</div>"
+      +"</div>"
+    +"</div>"
+  );
+  var i = $("div.shareableWindowConLink > input");
+  i.select().bind("click", function() { $(this).select(); });
+  copyToClipboard(location);
+  $("div.shareableLinkMsg > span").text("Link copied to clipboard.");
+  msgTo();
+  // prevent popup window from closes directly on open( prevent duplicate clicks)
+  setTimeout(function()
+  {
+    $("div.shareableWindowCon, div.shareableLinkHeader > span").bind("click", function(e)
+    {
+      if (e.target == this) $("div.shareableWindowCon").remove();
+    });
+  }, 500);
+
+  $("div.shareableLinkButton").bind("click", function()
+  {
+    i.select();
+    copyToClipboard($("shareableWindowConLink > input").val());
+    $("div.shareableLinkMsg > span").text("Link copied to clipboard.");
+    msgTo();
+  });
+}
+
 
 /**
  * Scroll

@@ -1,4 +1,14 @@
 
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
 .fullscreen {
   position: relative;
   height: 100%;
@@ -16,6 +26,86 @@
   margin-bottom: 0;
   padding-bottom: 44px;
 }
+div.shareableWindowConLink > input
+{
+  padding: 15px;
+  width: 90%;
+  margin: 15px auto;
+  position: relative;
+  text-align: center;
+}
+div.shareableLinkButton > span
+{
+  color: #FFF;
+  font-family: arial;
+  position: relative;
+  top: 5px;
+}
+div.shareableLinkButton
+{
+  cursor: pointer;
+  position: relative;
+  float: right;
+  background: var(--vta-red);
+  height: 30px;
+  width: 125px;
+  text-align: center;
+}
+div.shareableLinkMsg
+{
+  float: left;
+  left: 5px;
+  position: relative;
+  top: 4px;
+}
+div.shareableWindowCon
+{
+  text-align: center;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.1);
+  z-index: 999;
+}
+div.shareableLinkHeader > span
+{
+  cursor: pointer;
+  color: var(--vta-red);
+  font-size: 18px;
+  top: 6px;
+  font-family: arial;
+  position: relative;
+  right: 15px;
+}
+div.shareableLinkHeader
+{
+  height: 25px;
+  width: 100%;
+  text-align: right;
+}
+
+div.shareableLinkFooter
+{
+  width: 90%;
+  margin: 0 auto;
+  position: relative;
+  text-align: center;
+}
+div.shareableWindow
+{
+  margin: 0 auto;
+  position: relative;
+  top: 25%;
+  background: #F9F9F9;
+  max-width: 420px;
+  min-width: 240px;
+  height: 145px;
+  border: 1px solid rgba(0,0,0,1);
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
 
 .SidePanel.top {
   margin-top: 70px;
