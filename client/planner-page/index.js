@@ -205,9 +205,10 @@ View.prototype.reverseCommute = function(e)
 
 copyToClipboardPopup = function()
 {
-  var msgTo = function()
+  var msgTo = function(type)
   {
-    setTimeout(function() { $("div.shareableLinkMsg > span").text(""); }, 6000);
+    if (type == "link") setTimeout(function() { $("div.shareableLinkMsg > span").text(""); }, 6000);
+    else if (type == "email") setTimeout(function() { $("div.shareableEmailMsg > span").text(""); }, 6000);
   };
   var div = $("div.shareableWindowCon");
   if (div.length) div.remove();
@@ -216,14 +217,28 @@ copyToClipboardPopup = function()
   $("div#main").prepend(
     "<div class='shareableWindowCon'>"
       +"<div class='shareableWindow'>"
+        +"<span class=''></span>"
         +"<div class='shareableLinkHeader'><span> X </span></div>"
         +"<div class='shareableWindowConLink'>"
           + "<input value='" + location + "' readonly />"
+          +"<div class='shareableLinkButtonCon'>"
+            +"<div class='shareableLinkMsg noselect'><span>Link copied to clipboard.</span></div>"
+            +"<div class='shareableLinkButton noselect'>"
+              +"<span class='noselect'>Copy Link</span>"
+            +"</div>"
+          +"</div>"
+        +"</div>"
+        +"<div class='shareableWindowConEmail'>"
+          + "<div class='windowEmailInputsCon'>"
+            + "<input name='windowConEmailName' id='windowConEmailName' placeholder='Your Name: ' />"
+            + "<input name='windowConEmailRecipient' id='windowConEmailRecipient' placeholder='Recipients Email: ' />"
+          + "</div>"
+          + "<textarea id='windowConEmailTextArea'>Hi! I just found great commute options using VTA's TripPlanner. To see my trip checkout the link below: </textarea>"
         +"</div>"
         +"<div class='shareableLinkFooter'>"
-          +"<div class='shareableLinkMsg noselect'><span>Link copied to clipboard.</span></div>"
-          +"<div class='shareableLinkButton noselect'>"
-            +"<span class='noselect'>Copy Link</span>"
+          +"<div class='shareableEmailMsg noselect'><span></span></div>"
+          +"<div class='shareableEmailButton noselect'>"
+            +"<span class='noselect'>Send Email</span>"
           +"</div>"
         +"</div>"
       +"</div>"
@@ -233,7 +248,7 @@ copyToClipboardPopup = function()
   i.select().bind("click", function() { $(this).select(); });
   copyToClipboard(location);
   $("div.shareableLinkMsg > span").text("Link copied to clipboard.");
-  msgTo();
+  msgTo("link");
   // prevent popup window from closes directly on open( prevent duplicate clicks)
   setTimeout(function()
   {
@@ -248,7 +263,26 @@ copyToClipboardPopup = function()
     i.select();
     copyToClipboard($("shareableWindowConLink > input").val());
     $("div.shareableLinkMsg > span").text("Link copied to clipboard.");
-    msgTo();
+    msgTo("link");
+  });
+
+  $("div.shareableEmailButton").bind("click", function()
+  {
+
+    var from = $("input#windowConEmailName").val();
+    var to = $("input#windowConEmailRecipient").val();
+    var body = $("textarea#windowConEmailTextArea").val();
+    if (from.length && to.length && body.length)
+    {
+       alert(from + to + body);
+
+    }
+    else
+    {
+      $("div.shareableEmailMsg > span").text("Please complete all the fields.");
+      msgTo("email");
+    }
+   
   });
 }
 

@@ -26,6 +26,32 @@
   margin-bottom: 0;
   padding-bottom: 44px;
 }
+div.shareableLinkButtonCon,
+div.windowEmailInputsCon
+{
+  width: 90%;
+  height: 30px;
+  margin: 0 auto;
+}
+
+div.shareableWindowConEmail
+{
+  position: relative;
+  top: 20px;
+}
+
+
+div.shareableWindowConEmail > textarea
+{
+  height: 100px;
+  padding: 2px 2px 2px 15px;
+  width: 90%;
+  margin: 15px auto;
+  position: relative;
+  text-align: left;
+  resize:none;
+}
+
 div.shareableWindowConLink > input
 {
   padding: 15px;
@@ -34,14 +60,16 @@ div.shareableWindowConLink > input
   position: relative;
   text-align: center;
 }
-div.shareableLinkButton > span
+div.shareableLinkButton > span,
+div.shareableEmailButton > span
 {
   color: #FFF;
   font-family: arial;
   position: relative;
   top: 5px;
 }
-div.shareableLinkButton
+div.shareableLinkButton,
+div.shareableEmailButton
 {
   cursor: pointer;
   position: relative;
@@ -51,7 +79,8 @@ div.shareableLinkButton
   width: 125px;
   text-align: center;
 }
-div.shareableLinkMsg
+div.shareableLinkMsg,
+div.shareableEmailMsg
 {
   float: left;
   left: 5px;
@@ -84,12 +113,31 @@ div.shareableLinkHeader
   text-align: right;
 }
 
+div.shareableWindowConEmail
+{
+
+}
+
+input#windowConEmailName
+{
+  float: left;
+  padding: 5px;
+}
+
+input#windowConEmailRecipient
+{
+  float: right;
+  padding: 5px;
+}
+
 div.shareableLinkFooter
 {
   width: 90%;
   margin: 0 auto;
   position: relative;
   text-align: center;
+  height: 30px;
+  top: 15px;
 }
 div.shareableWindow
 {
@@ -99,7 +147,7 @@ div.shareableWindow
   background: #F9F9F9;
   max-width: 420px;
   min-width: 240px;
-  height: 145px;
+  height: 360px;
   border: 1px solid rgba(0,0,0,1);
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
