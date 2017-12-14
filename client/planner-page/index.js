@@ -205,10 +205,12 @@ View.prototype.reverseCommute = function(e)
 
 copyToClipboardPopup = function()
 {
+  // Timeout for msg handling
   var msgTo = function(type)
   {
-    if (type == "link") setTimeout(function() { $("div.shareableLinkMsg > span").text(""); }, 6000);
-    else if (type == "email") setTimeout(function() { $("div.shareableEmailMsg > span").text(""); }, 6000);
+    if (typeof msgTO !== "undefined") clearTimeout(to);
+    if (type == "link") setTimeout(function() { $("div.shareableLinkMsg > span").text("").parent().hide(); }, 5000);
+    else if (type == "email") msgTO = setTimeout(function() { $("div.shareableEmailMsg > span").text("").parent().hide(); delete msgTO; }, 5000);
   };
   var div = $("div.shareableWindowCon");
   if (div.length) div.remove();
@@ -220,7 +222,8 @@ copyToClipboardPopup = function()
         +"<span class=''></span>"
         +"<div class='shareableLinkHeader'><span> X </span></div>"
         +"<div class='shareableWindowConLink'>"
-          + "<input value='" + location + "' readonly />"
+          + "<label for='shareableWindowConLinkI'> Share your trip! </label>"
+          + "<input id='shareableWindowConLinkI' name='shareableWindowConLinkI' value='" + location + "' readonly />"
           +"<div class='shareableLinkButtonCon'>"
             +"<div class='shareableLinkMsg noselect'><span>Link copied to clipboard.</span></div>"
             +"<div class='shareableLinkButton noselect'>"
@@ -230,10 +233,15 @@ copyToClipboardPopup = function()
         +"</div>"
         +"<div class='shareableWindowConEmail'>"
           + "<div class='windowEmailInputsCon'>"
+            + "<div class='windowEmailLabelCon'>"
+              + "<label for='windowConEmailName'>Your Name: </label>"
+              + "<label for='windowConEmailRecipient'>Recipient Email: </label>"
+            + "</div>"
             + "<input name='windowConEmailName' id='windowConEmailName' placeholder='Your Name: ' />"
             + "<input name='windowConEmailRecipient' id='windowConEmailRecipient' placeholder='Recipients Email: ' />"
           + "</div>"
-          + "<textarea id='windowConEmailTextArea'>Hi! I just found great commute options using VTA's TripPlanner. To see my trip checkout the link below: </textarea>"
+          + "<label for='windowConEmailTextArea'>Body: <span>(link to your search will be added automatically)</span></label>"
+          + "<textarea name='windowConEmailTextArea' id='windowConEmailTextArea'>Hi! I just found great commute options using VTA's TripPlanner. To see my trip checkout the link below: </textarea>"
         +"</div>"
         +"<div class='shareableLinkFooter'>"
           +"<div class='shareableEmailMsg noselect'><span></span></div>"
@@ -247,7 +255,7 @@ copyToClipboardPopup = function()
   var i = $("div.shareableWindowConLink > input");
   i.select().bind("click", function() { $(this).select(); });
   copyToClipboard(location);
-  $("div.shareableLinkMsg > span").text("Link copied to clipboard.");
+  $("div.shareableLinkMsg > span").text("Link copied to clipboard.").parent().show();
   msgTo("link");
   // prevent popup window from closes directly on open( prevent duplicate clicks)
   setTimeout(function()
@@ -261,8 +269,8 @@ copyToClipboardPopup = function()
   $("div.shareableLinkButton").bind("click", function()
   {
     i.select();
-    copyToClipboard($("shareableWindowConLink > input").val());
-    $("div.shareableLinkMsg > span").text("Link copied to clipboard.");
+    copyToClipboard($("div.shareableWindowConLink > input").val());
+    $("div.shareableLinkMsg > span").text("Link copied to clipboard.").parent().show();
     msgTo("link");
   });
 
@@ -274,12 +282,14 @@ copyToClipboardPopup = function()
     var body = $("textarea#windowConEmailTextArea").val();
     if (from.length && to.length && body.length)
     {
-       alert(from + to + body);
-
+      body += "\r\n" + $("div.shareableWindowConLink > input").val();
     }
     else
     {
-      $("div.shareableEmailMsg > span").text("Please complete all the fields.");
+      var span = $("div.shareableEmailMsg > span");
+      if (!from.length) span.text("Please enter your name.").parent().show();
+      else if (!to.length) span.text("Enter the recipients email.").parent().show();
+      else span.text("Please complete all the fields.").parent().show();
       msgTo("email");
     }
    

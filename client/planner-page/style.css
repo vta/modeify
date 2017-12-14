@@ -39,10 +39,60 @@ div.shareableWindowConEmail
   position: relative;
   top: 20px;
 }
+label[for=windowConEmailTextArea] > span
+{
+  float: right;
+  font-style: italic;
+  font-size: 12px;
+  position: relative;
+  top: 2px;
+}
 
+label[for=shareableWindowConLinkI]
+{
+  width: 90%;
+  text-align: left;
+  font-size: 18px;
+  color:#455a71;
 
+}
+div.windowEmailLabelCon
+{
+  width: 100%;
+  height: 30px;
+  margin: 0 auto;
+}
+label[for=windowConEmailRecipient]
+{
+  float: right;
+  color: #455a71;
+  margin: 0;
+  display: block;
+  width: 48%;
+  text-align: left;
+}
+label[for=windowConEmailName]
+{
+  display: block;
+  float: left;
+  color: #455a71;
+  text-align: left;
+  margin: 0;
+  width: 48%;
+}
+label[for=windowConEmailTextArea]
+{
+  color:#455a71;
+  margin: 0;
+  font-size: 14px;
+  position: relative;
+  top: 10px;
+  text-align: left;
+  width: 90%;
+}
 div.shareableWindowConEmail > textarea
 {
+  top: 0;
   height: 100px;
   padding: 2px 2px 2px 15px;
   width: 90%;
@@ -68,6 +118,7 @@ div.shareableEmailButton > span
   position: relative;
   top: 5px;
 }
+
 div.shareableLinkButton,
 div.shareableEmailButton
 {
@@ -82,10 +133,14 @@ div.shareableEmailButton
 div.shareableLinkMsg,
 div.shareableEmailMsg
 {
+  display:none;
+  color: #8a6d3b;
+  border: 1px solid #faebcc;
+  background: #fcf8e3;
   float: left;
-  left: 5px;
+  padding:4px 6px 4px 6px;
   position: relative;
-  top: 4px;
+  top: 0px;
 }
 div.shareableWindowCon
 {
@@ -113,21 +168,18 @@ div.shareableLinkHeader
   text-align: right;
 }
 
-div.shareableWindowConEmail
-{
-
-}
-
 input#windowConEmailName
 {
   float: left;
-  padding: 5px;
+  padding: 5px 3px 5px 3px;
+  width: 48%;
 }
 
 input#windowConEmailRecipient
 {
   float: right;
-  padding: 5px;
+  padding: 5px 3px 5px 3px;
+  width: 48%;
 }
 
 div.shareableLinkFooter
@@ -143,11 +195,11 @@ div.shareableWindow
 {
   margin: 0 auto;
   position: relative;
-  top: 25%;
+  top: 18%;
   background: #F9F9F9;
   max-width: 420px;
   min-width: 240px;
-  height: 360px;
+  height: 445px;
   border: 1px solid rgba(0,0,0,1);
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
