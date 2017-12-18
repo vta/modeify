@@ -202,98 +202,168 @@ View.prototype.reverseCommute = function(e)
 
   plan.updateRoutes();
 };
+// Timeout for msg handling
+msgTo = function(type)
+{
+  if (typeof msgTO !== "undefined") clearTimeout(msgTO);
+  if (type == "link") setTimeout(function() { $("div.shareableLinkMsg > span").text("").parent().hide(); }, 5000);
+  else if (type == "email") msgTO = setTimeout(function() { $("div.shareableEmailMsg > span").text("").parent().hide(); delete msgTO; }, 5000);
+}
 
+captchaExpired = function()
+{
+  $("div.shareableEmailButton").unbind("click");
+}
+
+sendEmailAjax = function(name, to, message)
+{
+  var date = $("div.input-group.date.filter-group").data().date;
+  var name = $("input#windowConEmailName").val();
+  var to = $("input#windowConEmailRecipient").val();
+  // gather the instructions for the first route (best)
+  if (typeof L.lastCardSelected == "undefined")
+  {
+    var lcs = $("li.RouteCard:first-of-type");
+  }
+  // gather the instructions for the selected route
+  else
+  {
+    var lcs = L.lastCardSelected;
+  }
+  var route = $(lcs.find("table.RouteDirections"));
+  var start = route.find("thead th.description").text();
+  var end = route.find("tfoot td.description").text();
+  var directions = route.find("tr.segment td.description");
+  var dirText = "";
+  $(directions).each(function(index)
+  {
+    var i = index + 1;
+    dirText += "\n\r" + i + ": " + $(this).text();
+  });
+  var message = 
+  "\n\r Start Address: " + start
+  + dirText
+  +"\n\r End Address: " + end;
+  var ta = $("textarea#windowConEmailTextArea");
+  ta.text(ta.text() + "\n\r" + message);
+  captchaExpired();
+  // post mail to smtp server
+  $.ajax(
+  {
+    "url": "https://devplanner.vta.org/notify.php",
+    "type": "POST",
+    "data":
+    {
+      "name": name,
+      "to": to,
+      "message": message
+    },
+    success: function(e)
+    {
+      if (!e) console.log("Email sent.");
+      // rebind button - there was an error
+      else submitReCaptcha();
+    },
+    error: function(e)
+    {
+      // rebind the button
+      submitReCaptcha();
+    }
+  });
+}
+
+submitReCaptcha = function()
+{
+
+    $("div.shareableEmailButton").bind("click", function()
+    {
+      if ($("input#windowConEmailName").val().length && $("input#windowConEmailRecipient").val().length)
+      {
+        sendEmailAjax();
+      }
+      else
+      {
+        var span = $("div.shareableEmailMsg > span");
+        if (!from.length) span.text("Please enter your name.").parent().show();
+        else if (!to.length) span.text("Enter the recipients email.").parent().show();
+        else span.text("Please complete all the fields.").parent().show();
+        msgTo("email");
+      }
+     
+    });
+}
 copyToClipboardPopup = function()
 {
-  // Timeout for msg handling
-  var msgTo = function(type)
+  if ($("li.RouteCard:first-of-type").length)
   {
-    if (typeof msgTO !== "undefined") clearTimeout(to);
-    if (type == "link") setTimeout(function() { $("div.shareableLinkMsg > span").text("").parent().hide(); }, 5000);
-    else if (type == "email") msgTO = setTimeout(function() { $("div.shareableEmailMsg > span").text("").parent().hide(); delete msgTO; }, 5000);
-  };
-  var div = $("div.shareableWindowCon");
-  if (div.length) div.remove();
-  var location = window.location.href;
-  // append a popup to the main window - over all other windows
-  $("div#main").prepend(
-    "<div class='shareableWindowCon'>"
-      +"<div class='shareableWindow'>"
-        +"<span class=''></span>"
-        +"<div class='shareableLinkHeader'><span> X </span></div>"
-        +"<div class='shareableWindowConLink'>"
-          + "<label for='shareableWindowConLinkI'> Share your trip! </label>"
-          + "<input id='shareableWindowConLinkI' name='shareableWindowConLinkI' value='" + location + "' readonly />"
-          +"<div class='shareableLinkButtonCon'>"
-            +"<div class='shareableLinkMsg noselect'><span>Link copied to clipboard.</span></div>"
-            +"<div class='shareableLinkButton noselect'>"
-              +"<span class='noselect'>Copy Link</span>"
+    var div = $("div.shareableWindowCon");
+    if (div.length) div.remove();
+    var location = window.location.href;
+    // append a popup to the main window - over all other windows
+    $("div#main").prepend(
+      "<div class='shareableWindowCon'>"
+        +"<div class='shareableWindow'>"
+          +"<span class=''></span>"
+          +"<div class='shareableLinkHeader'><span> X </span></div>"
+          +"<div class='shareableWindowConLink'>"
+            + "<label for='shareableWindowConLinkI'> Share your trip! </label>"
+            + "<input id='shareableWindowConLinkI' name='shareableWindowConLinkI' value='" + location + "' readonly />"
+            +"<div class='shareableLinkButtonCon'>"
+              +"<div class='shareableLinkMsg noselect'><span>Link copied to clipboard.</span></div>"
+              +"<div class='shareableLinkButton noselect'>"
+                +"<span class='noselect'>Copy Link</span>"
+              +"</div>"
             +"</div>"
           +"</div>"
-        +"</div>"
-        +"<div class='shareableWindowConEmail'>"
-          + "<div class='windowEmailInputsCon'>"
-            + "<div class='windowEmailLabelCon'>"
-              + "<label for='windowConEmailName'>Your Name: </label>"
-              + "<label for='windowConEmailRecipient'>Recipient Email: </label>"
-            + "</div>"
-            + "<input name='windowConEmailName' id='windowConEmailName' placeholder='Your Name: ' />"
-            + "<input name='windowConEmailRecipient' id='windowConEmailRecipient' placeholder='Recipients Email: ' />"
-          + "</div>"
-          + "<label for='windowConEmailTextArea'>Body: <span>(link to your search will be added automatically)</span></label>"
-          + "<textarea name='windowConEmailTextArea' id='windowConEmailTextArea'>Hi! I just found great commute options using VTA's TripPlanner. To see my trip checkout the link below: </textarea>"
-        +"</div>"
-        +"<div class='shareableLinkFooter'>"
-          +"<div class='shareableEmailMsg noselect'><span></span></div>"
-          +"<div class='shareableEmailButton noselect'>"
-            +"<span class='noselect'>Send Email</span>"
-          +"</div>"
+          +"<form name='' id=''>"
+            +"<div class='shareableWindowConEmail'>"
+              + "<div class='windowEmailInputsCon'>"
+                + "<div class='windowEmailLabelCon'>"
+                  + "<label for='windowConEmailName'>Your Name: </label>"
+                  + "<label for='windowConEmailRecipient'>Recipient Email: </label>"
+                + "</div>"
+                + "<input name='windowConEmailName' id='windowConEmailName' placeholder='Your Name: ' />"
+                + "<input name='windowConEmailRecipient' id='windowConEmailRecipient' placeholder='Recipients Email: ' />"
+              + "</div>"
+              + "<label for='windowConEmailTextArea'>Body: <span>(link to your search will be added automatically)</span></label>"
+              + "<textarea name='windowConEmailTextArea' readonly id='windowConEmailTextArea'>Hi! I just found great commute options using VTA's TripPlanner. To see my trip checkout the link below: </textarea>"
+              +"<div class='shareableEmailMsg noselect'><span></span></div>"
+            +"</div>"
+            +"<div class='shareableLinkFooter'>"
+              +"<div class='shareableEmailButton noselect'>"
+                +"<span class='noselect'>Send Email</span>"
+              +"</div>"
+            +"</div>"
+            +'<div id="emailCaptcha" class="g-recaptcha" data-sitekey="6LdhgD0UAAAAAI8OkmqdqutoD6IPQgPCunMJ5J_x" data-callback="submitReCaptcha" data-expired-callback="captchaExpired"></div>'
+          +"</form>"
         +"</div>"
       +"</div>"
-    +"</div>"
-  );
-  var i = $("div.shareableWindowConLink > input");
-  i.select().bind("click", function() { $(this).select(); });
-  copyToClipboard(location);
-  $("div.shareableLinkMsg > span").text("Link copied to clipboard.").parent().show();
-  msgTo("link");
-  // prevent popup window from closes directly on open( prevent duplicate clicks)
-  setTimeout(function()
-  {
-    $("div.shareableWindowCon, div.shareableLinkHeader > span").bind("click", function(e)
-    {
-      if (e.target == this) $("div.shareableWindowCon").remove();
-    });
-  }, 500);
+    );
+    grecaptcha.render("emailCaptcha");
 
-  $("div.shareableLinkButton").bind("click", function()
-  {
-    i.select();
-    copyToClipboard($("div.shareableWindowConLink > input").val());
+    var i = $("div.shareableWindowConLink > input");
+    i.select().bind("click", function() { $(this).select(); });
+    copyToClipboard(location);
     $("div.shareableLinkMsg > span").text("Link copied to clipboard.").parent().show();
     msgTo("link");
-  });
-
-  $("div.shareableEmailButton").bind("click", function()
-  {
-
-    var from = $("input#windowConEmailName").val();
-    var to = $("input#windowConEmailRecipient").val();
-    var body = $("textarea#windowConEmailTextArea").val();
-    if (from.length && to.length && body.length)
+    // prevent popup window from closes directly on open( prevent duplicate clicks)
+    setTimeout(function()
     {
-      body += "\r\n" + $("div.shareableWindowConLink > input").val();
-    }
-    else
+      $("div.shareableWindowCon, div.shareableLinkHeader > span").bind("click", function(e)
+      {
+        if (e.target == this) $("div.shareableWindowCon").remove();
+      });
+    }, 500);
+
+    $("div.shareableLinkButton").bind("click", function()
     {
-      var span = $("div.shareableEmailMsg > span");
-      if (!from.length) span.text("Please enter your name.").parent().show();
-      else if (!to.length) span.text("Enter the recipients email.").parent().show();
-      else span.text("Please complete all the fields.").parent().show();
-      msgTo("email");
-    }
-   
-  });
+      i.select();
+      copyToClipboard($("div.shareableWindowConLink > input").val());
+      $("div.shareableLinkMsg > span").text("Link copied to clipboard.").parent().show();
+      msgTo("link");
+    });
+  }
+  else alert("Please select a trip first.");
 }
 
 

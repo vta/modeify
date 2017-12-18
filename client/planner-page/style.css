@@ -15,6 +15,16 @@
   padding-left: var(--panel-width);
 }
 
+div#emailCaptcha
+{
+  -webkit-transform: scale(0.6);
+  transform: scale(0.6);
+  position: relative;
+  bottom: 37px;
+  float: left;
+  right: 41px;
+}
+
 .SidePanel {
   position: absolute;
   background-color: color(var(--vta-light-gray));
@@ -130,8 +140,7 @@ div.shareableEmailButton
   width: 125px;
   text-align: center;
 }
-div.shareableLinkMsg,
-div.shareableEmailMsg
+div.shareableLinkMsg
 {
   display:none;
   color: #8a6d3b;
@@ -142,6 +151,18 @@ div.shareableEmailMsg
   position: relative;
   top: 0px;
 }
+div.shareableEmailMsg
+{
+  display: none;
+  color: #8a6d3b;
+  border: 1px solid #faebcc;
+  background: #fcf8e3;
+  padding: 4px 6px 4px 6px;
+  position: absolute;
+  bottom: 17px;
+  left: 22px;
+}
+
 div.shareableWindowCon
 {
   text-align: center;
@@ -189,7 +210,7 @@ div.shareableLinkFooter
   position: relative;
   text-align: center;
   height: 30px;
-  top: 15px;
+  top: 17px;
 }
 div.shareableWindow
 {

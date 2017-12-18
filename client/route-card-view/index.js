@@ -170,7 +170,7 @@ View.prototype.showDetails = function (e) {
 
     var _this = this;
     optionsView.lastCardSelected = _this;
-
+    L.lastCardSelected = _this;
     e.preventDefault();
     mapView.clearExistingRoutes();
     var el = this.el;
@@ -205,7 +205,7 @@ View.prototype.showDetails = function (e) {
 View.prototype.hideDetails = function (e) {
     optionsView.lastCardSelected = null;
     e.preventDefault();
-
+    L.lastCardSelected = undefined;
     var isTouchScreen = 'ontouchstart' in window;
     if (isTouchScreen) {
         this.isSelected = false;
