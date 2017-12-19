@@ -210,16 +210,94 @@ msgTo = function(type)
   else if (type == "email") msgTO = setTimeout(function() { $("div.shareableEmailMsg > span").text("").parent().hide(); delete msgTO; }, 5000);
 }
 
+validateEmail = function(email) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email.toLowerCase());
+}
+
 captchaExpired = function()
 {
   $("div.shareableEmailButton").unbind("click");
 }
 
+getTripDate = function()
+{
+  // date for the planned trip
+  var date = $("div.input-group.date.filter-group").data().date;
+  return date;
+}
+
+getTripTime = function()
+{
+  // time for the planned trip
+  var time = $("div.times_list_wrapper > span.selected").html();
+  return time;
+}
+
+getTripSubject = function()
+{
+  var subject = "VTA Trip Planner details for " + getTripTime() + " " + getTripDate();
+  return subject;
+}
+
+getTripLink = function()
+{
+  var link = '<a href="' + $("div.shareableWindowConLink > input").val() + '" title="' + getTripSubject() + '">' + getTripSubject()  + '</a>';
+  return link;
+}
+
 sendEmailAjax = function(name, to, message)
 {
-  var date = $("div.input-group.date.filter-group").data().date;
-  var name = $("input#windowConEmailName").val();
-  var to = $("input#windowConEmailRecipient").val();
+  var subject = getTripSubject();
+  var link = getTripLink();
+  // unbind button to prevent spamming on submit
+  captchaExpired();
+  var errorSending = function()
+  {
+    $("div.shareableEmailMsg > span").text("We had a problem sending your email, Try again.").parent().show();
+    msgTo("email");
+    // rebind the button
+    submitReCaptcha();
+  }
+  // post mail to smtp server
+  $.ajax(
+  {
+    "url": "https://devplanner.vta.org/notify.php",
+    "type": "POST",
+    "data":
+    {
+      "name": name,
+      "to": to,
+      "subject": subject,
+      "message": message,
+      "link": link
+    },
+    success: function(e)
+    {
+      if (e == "OK")
+      {
+        // the email was succesfully sent
+        // unbind the button and close the popup after timeout
+        captchaExpired();
+        $("div.shareableEmailMsg > span").text("Success! Email was sent to: " + to + "!").parent().show();
+        msgTo("email");
+        setTimeout(function() { if ($("div.shareableWindowCon").length) $("div.shareableWindowCon").remove(); }, 8000);
+      }
+      // rebind button - there was an error
+      else 
+      {    
+        errorSending();
+      }
+    },
+    error: function(e)
+    {
+      errorSending();
+    }
+  });
+}
+
+getEmailMessage = function(returnOnly)
+{
   // gather the instructions for the first route (best)
   if (typeof L.lastCardSelected == "undefined")
   {
@@ -245,61 +323,39 @@ sendEmailAjax = function(name, to, message)
   + dirText
   +"\n\r End Address: " + end;
   var ta = $("textarea#windowConEmailTextArea");
-  ta.text(ta.text() + "\n\r" + message);
-  captchaExpired();
-  // post mail to smtp server
-  $.ajax(
+  var msg = ta.text() + "\n\r" + message;
+  if (typeof returnOnly == "undefined")
   {
-    "url": "https://devplanner.vta.org/notify.php",
-    "type": "POST",
-    "data":
-    {
-      "name": name,
-      "to": to,
-      "message": message
-    },
-    success: function(e)
-    {
-      if (!e) console.log("Email sent.");
-      // rebind button - there was an error
-      else submitReCaptcha();
-    },
-    error: function(e)
-    {
-      // rebind the button
-      submitReCaptcha();
-    }
-  });
+    ta.text(msg);
+  }
+  
+  return message;
 }
-
 submitReCaptcha = function()
 {
 
     $("div.shareableEmailButton").bind("click", function()
     {
-      if ($("input#windowConEmailName").val().length && $("input#windowConEmailRecipient").val().length)
+      var from = $("input#windowConEmailName").val();
+      var to = $("input#windowConEmailRecipient").val();
+      if (from.length && validateEmail(to))
       {
-        sendEmailAjax();
+        sendEmailAjax(from, to, getEmailMessage(true));
       }
       else
       {
         var span = $("div.shareableEmailMsg > span");
         if (!from.length) span.text("Please enter your name.").parent().show();
-        else if (!to.length) span.text("Enter the recipients email.").parent().show();
+        else if (!validateEmail(to)) span.text("Enter the recipients valid email.").parent().show();
         else span.text("Please complete all the fields.").parent().show();
         msgTo("email");
       }
      
     });
 }
-copyToClipboardPopup = function()
+appendShareableWindow = function(location)
 {
-  if ($("li.RouteCard:first-of-type").length)
-  {
-    var div = $("div.shareableWindowCon");
-    if (div.length) div.remove();
-    var location = window.location.href;
-    // append a popup to the main window - over all other windows
+  // append a popup to the main window - over all other windows
     $("div#main").prepend(
       "<div class='shareableWindowCon'>"
         +"<div class='shareableWindow'>"
@@ -339,8 +395,17 @@ copyToClipboardPopup = function()
         +"</div>"
       +"</div>"
     );
+}
+copyToClipboardPopup = function()
+{
+  if ($("li.RouteCard:first-of-type").length)
+  {
+    var div = $("div.shareableWindowCon");
+    if (div.length) div.remove();
+    var location = window.location.href;
+    appendShareableWindow(location);
     grecaptcha.render("emailCaptcha");
-
+    getEmailMessage()
     var i = $("div.shareableWindowConLink > input");
     i.select().bind("click", function() { $(this).select(); });
     copyToClipboard(location);
