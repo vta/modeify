@@ -331,9 +331,9 @@ getEmailMessage = function(returnOnly)
   
   return message;
 }
+
 submitReCaptcha = function()
 {
-
     $("div.shareableEmailButton").bind("click", function()
     {
       var from = $("input#windowConEmailName").val();
