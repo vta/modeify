@@ -274,15 +274,14 @@ sendEmailAjax = function(name, to, message)
     },
     success: function(e)
     {
-      console.log("success: " + e);
-      if (e == "/^OK.*$/")
+      if (e == 1)
       {
         // the email was succesfully sent
         // unbind the button and close the popup after timeout
         captchaExpired();
         $("div.shareableEmailMsg > span").text("Success! Email was sent to: " + to + "!").parent().show();
         msgTo("email");
-        setTimeout(function() { if ($("div.shareableWindowCon").length) $("div.shareableWindowCon").remove(); }, 8000);
+        setTimeout(function() { if ($("div.shareableWindowCon").length) $("div.shareableWindowCon").remove(); }, 7000);
       }
       // rebind button - there was an error
       else 
