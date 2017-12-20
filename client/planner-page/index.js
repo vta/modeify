@@ -242,7 +242,8 @@ getTripSubject = function()
 
 getTripLink = function()
 {
-  var link = '<a href="' + $("div.shareableWindowConLink > input").val() + '" title="' + getTripSubject() + '">' + getTripSubject()  + '</a>';
+  //var link = '<a href="' + $("div.shareableWindowConLink > input").val() + '" title="' + getTripSubject() + '">' + getTripSubject()  + '</a>';
+  var link = $("div.shareableWindowConLink > input").val();
   return link;
 }
 
