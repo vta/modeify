@@ -274,7 +274,8 @@ sendEmailAjax = function(name, to, message)
     },
     success: function(e)
     {
-      if (e == "OK")
+      console.log("success: " + e);
+      if (e == "/^OK.*$/")
       {
         // the email was succesfully sent
         // unbind the button and close the popup after timeout
