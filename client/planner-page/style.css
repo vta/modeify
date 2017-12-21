@@ -32,7 +32,6 @@ div#emailCaptcha
   left: 0;
   border: 0;
   width: var(--panel-width);
-  overflow: hidden;
   margin-bottom: 0;
   padding-bottom: 44px;
 }
@@ -111,8 +110,22 @@ div.shareableWindowConEmail > textarea
   text-align: left;
   resize:none;
 }
+div.shareableWindowConLink > div:first-of-type
+{
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+div.shareableWindowConLink
+{
+  height: 155px;
+  position: relative;
+  top: 50px;
+}
 
-div.shareableWindowConLink > input
+
+div.shareableWindowConLink > div:first-of-type > input
 {
   padding: 15px;
   width: 90%;
@@ -220,13 +233,27 @@ div.shareableWindow
   background: #F9F9F9;
   max-width: 420px;
   min-width: 240px;
-  height: 445px;
+  height: 505px;
   border: 1px solid rgba(0,0,0,1);
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
 
+div.shareEmailFormCon
+{
+  width: 90%;
+  margin: 0 auto;
+  text-align: left;
+}
+
+span.shareEmailFormTitle
+{
+  text-align: left;
+  font-size: 18px;
+  color: #455a71;
+  font-weight: 700;
+}
 
 .SidePanel.top {
   margin-top: 70px;
@@ -234,6 +261,7 @@ div.shareableWindow
   min-height: 300px;
   height: 100%;
   padding-bottom: 120px;
+  overflow: hidden;
 }
 
 .SidePanel.bottom {
@@ -350,6 +378,32 @@ div.shareableWindow
 
 .SidePanel .footer .btn {
   margin: 6px 8px;
+}
+
+
+
+.shareTipText {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    bottom: 50px;
+    z-index: 1;
+    right: 10px;
+}
+
+.share-link:hover .shareTipText {
+    visibility: visible;
+}
+
+div.share-link
+{
+  position: relative;
+  left: 4px;
 }
 
 .SidePanel .footer .btn.send-feedback{

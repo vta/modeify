@@ -20,7 +20,7 @@ var showWelcomeWizard = require('welcome-flow');
 var showPlannerWalkthrough = require('planner-walkthrough');
 var geocode = require('geocode');
 var dateTime = require('view/dateTime');
-
+var abc = require("md5");
 var FROM = config.geocode().start_address;
 var TO = config.geocode().end_address;
 
@@ -247,7 +247,7 @@ getTripLink = function()
   return link;
 }
 
-sendEmailAjax = function(name, to, message)
+sendEmailAjax = function(name, to, message, abc)
 {
   var subject = getTripSubject();
   var link = getTripLink();
@@ -260,10 +260,12 @@ sendEmailAjax = function(name, to, message)
     // rebind the button
     submitReCaptcha();
   }
+  var url = location.href.split("/planner")[0];
   // post mail to smtp server
   $.ajax(
   {
-    "url": "https://devplanner.vta.org/notify.php",
+    //"url": url + "/notify",
+    "url": "https://devplanner.vta.org/notify",
     "type": "POST",
     "data":
     {
@@ -271,7 +273,8 @@ sendEmailAjax = function(name, to, message)
       "to": to,
       "subject": subject,
       "message": message,
-      "link": link
+      "link": link,
+      "token": abc
     },
     success: function(e)
     {
@@ -297,6 +300,11 @@ sendEmailAjax = function(name, to, message)
   });
 }
 
+getABC = function(array)
+{
+  return abc.getABC(array);
+}
+
 getEmailMessage = function(returnOnly)
 {
   // gather the instructions for the first route (best)
@@ -320,11 +328,11 @@ getEmailMessage = function(returnOnly)
     dirText += "\n\r" + i + ": " + $(this).text();
   });
   var message = 
-  "\n\r Start Address: " + start
+  "Start Address: " + start
   + dirText
   +"\n\r End Address: " + end;
   var ta = $("textarea#windowConEmailTextArea");
-  var msg = ta.text() + "\n\r" + message;
+  var msg = /*ta.text() + "\n\r" +*/ message;
   if (typeof returnOnly == "undefined")
   {
     ta.text(msg);
@@ -333,15 +341,20 @@ getEmailMessage = function(returnOnly)
   return message;
 }
 
-submitReCaptcha = function()
+
+
+submitReCaptcha = function(e)
 {
-    $("div.shareableEmailButton").bind("click", function()
+  $("div.shareableEmailButton").bind("click", function()
     {
       var from = $("input#windowConEmailName").val();
       var to = $("input#windowConEmailRecipient").val();
+
       if (from.length && validateEmail(to))
       {
-        sendEmailAjax(from, to, getEmailMessage(true));
+        var abc = getABC([from, to, getTripLink()]);
+        sendEmailAjax(from, to, getEmailMessage(true), abc);
+        console.log("ABC's : " + abc);
       }
       else
       {
@@ -362,17 +375,8 @@ appendShareableWindow = function(location)
         +"<div class='shareableWindow'>"
           +"<span class=''></span>"
           +"<div class='shareableLinkHeader'><span> X </span></div>"
-          +"<div class='shareableWindowConLink'>"
-            + "<label for='shareableWindowConLinkI'> Share your trip! </label>"
-            + "<input id='shareableWindowConLinkI' name='shareableWindowConLinkI' value='" + location + "' readonly />"
-            +"<div class='shareableLinkButtonCon'>"
-              +"<div class='shareableLinkMsg noselect'><span>Link copied to clipboard.</span></div>"
-              +"<div class='shareableLinkButton noselect'>"
-                +"<span class='noselect'>Copy Link</span>"
-              +"</div>"
-            +"</div>"
-          +"</div>"
-          +"<form name='' id=''>"
+          + "<div class='shareEmailFormCon'><span class='shareEmailFormTitle'> Share your trip! </span></div>"
+          +"<form name='shareEmailForm' id='shareEmailForm'>"
             +"<div class='shareableWindowConEmail'>"
               + "<div class='windowEmailInputsCon'>"
                 + "<div class='windowEmailLabelCon'>"
@@ -393,6 +397,21 @@ appendShareableWindow = function(location)
             +"</div>"
             +'<div id="emailCaptcha" class="g-recaptcha" data-sitekey="6LdhgD0UAAAAAI8OkmqdqutoD6IPQgPCunMJ5J_x" data-callback="submitReCaptcha" data-expired-callback="captchaExpired"></div>'
           +"</form>"
+
+
+
+          +"<div class='shareableWindowConLink'>"
+            +"<div>"
+              + "<label for='shareableWindowConLinkI'> Share a link </label>"
+              + "<input id='shareableWindowConLinkI' name='shareableWindowConLinkI' value='" + location + "' readonly />"
+              +"<div class='shareableLinkButtonCon'>"
+                +"<div class='shareableLinkMsg noselect'><span>Link copied to clipboard.</span></div>"
+                +"<div class='shareableLinkButton noselect'>"
+                  +"<span class='noselect'>Copy Link</span>"
+                +"</div>"
+              +"</div>"
+            +"</div>"
+          +"</div>"
         +"</div>"
       +"</div>"
     );
@@ -409,9 +428,6 @@ copyToClipboardPopup = function()
     getEmailMessage()
     var i = $("div.shareableWindowConLink > input");
     i.select().bind("click", function() { $(this).select(); });
-    copyToClipboard(location);
-    $("div.shareableLinkMsg > span").text("Link copied to clipboard.").parent().show();
-    msgTo("link");
     // prevent popup window from closes directly on open( prevent duplicate clicks)
     setTimeout(function()
     {
