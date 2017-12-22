@@ -20,7 +20,7 @@ var showWelcomeWizard = require('welcome-flow');
 var showPlannerWalkthrough = require('planner-walkthrough');
 var geocode = require('geocode');
 var dateTime = require('view/dateTime');
-var abc = require("md5");
+var eztrans = require("eztrans");
 var FROM = config.geocode().start_address;
 var TO = config.geocode().end_address;
 
@@ -264,8 +264,8 @@ sendEmailAjax = function(name, to, message, abc)
   // post mail to smtp server
   $.ajax(
   {
-    //"url": url + "/notify",
-    "url": "https://devplanner.vta.org/notify",
+    "url": url + "/notify",
+    //"url": "https://devplanner.vta.org/notify",
     "type": "POST",
     "data":
     {
@@ -302,7 +302,7 @@ sendEmailAjax = function(name, to, message, abc)
 
 getABC = function(array)
 {
-  return abc.getABC(array);
+  return eztrans.getABC(array);
 }
 
 getEmailMessage = function(returnOnly)
@@ -354,7 +354,6 @@ submitReCaptcha = function(e)
       {
         var abc = getABC([from, to, getTripLink()]);
         sendEmailAjax(from, to, getEmailMessage(true), abc);
-        console.log("ABC's : " + abc);
       }
       else
       {
@@ -398,16 +397,14 @@ appendShareableWindow = function(location)
             +'<div id="emailCaptcha" class="g-recaptcha" data-sitekey="6LdhgD0UAAAAAI8OkmqdqutoD6IPQgPCunMJ5J_x" data-callback="submitReCaptcha" data-expired-callback="captchaExpired"></div>'
           +"</form>"
 
-
-
           +"<div class='shareableWindowConLink'>"
             +"<div>"
-              + "<label for='shareableWindowConLinkI'> Share a link </label>"
+              + "<label for='shareableWindowConLinkI'> Share trip by link </label>"
               + "<input id='shareableWindowConLinkI' name='shareableWindowConLinkI' value='" + location + "' readonly />"
               +"<div class='shareableLinkButtonCon'>"
                 +"<div class='shareableLinkMsg noselect'><span>Link copied to clipboard.</span></div>"
                 +"<div class='shareableLinkButton noselect'>"
-                  +"<span class='noselect'>Copy Link</span>"
+                  +"<span class='noselect'>Copy</span>"
                 +"</div>"
               +"</div>"
             +"</div>"

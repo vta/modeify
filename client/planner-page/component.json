@@ -7,7 +7,7 @@
     "trevorgerhardt/scrollbar-size": "*"
   },
   "locals": [
-    "md5",
+    "eztrans",
     "config",
     "filter-view",
     "help-me-choose-view",
