@@ -41,13 +41,6 @@ var View = view(require('./template.html'), function(view, model) {
   }
 });
 
-if (window.location.href.indexOf("&side-panel=false") != -1)
-{
-  alert("does");
-}
-
-
-
 /**
  * Expose `render`
  */
