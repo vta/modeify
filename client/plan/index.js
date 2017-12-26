@@ -50,7 +50,8 @@ var Plan = module.exports = model('Plan')
     walk: true,
     fast: false,
     safe: true,
-    flat: true
+    flat: true,
+    sidePanel: true
   }))
   .attr('bike')
   .attr('bikeShare')
@@ -80,7 +81,8 @@ var Plan = module.exports = model('Plan')
   .attr('walk')
   .attr('fast')
   .attr('safe')
-  .attr('flat');
+  .attr('flat')
+  .attr("sidePanel");
 
 /**
  * Expose `load`
@@ -592,6 +594,7 @@ Plan.prototype.generateQueryString = function() {
     minute: this.minute(),
     fast: Boolean(this.fast()),
     safe: Boolean(this.safe()),
-    flat: Boolean(this.flat())
+    flat: Boolean(this.flat()),
+    sidePanel: Boolean(this.sidePanel())
   });
 };

@@ -41,6 +41,13 @@ var View = view(require('./template.html'), function(view, model) {
   }
 });
 
+if (window.location.href.indexOf("&side-panel=false") != -1)
+{
+  alert("does");
+}
+
+
+
 /**
  * Expose `render`
  */
@@ -528,6 +535,17 @@ View.prototype.hideSidePanel = function(e) {
   }, 2100)
 };
 
+View.prototype.hideSP = function() {
+  $("div.SidePanel, div.scrollToTop, nav").hide();
+  $("div.fullscreen").css("padding-left", "0");
+  L.modeify.map.invalidateSize();
+};
+
+View.prototype.showSP = function() {
+  $("div.SidePanel, div.scrollToTop, nav").show();
+  $("div.fullscreen").css("padding-left", "320px");
+  L.modeify.map.invalidateSize();
+};
 /**
  * Show Side Panel
  */
@@ -600,6 +618,21 @@ function showQuery(query) {
   if (query.flat !== undefined) plan.flat(query.flat === 'true')
   if (query.safe !== undefined) plan.safe(query.safe === 'true')
   if (query.fast !== undefined) plan.fast(query.fast === 'true')
+  if (query.sidePanel !== undefined) 
+  {
+    if (query.sidePanel == 'true') 
+    {  
+      plan.sidePanel(1); 
+      View.prototype.showSP();
+    }
+    else 
+    {
+      plan.sidePanel(0);
+      View.prototype.hideSP();
+    }
+  
+  }
+  //if (query.sidePanel == 'true') alert(query.sidePanel);
   // console.log('bike triangle set to ', {'flat':plan.flat(), 'safe':plan.safe(), 'fast':plan.fast()})
 
 
