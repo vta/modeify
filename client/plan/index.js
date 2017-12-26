@@ -51,6 +51,7 @@ var Plan = module.exports = model('Plan')
     fast: false,
     safe: true,
     flat: true,
+    routeNumber: 0,
     sidePanel: true
   }))
   .attr('bike')
@@ -82,6 +83,7 @@ var Plan = module.exports = model('Plan')
   .attr('fast')
   .attr('safe')
   .attr('flat')
+  .attr("routeNumber")
   .attr("sidePanel");
 
 /**
@@ -595,6 +597,7 @@ Plan.prototype.generateQueryString = function() {
     fast: Boolean(this.fast()),
     safe: Boolean(this.safe()),
     flat: Boolean(this.flat()),
+    routeNumber: this.routeNumber(),
     sidePanel: Boolean(this.sidePanel())
   });
 };

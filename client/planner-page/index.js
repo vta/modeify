@@ -46,7 +46,6 @@ var View = view(require('./template.html'), function(view, model) {
  */
 
 module.exports = function(ctx, next) {
-  log('render');
 
   var plan = ctx.plan;
   var query = querystring.parse(window.location.search);
@@ -247,6 +246,16 @@ getTripLink = function()
   return link;
 }
 
+getImageLink = function()
+{
+  if (typeof L.lastCardSelected == "undefined") var index = 0
+  else index = L.lastCardSelected.model.index;
+  var link = window.location.href;
+  var last = link.replace("routeNumber=0", "routeNumber=" + index);
+  var last = last.replace("sidePanel=true", "sidePanel=false");
+  console.log(last);
+}
+
 sendEmailAjax = function(name, to, message, abc)
 {
   var subject = getTripSubject();
@@ -367,6 +376,7 @@ submitReCaptcha = function(e)
 }
 appendShareableWindow = function(location)
 {
+  getImageLink();
   // append a popup to the main window - over all other windows
     $("div#main").prepend(
       "<div class='shareableWindowCon'>"
@@ -528,11 +538,55 @@ View.prototype.hideSidePanel = function(e) {
   }, 2100)
 };
 
-View.prototype.hideSP = function() {
+// Show the route based on route number for grabbing map
+View.prototype.displayRouteNumber = function(routeNumber) 
+{
+    // gather number of total possible routes
+    var itineration = JSON.parse(sessionStorage.getItem('itineration'));
+    // loop through the routes hiding all but the first
+    for (var i = 0; i < itineration.length; i++) 
+    {
+        // Hide all routes besides the route numbers
+        if (i != routeNumber)
+        {
+            var r3 = d3.selectAll(".iteration-" + i);
+            r3.classed("hideMe", true);
+            r3.attr("data-show", "0");
+        }
+    }
+    var r3 = d3.selectAll(".iteration-" + routeNumber);
+
+    if (config.map_provider() !== 'AmigoCloud') r3.classed("hideMe", false);
+    r3.attr("data-show", "1");
+    // show the first route
+    var orden = routeNumber;
+    d3.selectAll(".iteration-200").each(function (e)
+    {
+        var element = d3.select(this);
+        var parent = d3.select(element.node().parentNode);
+        parent.attr("class", "g-element");
+        parent.attr("data-orden", orden.toString());
+        if (Boolean(parseInt(element.attr("data-show")))) parent.attr("data-show", "1");
+        else parent.attr("data-show", "0");
+        orden++;
+    });
+
+    d3.selectAll(".g-element").each(function (a, b) 
+    {
+        if (Boolean(parseInt(d3.select(this).attr("data-show")))) d3.select(this).node().parentNode.appendChild(this);
+    });
+};
+
+/* @params : routeNumber : this is the route which is selected
+ * Default is 0 which selects the first route - usually has 3 routes
+ * which equates to (0 - 2)
+*/
+View.prototype.hideSP = function(routeNumber) {
   $("div.SidePanel, div.scrollToTop, nav").hide();
   $("div.fullscreen").css("padding-left", "0");
   L.modeify.map.invalidateSize();
-};
+  setTimeout(function() { View.prototype.displayRouteNumber(routeNumber);  }, 800);
+}
 
 View.prototype.showSP = function() {
   $("div.SidePanel, div.scrollToTop, nav").show();
@@ -617,11 +671,20 @@ function showQuery(query) {
     {  
       plan.sidePanel(1); 
       View.prototype.showSP();
+      // ensure 0 when sidepanel is enabled
+      // allows us to format string for email
+      plan.routeNumber(0);
     }
-    else 
+    else if (query.sidePanel == 'false')
     {
       plan.sidePanel(0);
-      View.prototype.hideSP();
+      plan.routeNumber(query.routeNumber);
+      View.prototype.hideSP(query.routeNumber);
+      setTimeout(function()
+      {
+          L.modeify.map.zoomScale = L.modeify.map.getZoom() - 0.25;
+          L.modeify.map.centerScale = L.modeify.map.getCenter();
+      }, 1000);
     }
   
   }
