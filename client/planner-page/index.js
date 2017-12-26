@@ -243,7 +243,7 @@ getTripSubject = function()
 getTripLink = function()
 {
   //var link = '<a href="' + $("div.shareableWindowConLink > input").val() + '" title="' + getTripSubject() + '">' + getTripSubject()  + '</a>';
-  var link = $("div.shareableWindowConLink > input").val();
+  var link = window.location.href;
   return link;
 }
 
@@ -265,7 +265,6 @@ sendEmailAjax = function(name, to, message, abc)
   $.ajax(
   {
     "url": url + "/notify",
-    //"url": "https://devplanner.vta.org/notify",
     "type": "POST",
     "data":
     {
@@ -423,7 +422,7 @@ copyToClipboardPopup = function()
     appendShareableWindow(location);
     grecaptcha.render("emailCaptcha");
     getEmailMessage()
-    var i = $("div.shareableWindowConLink > input");
+    var i = $("input#shareableWindowConLinkI");
     i.select().bind("click", function() { $(this).select(); });
     // prevent popup window from closes directly on open( prevent duplicate clicks)
     setTimeout(function()
@@ -437,7 +436,7 @@ copyToClipboardPopup = function()
     $("div.shareableLinkButton").bind("click", function()
     {
       i.select();
-      copyToClipboard($("div.shareableWindowConLink > input").val());
+      copyToClipboard(window.location.href);
       $("div.shareableLinkMsg > span").text("Link copied to clipboard.").parent().show();
       msgTo("link");
     });
