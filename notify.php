@@ -29,13 +29,13 @@ require_once ('Mail/mimePart.php');
  * @param $token
  * @return bool
  */
-function md5hash($pieces, $token) {
-  $test = implode("---",$pieces);
+function md5hash($pieces, $token, $glue) {
+  $test = implode($glue, $pieces);
   $sum = md5($test);
   if ($token === $sum) {
     return true;
   }
-  return false;
+  return $test;
 }
 
 /**
@@ -64,6 +64,11 @@ if (is_file($filename)) {
   die('Missing config file!');
 }
 
+
+if ($notify['debug']) {
+  echo var_dump($notify);
+}
+
 /**
  * If not debug use $_POST values, otherwise use config file test parameters
  */
@@ -86,7 +91,7 @@ if (!$notify['debug']){
   if (!isset($_POST['token']) || empty($_POST['token'])) {
     $err_msg .= "TOKEN: not set!\n";
   }
-  $name = $POST['name'];
+  $name = $_POST['name'];
   $to = $_POST['to'];
   $subject = $_POST['subject'];
   $message = $_POST['message'] . "\r\n";
@@ -111,14 +116,20 @@ if ($notify['debug']) {
 /**
  * Verify token to prevent spam
  */
-if (empty($notify['debug'])) {
-  $fields = array();
-  foreach ($notify['md5hash'] as $field) {
+$fields = array();
+$columns = $notify['md5_hash'];
+if (!$notify['debug']) {
+  foreach ($columns as $field) {
     $fields[] = $_POST[$field];
   }
-  if (!md5hash($fields, $token)) {
-    $err_msg .= "MD5: not valid!";
+} else {
+  foreach ($columns as $field) {
+    $fields[] = $notify['test'][$field];
   }
+}
+$result = md5hash($fields, $token, $notify['md5_glue']);
+if ($result !== true) {
+  $err_msg .= "MD5: not valid!\n$token <> $result\n".print_r($fields);
 }
 
 /**
@@ -181,8 +192,12 @@ $headers[] = "X-Mailer: PHP/" . phpversion();
  */
 $return = null;
 $output = array();
-//$command = __DIR__. "/notify.sh '$link'";
-$command = "/usr/bin/google-chrome --headless --timeout='30000' --virtual-time-budget='30000' --disable-gpu --screenshot --window='1024,768' '" . $link . "'";
+if (preg_match('%sidePanel=\w{1,}%', $link)) {
+  $fetch = preg_replace('%sidePanel=true%', 'sidePanel=false', $link);
+} else {
+  $fetch = $link . "&sidePanel=false";
+}
+$command = "/usr/bin/google-chrome --headless --timeout='30000' --virtual-time-budget='30000' --disable-gpu --screenshot --window='1024,768' '" . $fetch . "'";
 exec($command,$output,$return);
 
 /**
