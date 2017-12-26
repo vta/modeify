@@ -1,0 +1,21 @@
+body {
+    font-family: "Arial, Helvetica, Sans";
+    font-size: 14pt;
+    font-weight: 500;
+}
+#logo img {
+    transform: scale(0.7);
+    max-height: 70px;
+}
+#from {
+    font-size: 16pt;
+    font-weight: 700;
+}
+#intro {
+    max-width: 85%;
+    line-height: auto;
+}
+#intro p {
+    padding: 5px;
+    margin: 5px 0px;
+}
