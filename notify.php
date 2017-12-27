@@ -197,7 +197,7 @@ if (preg_match('%sidePanel=\w{1,}%', $link)) {
 } else {
   $fetch = $link . "&sidePanel=false";
 }
-$command = "/usr/bin/google-chrome --headless --timeout='30000' --virtual-time-budget='30000' --disable-gpu --screenshot --window='1024,768' '" . $fetch . "'";
+$command = "/usr/bin/google-chrome --headless --timeout='30000' --virtual-time-budget='30000' --disable-gpu --screenshot --window='1024,768' --disk-cache-size=0 --media-cache-size=0 --v8-cache-options=off --v8-cache-strategies-for-cache-storage=off --hide-scrollbars --deterministic-fetch '" . $fetch . "'";
 exec($command,$output,$return);
 
 /**
