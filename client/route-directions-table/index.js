@@ -61,7 +61,7 @@ View.prototype.directions = function()
 
   function sstimes(leg)
   {
-    var res = ['<div class="start_stop_times"><span>'];
+    var res = ['<div class="start_stop_times"><span> '];
     res.push(convert.dateToHumanTime(new Date(leg.startTime)))
     res.push('</span> - <span>');
     res.push(convert.dateToHumanTime(new Date(leg.endTime)))

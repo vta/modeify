@@ -683,10 +683,10 @@ function showQuery(query) {
       View.prototype.hideSP(query.routeNumber);
       setTimeout(function()
       {
-          L.modeify.map.zoomScale = L.modeify.map.getZoom() - 0.50;
-          L.modeify.map.centerScale = L.modeify.map.getCenter();
-          L.modeify.map.setZoom(L.modeify.map.zoomScale);
-      }, 1000);
+        L.modeify.map.zoomScale = L.modeify.map.getZoom() - 0.20;
+        L.modeify.map.centerScale = L.modeify.map.getCenter();
+        L.modeify.map.setZoom(L.modeify.map.zoomScale);
+      }, 800);
     }
   
   }
