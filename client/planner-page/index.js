@@ -582,14 +582,14 @@ View.prototype.displayRouteNumber = function(routeNumber)
  * which equates to (0 - 2)
 */
 View.prototype.hideSP = function(routeNumber) {
-  $("div.SidePanel, div.scrollToTop, nav").hide();
+  $("div.SidePanel, div.scrollToTop, nav, div.leaflet-control-zoom.leaflet-bar.leaflet-control, div.leaflet-control-layers.leaflet-control").hide();
   $("div.fullscreen").css("padding-left", "0");
   L.modeify.map.invalidateSize();
   setTimeout(function() { View.prototype.displayRouteNumber(routeNumber);  }, 800);
 }
 
 View.prototype.showSP = function() {
-  $("div.SidePanel, div.scrollToTop, nav").show();
+  $("div.SidePanel, div.scrollToTop, nav, div.leaflet-control-zoom.leaflet-bar.leaflet-control, div.leaflet-control-layers.leaflet-control").show();
   $("div.fullscreen").css("padding-left", "320px");
   L.modeify.map.invalidateSize();
 };
@@ -682,8 +682,9 @@ function showQuery(query) {
       View.prototype.hideSP(query.routeNumber);
       setTimeout(function()
       {
-          L.modeify.map.zoomScale = L.modeify.map.getZoom() - 0.25;
+          L.modeify.map.zoomScale = L.modeify.map.getZoom() - 0.50;
           L.modeify.map.centerScale = L.modeify.map.getCenter();
+          L.modeify.map.setZoom(L.modeify.map.zoomScale);
       }, 1000);
     }
   
