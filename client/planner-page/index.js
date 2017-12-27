@@ -671,7 +671,7 @@ function showQuery(query) {
     if (query.sidePanel == 'true') 
     {  
       plan.sidePanel(1); 
-      View.prototype.showSP();
+      // View.prototype.showSP();
       // ensure 0 when sidepanel is enabled
       // allows us to format string for email
       plan.routeNumber(0);
