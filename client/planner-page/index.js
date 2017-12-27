@@ -246,20 +246,21 @@ getTripLink = function()
   return link;
 }
 
-getImageLink = function()
+getRouteNumber = function()
 {
   if (typeof L.lastCardSelected == "undefined") var index = 0
   else index = L.lastCardSelected.model.index;
-  var link = window.location.href;
-  var last = link.replace("routeNumber=0", "routeNumber=" + index);
-  var last = last.replace("sidePanel=true", "sidePanel=false");
-  console.log(last);
+  // var link = window.location.href;
+  // var last = link.replace("routeNumber=0", "routeNumber=" + index);
+  // var last = last.replace("sidePanel=true", "sidePanel=false");
+  return index;
 }
 
 sendEmailAjax = function(name, to, message, abc)
 {
   var subject = getTripSubject();
   var link = getTripLink();
+  var route = getRouteNumber();
   // unbind button to prevent spamming on submit
   captchaExpired();
   var errorSending = function()
@@ -282,6 +283,7 @@ sendEmailAjax = function(name, to, message, abc)
       "subject": subject,
       "message": message,
       "link": link,
+      "route": route,
       "token": abc
     },
     success: function(e)
@@ -376,7 +378,6 @@ submitReCaptcha = function(e)
 }
 appendShareableWindow = function(location)
 {
-  getImageLink();
   // append a popup to the main window - over all other windows
     $("div#main").prepend(
       "<div class='shareableWindowCon'>"
