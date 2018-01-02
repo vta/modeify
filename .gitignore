@@ -19,8 +19,13 @@ lib-cov
 *.iml
 lockdown.json
 
+# Exclude all snapshots
+snapshots/*
+
 .DS_Store
 .env
+
+
 
 # node_modules
 **/build/Makefile
