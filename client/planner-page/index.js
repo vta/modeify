@@ -233,9 +233,16 @@ getTripTime = function()
   return time;
 }
 
+getArriveDepart = function()
+{
+  var r = $('[name="arriveBy"]').val();
+  if (r == "true") return "arrival at: ";
+  else if (r == "false") return "departure at: ";
+}
+
 getTripSubject = function()
 {
-  var subject = "VTA Trip Planner details for " + getTripTime() + " " + getTripDate();
+  var subject = "VTA Trip Planner details for " + getArriveDepart() + getTripTime() + " on " + getTripDate();
   return subject;
 }
 
@@ -683,11 +690,11 @@ function showQuery(query) {
       View.prototype.hideSP(query.routeNumber);
       setTimeout(function()
       {
-        L.modeify.map.zoomScale = L.modeify.map.getZoom() - 0.20;
+        L.modeify.map.zoomScale = L.modeify.map.getZoom() - 0.15;
         L.modeify.map.centerScale = L.modeify.map.getCenter();
         L.modeify.map.setZoom(L.modeify.map.zoomScale);
         L.modeify.map.panTo(L.modeify.map.centerScale);
-      }, 1000);
+      }, 1300);
     }
   
   }
