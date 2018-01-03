@@ -233,9 +233,16 @@ getTripTime = function()
   return time;
 }
 
+getArriveDepart = function()
+{
+  var r = $('[name="arriveBy"]').val();
+  if (r == "true") return "arrival at: ";
+  else if (r == "false") return "departure at: ";
+}
+
 getTripSubject = function()
 {
-  var subject = "VTA Trip Planner details for " + getTripTime() + " " + getTripDate();
+  var subject = "VTA Trip Planner details for " + getArriveDepart() + getTripTime() + " on " + getTripDate();
   return subject;
 }
 
@@ -671,7 +678,7 @@ function showQuery(query) {
     if (query.sidePanel == 'true') 
     {  
       plan.sidePanel(1); 
-      View.prototype.showSP();
+      // View.prototype.showSP();
       // ensure 0 when sidepanel is enabled
       // allows us to format string for email
       plan.routeNumber(0);
@@ -683,10 +690,11 @@ function showQuery(query) {
       View.prototype.hideSP(query.routeNumber);
       setTimeout(function()
       {
-          L.modeify.map.zoomScale = L.modeify.map.getZoom() - 0.50;
-          L.modeify.map.centerScale = L.modeify.map.getCenter();
-          L.modeify.map.setZoom(L.modeify.map.zoomScale);
-      }, 1000);
+        L.modeify.map.zoomScale = L.modeify.map.getZoom() - 0.15;
+        L.modeify.map.centerScale = L.modeify.map.getCenter();
+        L.modeify.map.setZoom(L.modeify.map.zoomScale);
+        L.modeify.map.panTo(L.modeify.map.centerScale);
+      }, 1300);
     }
   
   }
