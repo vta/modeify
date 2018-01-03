@@ -183,7 +183,7 @@ $mime = new Mail_mime($build_params);
  * Set headers for email
  */
 $headers[] = "MIME-Version: 1.0";
-$headers[] = "From: " . $notify['from_address'];
+$headers[] = "From: VTA Trip Planner <" . $notify['from_address'] . ">";
 $headers[] = "To: " . $to;
 $headers[] = "X-Mailer: PHP/" . phpversion();
 
@@ -197,14 +197,16 @@ if (preg_match('%sidePanel=\w{1,}%', $link)) {
 } else {
   $fetch = $link . "&sidePanel=false";
 }
-$command = "/usr/bin/google-chrome --headless --timeout='30000' --virtual-time-budget='30000' --disable-gpu --screenshot --window='1024,768' --disk-cache-size=0 --media-cache-size=0 --v8-cache-options=off --v8-cache-strategies-for-cache-storage=off --hide-scrollbars --deterministic-fetch '" . $fetch . "'";
+//$command = "/usr/bin/google-chrome --headless --virtual-time-budget=9999 --disable-gpu --screenshot --window='600,600' --disk-cache-size=0 --media-cache-size=0 --v8-cache-options=off --v8-cache-strategies-for-cache-storage=off --hide-scrollbars --deterministic-fetch '" . $fetch . "'";
+//$command = "/usr/bin/google-chrome --headless --virtual-time-budget=9999 --disable-gpu --screenshot --window='600,600' --hide-scrollbars --deterministic-fetch '" . $fetch . "'";
+$command = "node puppeteer.js '" . $fetch . "'";
 exec($command,$output,$return);
 
 /**
  * Add the Logo & Screenshot images inline as base64 HTML and set Content-ID per RFC2392
  * @see https://www.ietf.org/rfc/rfc2392.txt
  */
-$mime->addHTMLImage($image, "image/png", "route.png", true, uniqid($screnncid,FALSE));
+$mime->addHTMLImage($return, "image/png", "route.png", true, uniqid($screnncid,FALSE));
 $mime->addHTMLImage($logoimage, "image/png", "logo.png", true, uniqid($logocid,FALSE));
 
 /**
@@ -241,7 +243,7 @@ $mime->setTXTBody($text);
 $mime->setHTMLBody($html);
 $body = $mime->get();
 $hdrs = $mime->headers($headers);
-$mail =& Mail::factory('mail', '-f ' . $notify['from_address']);
+$mail =& Mail::factory('mail', '-r ' . $notify['from_address']);
 
 $retval = 0;
 if (empty($err_msg)) {
