@@ -341,8 +341,11 @@ getEmailMessage = function(returnOnly)
   var dirText = "";
   $(directions).each(function(index)
   {
+    var dis = $(this).parent().find("td.distance").text();
+    if (dis.length > 0) var dist = ": " + dis;
+    else dist = "";
     var i = index + 1;
-    dirText += "\n\r" + i + ": " + $(this).text() + " : " + $(this).parent().find("td.distance").text();
+    dirText += "\n\r" + i + ": " + $(this).text() + dist;
   });
   var message = 
   "Start Address: " + start
