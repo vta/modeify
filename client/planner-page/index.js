@@ -342,7 +342,7 @@ getEmailMessage = function(returnOnly)
   $(directions).each(function(index)
   {
     var i = index + 1;
-    dirText += "\n\r" + i + ": " + $(this).text();
+    dirText += "\n\r" + i + ": " + $(this).text() + " : " + $(this).parent().find("td.distance").text();
   });
   var message = 
   "Start Address: " + start
