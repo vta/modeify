@@ -10,8 +10,7 @@ function timeout(ms) {
 }
 
 var img = createRandomString(16);
-// const path = "snapshots/" + img + '.png';
-const path = "snapshots/screenshot.png";
+const path = "snapshots/screenshot-" + img + '.png';
 puppeteer.launch({
     sloMo: 250,
     headless: true,

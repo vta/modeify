@@ -694,8 +694,8 @@ function showQuery(query) {
         L.modeify.map.centerScale = L.modeify.map.getCenter();
         L.modeify.map.setZoom(L.modeify.map.zoomScale);
         L.modeify.map.panTo(L.modeify.map.centerScale);
-        setTimeout(function() { $("html").append("<div style='display:none' class='readyToPrint'></div>"); }, 15000);
-      }, 1600);
+        setTimeout(function() { $("html").append("<div style='display:none' class='readyToPrint'></div>"); }, 18000);
+      }, 2000);
     }
   
   }
