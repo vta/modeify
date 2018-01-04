@@ -39,6 +39,24 @@ function md5hash($pieces, $token, $glue) {
 }
 
 /**
+ * ImageMagick replace solid grey with transparency alpha
+ * @see http://phpimagick.com/Tutorial/backgroundMasking
+ * @see http://www.imagemagick.org/Usage/masking/#boolean_transparency
+ */
+function backgroundMasking($image)
+{
+  $command = 'convert ' . $image . ' -transparent rgb\(236,235,235\) ' . $image;
+  $retval = null;
+  $output = array();
+  exec($command, $output, $retval);
+  if ($retval !== 0) {
+    return 0;
+  }
+  return 1;
+}
+
+
+/**
  * Initialize defaults for notify
  */
 define('_CR', "\r\n");
@@ -50,7 +68,7 @@ $html = '';
 $err_msg = '';
 $filename = 'notify.yaml';
 $css = 'notify.css';
-$image = 'screenshot.png';
+$image = 'empty';
 $screencid = 'screenshot';
 $logoimage = 'assets/images/application/vtalogotrans.png';
 $logocid = 'vtalogotrans';
@@ -129,7 +147,7 @@ if (!$notify['debug']) {
 }
 $result = md5hash($fields, $token, $notify['md5_glue']);
 if ($result !== true) {
-  $err_msg .= "MD5: not valid!\n$token <> $result\n".print_r($fields);
+  $err_msg .= "MD5: not valid!\n$token <> $result\n";
 }
 
 /**
@@ -137,6 +155,12 @@ if ($result !== true) {
  */
 if (!preg_match($notify['valid_url'], $link)) {
   $err_msg .= "LINK: Does not match VTA!";
+}
+
+if (empty($err_msg)) {
+  echo 1;
+} else {
+  echo 0;
 }
 
 /**
@@ -190,23 +214,36 @@ $headers[] = "X-Mailer: PHP/" . phpversion();
 /**
  * Take a screenshot of the page using headless chrome
  */
-$return = null;
-$output = array();
-if (preg_match('%sidePanel=\w{1,}%', $link)) {
-  $fetch = preg_replace('%sidePanel=true%', 'sidePanel=false', $link);
-} else {
-  $fetch = $link . "&sidePanel=false";
-}
+if (empty($err_msg)) {
+  $retval = NULL;
+  $output = array();
+  if (preg_match('%sidePanel=\w{1,}%', $link)) {
+    $fetch = preg_replace('%sidePanel=true%', 'sidePanel=false', $link);
+  }
+  else {
+    $fetch = $link . "&sidePanel=false";
+  }
 //$command = "/usr/bin/google-chrome --headless --virtual-time-budget=9999 --disable-gpu --screenshot --window='600,600' --disk-cache-size=0 --media-cache-size=0 --v8-cache-options=off --v8-cache-strategies-for-cache-storage=off --hide-scrollbars --deterministic-fetch '" . $fetch . "'";
 //$command = "/usr/bin/google-chrome --headless --virtual-time-budget=9999 --disable-gpu --screenshot --window='600,600' --hide-scrollbars --deterministic-fetch '" . $fetch . "'";
-$command = "node puppeteer.js '" . $fetch . "'";
-exec($command,$output,$return);
+  $command = "node puppeteer.js '" . $fetch . "' 2>&1";
+  exec($command, $output, $retval);
 
+  if (isset($output[0]) && !empty($output[0])) {
+    $image = $output[0];
+  }
+
+  if (!preg_match('%screenshot-.*?\.png$%', $image)) {
+    $err_msg .= "SCREENSHOT Failed to capture image! - $image";
+  }
+  if (backgroundMasking($image) === 0) {
+    $err_msg .= "BACKGROUND MASK failed!";
+  }
+}
 /**
  * Add the Logo & Screenshot images inline as base64 HTML and set Content-ID per RFC2392
  * @see https://www.ietf.org/rfc/rfc2392.txt
  */
-$mime->addHTMLImage($return, "image/png", "route.png", true, uniqid($screnncid,FALSE));
+$mime->addHTMLImage($image, "image/png", "route.png", true, uniqid($screnncid,FALSE));
 $mime->addHTMLImage($logoimage, "image/png", "logo.png", true, uniqid($logocid,FALSE));
 
 /**
@@ -243,16 +280,13 @@ $mime->setTXTBody($text);
 $mime->setHTMLBody($html);
 $body = $mime->get();
 $hdrs = $mime->headers($headers);
-$mail =& Mail::factory('mail', '-r ' . $notify['from_address']);
+$mail =& Mail::factory('mail', '-f ' . $notify['from_address']);
 
 $retval = 0;
 if (empty($err_msg)) {
   $retval = $mail->send($to, $hdrs, $body);
 }
-if ($retval) {
-    echo 1;
-} else {
-  echo 0;
+if ($retval === 0) {
   $err_msg .= "SENDMAIL: failed!";
 }
 
