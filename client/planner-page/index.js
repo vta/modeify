@@ -591,7 +591,7 @@ View.prototype.displayRouteNumber = function(routeNumber)
 */
 View.prototype.hideSP = function(routeNumber) {
   $("div.SidePanel, div.scrollToTop, nav, div.leaflet-control-zoom.leaflet-bar.leaflet-control, div.leaflet-control-layers.leaflet-control").hide();
-  $("div.fullscreen").css("padding-left", "0");
+  $("div.fullscreen").css({"padding-left": "0", "height": "480px", "width":"480px"});
   L.modeify.map.invalidateSize();
   setTimeout(function() { View.prototype.displayRouteNumber(routeNumber);  }, 800);
 }
@@ -690,11 +690,12 @@ function showQuery(query) {
       View.prototype.hideSP(query.routeNumber);
       setTimeout(function()
       {
-        L.modeify.map.zoomScale = L.modeify.map.getZoom() - 0.15;
+        L.modeify.map.zoomScale = L.modeify.map.getZoom() - 0.25;
         L.modeify.map.centerScale = L.modeify.map.getCenter();
         L.modeify.map.setZoom(L.modeify.map.zoomScale);
         L.modeify.map.panTo(L.modeify.map.centerScale);
-      }, 1300);
+        setTimeout(function() { $("html").append("<div style='display:none' class='readyToPrint'></div>"); }, 15000);
+      }, 1600);
     }
   
   }
