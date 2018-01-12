@@ -3,6 +3,17 @@
   float: right;
 }
 
+span.helpMeChooseSpan
+{
+  float: right;
+  font-size: 15px;
+  color: var(--vta-red);
+  font-family: arial;
+  position: relative;
+  top: 2px;
+  right: 10px;
+}
+
 .FilterBy .btn-group>.btn:first-child {
   margin-left: 5px;
 }

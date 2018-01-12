@@ -131,6 +131,15 @@ Route.prototype.directBikeOrWalk = function() {
   return !this.hasTransit() && !this.hasCar();
 };
 
+
+
+Route.prototype.isMobile = function() {
+  if (!L.Browser.mobile)
+  {
+    return true;
+  }
+};
+
 /**
  * Average trip length in minutes
  */

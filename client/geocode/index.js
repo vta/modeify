@@ -110,7 +110,8 @@ function lookupPlaceId(placeid, callback){
   var query = geocodingOptions.googlePlacesLookup(placeid);
   query.get().then(function() {
     var res = query.futureRes;
-    if (res.body.result) {
+    if (res.body.result) 
+    {
       callback(null, res.body.result);
     }
   });

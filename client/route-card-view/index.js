@@ -19,13 +19,14 @@ var mapView = require('map-view');
  * Expose `View`
  */
 
-var View = module.exports = view(require('./template.html'), function (view, model) {
+var View = module.exports = view(require('./template.html'), function (view, model) 
+{
     view.isSelected = false;
     view.mouseenter = function () {
         if (optionsView.lastCardSelected && optionsView.lastCardSelected.model.index !== view.model.index) {
             return;
         }
-        clearTimeout();
+        //clearTimeout();
         var itineration = JSON.parse(sessionStorage.getItem('itineration'));
         for (var i = 0; i < itineration.length; i++) {
             var r3 = d3.selectAll(".iteration-" + i);
@@ -69,6 +70,7 @@ var View = module.exports = view(require('./template.html'), function (view, mod
                 d3.select(this).node().parentNode.appendChild(this);
             }
         });
+
     };
 
     mouseenter(view.el, view.mouseenter);
@@ -111,7 +113,60 @@ var View = module.exports = view(require('./template.html'), function (view, mod
         }
     };
     mouseleave(view.el, view.mouseleave);
+    
+    setTimeout(function()
+    {
+        L.modeify.map.zoomScale = L.modeify.map.getZoom() - 0.25;
+        L.modeify.map.centerScale = L.modeify.map.getCenter();
+    }, 1000);
+    
+    setTimeout(function()
+    {
+        displayFirst(view, model);
+    }, 50);
 });
+/* The purpose of this is to display the best route (1st in list)
+ * When the route / plans first load rather than showing all three routes
+ * at the same time
+*/
+var displayFirst = View.prototype.displayFirst = function(view, model) 
+{
+    // gather number of total possible routes
+    var itineration = JSON.parse(sessionStorage.getItem('itineration'));
+    // loop through the routes hiding all but the first
+    for (var i = 0; i < itineration.length; i++) 
+    {
+        // make sure it is the first route
+        if (i != 0)
+        {
+            var r3 = d3.selectAll(".iteration-" + i);
+            r3.classed("hideMe", true);
+            r3.attr("data-show", "0");
+        }
+    }
+    var r3 = d3.selectAll(".iteration-0");
+
+    if (config.map_provider() !== 'AmigoCloud') r3.classed("hideMe", false);
+    r3.attr("data-show", "1");
+    // show the first route
+    var orden = 0;
+    d3.selectAll(".iteration-200").each(function (e)
+    {
+        var element = d3.select(this);
+        var parent = d3.select(element.node().parentNode);
+        parent.attr("class", "g-element");
+        parent.attr("data-orden", orden.toString());
+        if (Boolean(parseInt(element.attr("data-show")))) parent.attr("data-show", "1");
+        else parent.attr("data-show", "0");
+        orden++;
+    });
+
+    d3.selectAll(".g-element").each(function (a, b) 
+    {
+        if (Boolean(parseInt(d3.select(this).attr("data-show")))) d3.select(this).node().parentNode.appendChild(this);
+    });
+};
+
 
 View.prototype.calculator = function () {
     return new Calculator(this.model);
@@ -150,13 +205,182 @@ View.prototype.selectRoute = function (e) {
         this.mouseenter();
     }
 };
+View.prototype.isIE = function()
+{
+    if (document.documentMode || /Edge/.test(navigator.userAgent)) 
+    {
+        return true
+    }
+    else return false;
+}
+View.prototype.isSafari = function()
+{
+    if (navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1)
+    {
+        return true;
+    }
+    else return false;
+};
+View.prototype.openPrintPage = function(t, d)
+{
+    L.print_window.document.body.innerHTML = '';
+    L.print_window.document.write(
+        '<html>'
+        + '<head>'
+        + '<title>' + document.title + '</title>'
+        + '<link href="assets/build/planner-app/build.css" rel="stylesheet">'
+        + '<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">'
+        + '<style>'
+        + 'body { max-width:980px; margin:0 auto; padding: 0 0 50px 0; }'
+        + 'div.simple.clearfix, div.benefits-badge, div.header, div.feedback { display:none; }'
+        + 'p.p_d_title { text-align: center; font-size: 18px; padding: 20px 0 0 0; }'
+        + '@media print { * { -webkit-print-color-adjust: exact; } }'
+        + 'div.mapBody { width: 100%; min-width: 640px; max-width: 980px; height:450px; padding: 15px 0; }'
+        + 'div.mapBody > img { position:relative; max-width: 100%; min-width: 640px; width:100%; height: 450px; }'
+        + 'form.RouteCostCalculator { height: 10px !important; padding: 0 !important; background-color: rgba(0,0,0,0) !important; border: none !important; }'
+        //+ 'div#map { transform: scaleX(0.6) scaleY(0.4) !important; }'
+        + '</style>'
+        + '</head>'
+        + '<body>'
+        + '<p class="p_d_title">'
+        + "VTA Trip Planner : " + t.find(".header").html() + " - "
+        + t.find("div.startstoptimes").html() + " - "
+        + t.find("div.minutes-column > div.heading").html()
+        + '</p>'
+        + d
+        + t.html()
+        + '</body>'
+        + '</html>');
+    setTimeout(function () {
+        L.print_window.document.close(); // necessary for IE >= 10
+        L.print_window.focus(); // necessary for IE >= 10*/
+        L.print_window.print();
+        //L.print_window.close();
+    }, 1500);
+};
+
+/* Print the route which the customer has selected to use
+ * Creates a "snapshot" of the route on the map and inserts
+ * Above turn by turn directions using canvas
+*/
+View.prototype.printDetails = function(e)
+{
+    var _this = this;
+    if (optionsView.lastCardSelected && optionsView.lastCardSelected.model.index !== this.model.index)
+    {
+        optionsView.lastCardSelected.isSelected = false;
+        optionsView.lastCardSelected.mouseleave();
+        optionsView.lastCardSelected.hideDetails(e);
+        this.mouseenter();
+    }
+    var t = $(this.el);
+    // adjust to perfect zoom scale when printing the map
+    // make sure the map is centered before zooming in / out
+    L.modeify.map.panTo(L.modeify.map.centerScale);
+    // give a small delay to allow centering before setting the zoom
+    
+    if ($.browser.mozilla || this.isSafari() || this.isIE())
+    {
+        $("div#map").css({"height":"450px", "width":"980px"});
+        if ($("div.dummyMap")) $("div.dummyMap").remove();
+        $("body").prepend(
+            "<div class='dummyMap'>"
+            +"</div>"
+        );
+        // hide details / real-time tracking before print
+        var hide = t.find("button.hide-details");
+        if (hide.is(":visible")) hide.trigger("click");
+        // Clear any existing timeouts from previous print
+        if (L.print_to_main) clearTimeout(L.print_to_main);
+        if (L.print_to1) clearTimeout(L.print_to1);
+        if (L.print_to2) clearTimeout(L.print_to2);
+        if (L.print_to3) clearTimeout(L.print_to3);
+        L.print_to_main = setTimeout(function() 
+        { 
+            _this.mouseenter();
+            $("div.dummyMap").append("<div style='margin:0 auto; width:980px;'><div class='closeDummyMap'><span>Close</span></div>");
+            $("div.closeDummyMap").bind("click", _this.resetAfterDummy);
+            L.modeify.map.invalidateSize();
+            L.modeify.map.setZoom(L.modeify.map.zoomScale - 1.3);
+            L.print_to1 = setTimeout(function() 
+            { 
+                var dm = $("div.dummyMap > div");
+                dm.append('<p class="p_d_title">'
+                    + "VTA Trip Planner : " + t.find(".header").html() + " - "
+                    + t.find("div.startstoptimes").html() + " - "
+                    + t.find("div.minutes-column > div.heading").html()
+                    + '</p>');
+                dm.append($("#map").clone());
+                var tt = t.clone();
+                tt.find("div.simple.clearfix, div.benefits-badge, div.header, div.feedback, div.leaflet-control-container").remove();
+                tt.parent().find("a").text("");
+                dm.append(tt.html());
+                $("body").children().not("div.dummyMap").hide();
+                window.print();
+                if (!_this.isSafari() && !_this.isIE()) _this.resetAfterDummy();
+                
+            }, 800);
+        
+        }, 500);
+    }
+    // if the browser supports printing images of map (chrome / opera)
+    else
+    {
+        L.print_window = window.open('', 'PRINT', 'scrollbars=1, resizable=1, toolbar=1, height='+screen.height+', width='+screen.width);
+        L.print_window.document.write(
+        "<style>"
+        +"div.loadingP { position: relative; height: 100%; width: 100%; text-align: center; }"
+        +"div.loadingP > span { position: relative; top: 35%; font-size: 32px; font-family: arial; }"
+        +"</style>"
+        +"<title>" + document.title + "</title>"
+        +"<div class='loadingP'><span>Preparing route details...</span></div>");
+
+        setTimeout(function() { L.modeify.map.setZoom(L.modeify.map.zoomScale); }, 500);
+        // hide details / real-time tracking before print
+        var hide = t.find("button.hide-details");
+        if (hide.is(":visible")) hide.trigger("click");
+        
+        // give the user some time to re-load the tiles
+        // after the zoom out / in has been initiated
+        setTimeout(function()
+        {
+            _this.mouseenter();
+            L.easyPrintPage.printMap("customMapSize", "current.png");
+        }, 1500);
+        L.modeify.map.on("easyPrint-finished", function ()
+        {          
+            L.modeify.map.off("easyPrint-finished");
+            var d = "<div class='mapBody'>" + "<img src='" +  L.latestSnapshot + "' alt='map' />" + "</div>";
+            _this.openPrintPage(t, d); 
+        });
+    }
+};
+
+View.prototype.resetAfterDummy = function()
+{
+    L.print_to2 = setTimeout(function() 
+    { 
+        $("div.dummyMap").remove();
+        $("div#map").css({"height":"100%", "width":"100%"});
+        L.print_to3 = setTimeout(function() 
+        {  
+            L.modeify.map.invalidateSize();
+            L.modeify.map.setZoom(L.modeify.map.zoomScale);
+
+        }, 400);
+                    
+        $("body").children().show();
+    }, 500);
+};
 
 /**
  * Show/hide
  */
 
-View.prototype.showDetails = function (e) {
-    if (optionsView.lastCardSelected && optionsView.lastCardSelected.model.index !== this.model.index) {
+View.prototype.showDetails = function (e) 
+{
+    if (optionsView.lastCardSelected && optionsView.lastCardSelected.model.index !== this.model.index) 
+    {
         optionsView.lastCardSelected.isSelected = false;
         optionsView.lastCardSelected.mouseleave();
         optionsView.lastCardSelected.hideDetails(e);
@@ -174,11 +398,12 @@ View.prototype.showDetails = function (e) {
     e.preventDefault();
     mapView.clearExistingRoutes();
     var el = this.el;
+    
     var expanded = document.querySelector('.option.expanded');
     if (expanded) expanded.classList.remove('expanded');
-
+    // expand the contents of the route
     el.classList.add('expanded');
-
+    // send analytics report back that a user has viewed route details
     analytics.track('Expanded Route Details', {
         plan: session.plan().generateQuery(),
         route: {
@@ -189,9 +414,8 @@ View.prototype.showDetails = function (e) {
 
     var scrollable = document.querySelector('.scrollable');
     scrollable.scrollTop = el.offsetTop - 52;
-
+    // select this as the route being used
     this.isSelected = true;
-    console.log(this);
     mapView.mapRouteStops(this.model.attrs.plan.legs);
     mapView.activeMap.on('zoomend', function () {
         if (optionsView.lastCardSelected) {

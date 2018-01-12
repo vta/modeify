@@ -16,10 +16,10 @@ var View = module.exports = view(template);
  */
 
 View.prototype.from = function() {
-  return session.plan().from().split(',')[0];
+  return session.plan().from();//.split(',')[0];
 };
 View.prototype.to = function() {
-  return session.plan().to().split(',')[0];
+  return session.plan().to();//.split(',')[0];
 };
 
 

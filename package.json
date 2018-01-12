@@ -4,7 +4,7 @@
   "dependencies": {
     "analytics-node": "^1.2.0",
     "async": "~0.9.0",
-    "aws-sdk": "^2.1.19",
+    "aws-sdk": "^2.154.0",
     "batch": "^0.5.2",
     "bcryptjs": "^2.0.2",
     "body-parser": "^1.12.0",
@@ -21,6 +21,7 @@
     "js-yaml": "^3.2.7",
     "juice": "~1.0.0",
     "leaflet": "^1.0.3",
+    "leaflet-easyprint": "^2.1.9",
     "leaflet-label": "^0.2.1-0",
     "leaflet-routeboxer": "^1.0.0",
     "leaflet.gridlayer.googlemutant": "^0.6.2",
