@@ -5,6 +5,7 @@
 var async = require('async');
 var geocode = require('../../lib/geocode');
 var request = require('./supertest');
+var should = require ('should');
 
 /**
  * Valid addresses
