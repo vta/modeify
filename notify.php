@@ -162,6 +162,7 @@ if (empty($err_msg)) {
 } else {
   echo 0;
 }
+flush();
 
 /**
  * Create a MIME compliant mail message
