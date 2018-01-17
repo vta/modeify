@@ -2,7 +2,7 @@ var base = '/api/locations';
 var supertest = require('./supertest');
 
 var loc = {
-  address: '1111 Army Navy Drive, Arlington, VA 22202',
+  address: '1067 Army Navy Drive, Arlington, VA 22202',
   name: 'Home',
   type: 'residence'
 };

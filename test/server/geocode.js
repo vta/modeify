@@ -11,22 +11,22 @@ var request = require('./supertest');
  */
 
 var valid = [{
-  address: '1111 Army Navy Dr',
-  city: 'Arlington',
-  state: 'Virginia',
-  zip: 22202,
+  address: '3331 N 1st St',
+  city: 'San Jose',
+  state: 'CA',
+  zip: 95134,
   ll: {
-    lng: -77.06398575433832,
-    lat: 38.86583364990412
+    lng: -121.93961371980717,
+    lat: 37.40183512021567
   }
 }, {
-  address: '1133 15th St NW',
-  city: 'Washington',
-  state: 'DC',
-  zip: 20005,
+  address: '755 E El Camino Real',
+  city: 'Sunnyvale',
+  state: 'CA',
+  zip: 94086,
   ll: {
-    lng: -77.03453573533511,
-    lat: 38.90486028317662
+    lng: -122.02010381499235,
+    lat: 37.35784917127341
   },
 }];
 

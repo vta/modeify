@@ -11,7 +11,7 @@ var od = {
     name: 'Home',
     type: 'residence'
   }, {
-    address: '1133 15th St NW, Washington, DC 20005',
+    address: '1129 15th St NW, Washington, DC 20005',
     name: 'Work',
     type: 'office'
   }]

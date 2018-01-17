@@ -51,16 +51,16 @@ describe('HTML', function() {
     });
   });
 
-  describe('/', function() {
-    it('should get planner.html', function(done) {
-      request.get('/')
-        .expect('content-type', 'text/html; charset=utf-8')
-        .expect(200)
-        .end(function(err, res) {
-          if (err) return done(err);
-          res.text.should.equal(planner);
-          done();
-        });
-    });
-  });
+  // describe('/', function() {
+  //   it('should get planner.html', function(done) {
+  //     request.get('/')
+  //       .expect('content-type', 'text/html; charset=utf-8')
+  //       .expect(200)
+  //       .end(function(err, res) {
+  //         if (err) return done(err);
+  //         res.text.should.equal(planner);
+  //         done();
+  //       });
+  //   });
+  // });
 });
