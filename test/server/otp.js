@@ -4,16 +4,16 @@ var request = require('./supertest');
  * BDD
  */
 
-describe('/api/otp', function() {
+describe('localhost:5000/api/otp', function() {
   describe('GET /profile', function() {
-    it('200 and return 0 options', function(done) {
+    it('400 and return 0 options', function(done) {
       request
         .get('/api/otp/profile' +
           '?from=39.76618,-86.441052&to=39.76618,-86.441052')
         .expect(200, done);
     });
 
-    it('200 and return 1 options', function(done) {
+    it('200 and return 12 options', function(done) {
       request
         .get(
           '/api/otp/profile?from=38.86583312290139%2C-77.06398626875051&to=38.90485941802882%2C-77.03453592419277'
