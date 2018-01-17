@@ -15,6 +15,12 @@ ini_set('html_errors', 'On');
 ini_set('log_errors', 'On');
 ini_set('error_reporting', E_ALL && E_NOTICE);
 
+
+ob_end_flush();
+ob_implicit_flush(true);
+
+header( 'Content-type: text/html; charset=utf-8' );
+
 /**
  * Require Mail and Mail MIME packages from PEAR installation
  */
@@ -35,7 +41,7 @@ function md5hash($pieces, $token, $glue) {
   if ($token === $sum) {
     return true;
   }
-  return $test;
+  return $sum;
 }
 
 /**
@@ -83,9 +89,9 @@ if (is_file($filename)) {
 }
 
 
-if ($notify['debug']) {
-  echo var_dump($notify);
-}
+//if ($notify['debug']) {
+//  echo var_dump($notify);
+//}
 
 /**
  * If not debug use $_POST values, otherwise use config file test parameters
@@ -127,9 +133,9 @@ if (!$notify['debug']){
 /**
  * Echo for testing purposes
  */
-if ($notify['debug']) {
-  echo "$name - $to - $subject - $message - $link - $token\n";
-}
+//if ($notify['debug']) {
+//  echo "$name - $to - $subject - $message - $link - $token\n";
+//}
 
 /**
  * Verify token to prevent spam
@@ -145,9 +151,9 @@ if (!$notify['debug']) {
     $fields[] = $notify['test'][$field];
   }
 }
-$result = md5hash($fields, $token, $notify['md5_glue']);
-if ($result !== true) {
-  $err_msg .= "MD5: not valid!\n$token <> $result\n";
+$md5string = md5hash($fields, $token, $notify['md5_glue']);
+if ($md5string !== true) {
+  $err_msg .= "MD5: not valid!\n$token <> $md5string\n";
 }
 
 /**
@@ -158,11 +164,14 @@ if (!preg_match($notify['valid_url'], $link)) {
 }
 
 if (empty($err_msg)) {
-  echo 1;
+  echo "1\n";
+  flush();
+  ob_flush();
 } else {
-  echo 0;
+  echo "0\n";
+  flush();
+  ob_flush();
 }
-flush();
 
 /**
  * Create a MIME compliant mail message
@@ -306,5 +315,7 @@ if (empty($err_msg)) {
 $fh = fopen($notify['log_file'], "a+") or die("Cannot open log file for writing!");
 fwrite($fh, date("Y-m-d H:i:s", time()) . "\t" . $_SERVER['REMOTE_ADDR'] . "\t$to\t$result\n");
 fclose($fh);
+
+ob_end_clean();
 
 exit();
