@@ -10,7 +10,7 @@ describe('localhost:5000/api/otp', function() {
       request
         .get('/api/otp/profile' +
           '?from=39.76618,-86.441052&to=39.76618,-86.441052')
-        .expect(200, done);
+        .expect(400, done);
     });
 
     it('200 and return 12 options', function(done) {
@@ -21,7 +21,7 @@ describe('localhost:5000/api/otp', function() {
         .expect(200)
         .end(function(err, res) {
           if (err) return done(err);
-          res.body.options.length.should.equal(1);
+          res.body.options.length.should.equal(12);
           done();
         });
     });
