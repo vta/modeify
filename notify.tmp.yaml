@@ -1,0 +1,29 @@
+#  from_address is the sending alias associated for our Office 365 AWSses mailbox account
+from_address: 'VTA Trip Planner <no-reply@vta.org>'
+#  relative path to log file
+log_file: '../logs/notify.log'
+#  debugging enable / disable
+debug: 0
+data_fields: [
+  'name',
+  'to',
+  'subject',
+  'token',
+  'link',
+  'message'
+  ]
+md5_glue: '+++'
+md5_hash: [
+  'subject',
+  'name',
+  'link'
+  ]
+valid_url: '%https://.*?planner\.vta\.org/planner\?.*?&date=.*?hour=.*?minute=.+%'
+test: {
+  name: 'Test User',
+  to: 'some.person@vta.org',
+  subject: 'Notify testing - template',
+  link: 'https://tripplanner.vta.org/planner?from=299%20N%20White%20Rd%2C%20San%20Jose%2C%20CA%2095127%2C%20USA&to=190%20Jackson%20St%2C%20Santa%20Clara%2C%20CA%2095050%2C%20USA&modes=TRANSIT%2CWALK&days=M-F&arriveBy=false&date=12%3A25%3A2017&hour=12&minute=9&fast=false&safe=true&flat=true&sidePanel=true',
+  token: 'bcf0ee48963129e140cc39e6ed8fcb86',
+  message: "Start Address: 299 N White Rd - End Address: 190 Jackson St"
+  }
