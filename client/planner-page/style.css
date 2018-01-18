@@ -399,8 +399,28 @@ span.shareEmailFormTitle
 .SidePanel .footer .btn {
   margin: 6px 8px;
 }
-
-
+.printTipRouteText,
+.shareTipRouteText
+{
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  bottom: 33px;
+  z-index: 1;
+}
+.printTipRouteText
+{
+  left: -43px;
+}
+.shareTipRouteText 
+{
+  left: -43px;
+}
 
 .shareTipText {
     visibility: hidden;

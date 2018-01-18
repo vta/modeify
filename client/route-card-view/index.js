@@ -167,6 +167,17 @@ var displayFirst = View.prototype.displayFirst = function(view, model)
     });
 };
 
+showTip = function(t)
+{
+    $(t).find("span").css("visibility","visible");
+}
+
+hideTip = function(t)
+{
+    $(t).find("span").css("visibility","hidden");
+}
+
+
 
 View.prototype.calculator = function () {
     return new Calculator(this.model);
