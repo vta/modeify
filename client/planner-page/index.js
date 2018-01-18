@@ -339,13 +339,41 @@ getEmailMessage = function(returnOnly)
   var end = route.find("tfoot td.description").text();
   var directions = route.find("tr.segment td.description");
   var dirText = "";
+  L.modeify.shareIndex = 1;
   $(directions).each(function(index)
   {
+
     var dis = $(this).parent().find("td.distance").text();
     if (dis.length > 0) var dist = ": " + dis;
     else dist = "";
-    var i = index + 1;
-    dirText += "\n\r" + i + ": " + $(this).text() + dist;
+    // if it is not the first of the route start checking for duplicates
+    if (index !== 0) 
+    {
+      // this saves the previous direction step relative to the next
+      var last_dir = directions.eq(index - 1).text();
+      var last_dis = route.find("tr.segment td.distance").eq(index - 1).text();
+      // if there is no distance on the previous step
+      // than it was a transfer point
+      // checking if transfer; if it was; check if the next is a transfer
+      // if it is make sure they are not duplicates
+      if ((last_dis.length == 0) 
+          && (dis.length == 0 && $(this).text() == last_dir))
+      {
+        dirText += "";
+      }
+      else 
+      {
+        dirText += "\n\r" + L.modeify.shareIndex + ": " + $(this).text() + dist;
+        L.modeify.shareIndex++;
+      }
+      
+    }
+    else 
+    {
+      dirText += "\n\r" + L.modeify.shareIndex + ": " + $(this).text() + dist;
+      L.modeify.shareIndex++;
+    }
+
   });
   var message = 
   "Start Address: " + start
@@ -365,6 +393,8 @@ getEmailMessage = function(returnOnly)
 
 submitReCaptcha = function(e)
 {
+  // unbind previous click if user didn't complete captcha
+  $("div.shareableEmailButton").unbind("click");
   $("div.shareableEmailButton").bind("click", function()
     {
       var from = $("input#windowConEmailName").val();
@@ -378,8 +408,8 @@ submitReCaptcha = function(e)
       else
       {
         var span = $("div.shareableEmailMsg > span");
-        if (!from.length) span.text("Please enter your name.").parent().show();
-        else if (!validateEmail(to)) span.text("Enter the recipients valid email.").parent().show();
+        if (!from.length) span.text("Enter Your Name.").parent().show();
+        else if (!validateEmail(to)) span.text("Enter Recipient Email.").parent().show();
         else span.text("Please complete all the fields.").parent().show();
         msgTo("email");
       }
@@ -414,7 +444,10 @@ appendShareableWindow = function(location)
                 +"<span class='noselect'>Send Email</span>"
               +"</div>"
             +"</div>"
-            +'<div id="emailCaptcha" class="g-recaptcha" data-sitekey="6LdhgD0UAAAAAI8OkmqdqutoD6IPQgPCunMJ5J_x" data-callback="submitReCaptcha" data-expired-callback="captchaExpired"></div>'
+            +"<div class='emailCaptchaError'>"
+              +'<div id="emailCaptcha" class="g-recaptcha" data-sitekey="6LdhgD0UAAAAAI8OkmqdqutoD6IPQgPCunMJ5J_x" data-callback="submitReCaptcha" data-expired-callback="captchaExpired"></div>'
+              +"<span style='display:none'>Please verify that you are not a robot. </span>"
+            +"</div>"
           +"</form>"
 
           +"<div class='shareableWindowConLink'>"
