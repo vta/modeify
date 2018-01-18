@@ -14,15 +14,35 @@
   height: 100%;
   padding-left: var(--panel-width);
 }
+span.emailCaptchaErrorSpan
+{
+  display:none;
+    font-size: 9px;
+    position: absolute;
+    bottom: 2px;
+    left: 0;
+    width: 100%;
+}
+
+div.emailCaptchaError
+{
+    position: relative;
+    height: 70px;
+    width: 191px;
+    border: 1px solid rgba(0,0,0,0);
+    bottom: 27px;
+    float: left;
+    left: 20px;
+}
 
 div#emailCaptcha
 {
   -webkit-transform: scale(0.6);
-  transform: scale(0.6);
-  position: relative;
-  bottom: 37px;
-  float: left;
-  right: 41px;
+    transform: scale(0.6);
+    position: relative;
+    bottom: 9px;
+    float: left;
+    right: 57px;
 }
 
 .SidePanel {

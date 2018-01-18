@@ -217,6 +217,8 @@ validateEmail = function(email) {
 captchaExpired = function()
 {
   $("div.shareableEmailButton").unbind("click");
+  bindIncompleteCaptcha();
+  $("div.shareableEmailButton").trigger("click");
 }
 
 getTripDate = function()
@@ -395,6 +397,8 @@ submitReCaptcha = function(e)
 {
   // unbind previous click if user didn't complete captcha
   $("div.shareableEmailButton").unbind("click");
+  $("span.emailCaptchaErrorSpan").hide();
+  $("div.emailCaptchaError").css("border", "1px solid rgba(0,0,0,0)");
   $("div.shareableEmailButton").bind("click", function()
     {
       var from = $("input#windowConEmailName").val();
@@ -446,7 +450,7 @@ appendShareableWindow = function(location)
             +"</div>"
             +"<div class='emailCaptchaError'>"
               +'<div id="emailCaptcha" class="g-recaptcha" data-sitekey="6LdhgD0UAAAAAI8OkmqdqutoD6IPQgPCunMJ5J_x" data-callback="submitReCaptcha" data-expired-callback="captchaExpired"></div>'
-              +"<span style='display:none'>Please verify that you are not a robot. </span>"
+              +"<span class='emailCaptchaErrorSpan' style='display:none'>Please verify that you are not a robot. </span>"
             +"</div>"
           +"</form>"
 
@@ -465,6 +469,18 @@ appendShareableWindow = function(location)
         +"</div>"
       +"</div>"
     );
+
+    bindIncompleteCaptcha();
+}
+
+bindIncompleteCaptcha = function()
+{
+  $("div.shareableEmailButton").unbind("click");
+  $("div.shareableEmailButton").bind("click", function()
+  {
+    $("span.emailCaptchaErrorSpan").show();
+    $("div.emailCaptchaError").css("border", "1px solid #E74536");
+  });
 }
 copyToClipboardPopup = function()
 {
