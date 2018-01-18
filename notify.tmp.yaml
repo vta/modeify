@@ -1,8 +1,5 @@
-#  from_address is the sending alias associated for our Office 365 AWSses mailbox account
 from_address: 'VTA Trip Planner <no-reply@vta.org>'
-#  relative path to log file
 log_file: '../logs/notify.log'
-#  debugging enable / disable
 debug: 0
 data_fields: [
   'name',
