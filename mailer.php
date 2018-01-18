@@ -141,10 +141,9 @@ $mime = new Mail_mime($build_params);
 /**
  * Set headers for email
  */
-$headers[] = "MIME-Version: 1.0";
-$headers[] = "From: VTA Trip Planner <" . $notify['from_address'] . ">";
-$headers[] = "To: " . $to;
-$headers[] = "X-Mailer: PHP/" . phpversion();
+$headers['MIME-Version'] = '1.0';
+$headers['From'] = $notify['from_address'];
+$headers['X-Mailer'] = 'PHP/' . phpversion();
 
 /**
  * Take a screenshot of the page using headless chrome
@@ -227,8 +226,8 @@ $mime->setSubject($data['subject']);
 $mime->setTXTBody($text);
 $mime->setHTMLBody($html);
 $body = $mime->get();
-$hdrs = $mime->headers($headers);
-$mail =& Mail::factory('mail', '-f ' . $notify['from_address']);
+$hdrs = $mime->headers($headers,true);
+$mail =& Mail::factory('mail');
 
 $retval = 0;
 if (empty($err_msg)) {
