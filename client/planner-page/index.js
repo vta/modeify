@@ -477,7 +477,7 @@ copyToClipboardPopup = function()
     grecaptcha.render("emailCaptcha");
     getEmailMessage()
     var i = $("input#shareableWindowConLinkI");
-    i.select().bind("click", function() { $(this).select(); });
+    i.bind("click", function() { $(this).select(); });
     // prevent popup window from closes directly on open( prevent duplicate clicks)
     setTimeout(function()
     {
@@ -489,7 +489,6 @@ copyToClipboardPopup = function()
 
     $("div.shareableLinkButton").bind("click", function()
     {
-      i.select();
       copyToClipboard(window.location.href);
       $("div.shareableLinkMsg > span").text("Link copied to clipboard.").parent().show();
       msgTo("link");
