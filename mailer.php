@@ -73,7 +73,7 @@ $filename = 'notify.yaml';
 $css = 'notify.css';
 $image = 'empty';
 $screencid = 'screenshot';
-$logoimage = 'assets/images/application/vtalogotrans.png';
+$logoimage = 'assets/images/application/vta-official-logo.png';
 $logocid = 'vtalogotrans';
 
 /**
