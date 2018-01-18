@@ -263,6 +263,13 @@ View.prototype.openPrintPage = function(t, d)
  * Creates a "snapshot" of the route on the map and inserts
  * Above turn by turn directions using canvas
 */
+View.prototype.shareDetails = function(e)
+{
+     L.lastCardSelected = this;
+     copyToClipboardPopup();
+}
+
+
 View.prototype.printDetails = function(e)
 {
     var _this = this;

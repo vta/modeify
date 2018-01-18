@@ -491,7 +491,7 @@ copyToClipboardPopup = function()
     var location = window.location.href;
     appendShareableWindow(location);
     grecaptcha.render("emailCaptcha");
-    getEmailMessage()
+    getEmailMessage();
     var i = $("input#shareableWindowConLinkI");
     i.bind("click", function() { $(this).select(); });
     // prevent popup window from closes directly on open( prevent duplicate clicks)
