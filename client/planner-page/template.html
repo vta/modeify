@@ -6,7 +6,7 @@
   <div class="SidePanel top">
     <div id="scrollable" class="scrollable">
       <form autosubmit id="locations-form">
-        <div class="title">Describe <strong>your</strong> trip <a id="copy-to-clipboard" class="fa fa-clipboard pull-right" aria-hidden="true" title="Copy link to clipboard" onclick="copyToClipboardPopup()"></a> <a class="fa fa-fw icon-reverse pull-right" on-tap="reverseCommute" title="Reverse Commute" href="#"></a></div>
+        <div class="title">Describe <strong>your</strong> trip <!--<a id="copy-to-clipboard" class="fa fa-clipboard pull-right" aria-hidden="true" title="Copy link to clipboard" onclick="copyToClipboardPopup()"></a>--> <a class="fa fa-fw icon-reverse pull-right" on-tap="reverseCommute" title="Reverse Commute" href="#"></a></div>
         <div reactive="locations-view"></div>
         <div reactive="filter-view"></div>
       </form>
@@ -21,10 +21,10 @@
         on-tap="surveymonkey"
         title="Send feedback"
         target="_blank"><i class="fa fa-fw fa-bullhorn"></i> feedback</a>
-      <div class="btn btn-default share-link" onclick="copyToClipboardPopup()">
+      <!--<div class="btn btn-default share-link" onclick="copyToClipboardPopup()">
         <span class="shareTipText">Share your trip</span>
         <i class="fa fa-fw fa-share-alt"></i>
-      </div>
+      </div>-->
       <a href="#" class="more-options pull-right" on-tap="scroll"><i class="fa fa-fw fa-chevron-down"></i></a>
       <a class="show-map" on-tap="hideSidePanel"><i class="fa fa-fw fa-chevron-down"></i></a>
     </div>
