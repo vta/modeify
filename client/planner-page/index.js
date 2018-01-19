@@ -271,7 +271,7 @@ sendEmailAjax = function(name, to, message, abc)
   var link = getTripLink();
   var route = getRouteNumber();
   // unbind button to prevent spamming on submit
-  captchaExpired();
+  $("div.shareableEmailButton").unbind("click");
   var errorSending = function()
   {
     $("div.shareableEmailMsg > span").text("We had a problem sending your email, Try again.").parent().show();
@@ -301,7 +301,7 @@ sendEmailAjax = function(name, to, message, abc)
       {
         // the email was succesfully sent
         // unbind the button and close the popup after timeout
-        captchaExpired();
+        $("div.shareableEmailButton").unbind("click");
         $("div.shareableEmailMsg > span").text("Success! Email was sent to: " + to + "!").parent().show();
         msgTo("email");
         setTimeout(function() { if ($("div.shareableWindowCon").length) $("div.shareableWindowCon").remove(); }, 7000);
