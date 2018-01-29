@@ -238,13 +238,13 @@ getTripTime = function()
 getArriveDepart = function()
 {
   var r = $('[name="arriveBy"]').val();
-  if (r == "true") return "arrival at: ";
-  else if (r == "false") return "departure at: ";
+  if (r == "true") return "arrival at ";
+  else if (r == "false") return "departure at ";
 }
 
 getTripSubject = function()
 {
-  var subject = "VTA Trip Planner details for " + getArriveDepart() + getTripTime() + " on " + getTripDate();
+  var subject = "Below is the trip plan details created for you by the VTA Trip Planner for " + getArriveDepart() + getTripTime() + " on " + getTripDate();
   return subject;
 }
 
@@ -378,7 +378,7 @@ getEmailMessage = function(returnOnly)
 
   });
   var message = 
-  "Start Address: " + start
+  "From: " + start + " to " + end
   + dirText
   +"\n\r End Address: " + end;
   var ta = $("textarea#windowConEmailTextArea");
