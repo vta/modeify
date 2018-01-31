@@ -68,14 +68,19 @@
 .Options .details-buttons 
 {
   position: absolute;
-  bottom: 0;
+  bottom: 5px;
   right: 5px;
   margin: 9px 1px 5px 0;
 }
 
+button.share-details
+{
+  position: relative;
+  right: 5px;
+}
+
 button.print-details
 {
-  float: left;
   position: relative;
   right: 10px;
 }
@@ -83,8 +88,7 @@ button.print-details
 .Options .show-details,
 .Options .hide-details 
 {
-  float: right;
-  margin-bottom: 4px;
+  margin-bottom: 0;
 }
 
 .Options .RouteCard.expanded .simple .show-details,

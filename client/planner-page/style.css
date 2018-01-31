@@ -1,8 +1,48 @@
 
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
 .fullscreen {
   position: relative;
   height: 100%;
   padding-left: var(--panel-width);
+}
+span.emailCaptchaErrorSpan
+{
+  display:none;
+    font-size: 9px;
+    position: absolute;
+    bottom: 2px;
+    left: 0;
+    width: 100%;
+}
+
+div.emailCaptchaError
+{
+    position: relative;
+    height: 70px;
+    width: 191px;
+    border: 1px solid rgba(0,0,0,0);
+    bottom: 27px;
+    float: left;
+    left: 20px;
+}
+
+div#emailCaptcha
+{
+  -webkit-transform: scale(0.6);
+    transform: scale(0.6);
+    position: relative;
+    bottom: 9px;
+    float: left;
+    right: 57px;
 }
 
 .SidePanel {
@@ -12,9 +52,227 @@
   left: 0;
   border: 0;
   width: var(--panel-width);
-  overflow: hidden;
   margin-bottom: 0;
   padding-bottom: 44px;
+}
+div.shareableLinkButtonCon,
+div.windowEmailInputsCon
+{
+  width: 90%;
+  height: 30px;
+  margin: 0 auto;
+}
+
+div.shareableWindowConEmail
+{
+  position: relative;
+  top: 20px;
+}
+label[for=windowConEmailTextArea] > span
+{
+  float: right;
+  font-style: italic;
+  font-size: 12px;
+  position: relative;
+  top: 2px;
+}
+
+label[for=shareableWindowConLinkI]
+{
+  width: 90%;
+  text-align: left;
+  font-size: 18px;
+  color:#455a71;
+
+}
+div.windowEmailLabelCon
+{
+  width: 100%;
+  height: 30px;
+  margin: 0 auto;
+}
+label[for=windowConEmailRecipient]
+{
+  float: right;
+  color: #455a71;
+  margin: 0;
+  display: block;
+  width: 48%;
+  text-align: left;
+}
+label[for=windowConEmailName]
+{
+  display: block;
+  float: left;
+  color: #455a71;
+  text-align: left;
+  margin: 0;
+  width: 48%;
+}
+label[for=windowConEmailTextArea]
+{
+  color:#455a71;
+  margin: 0;
+  font-size: 14px;
+  position: relative;
+  top: 10px;
+  text-align: left;
+  width: 90%;
+}
+div.shareableWindowConEmail > textarea
+{
+  top: 0;
+  height: 100px;
+  padding: 2px 2px 2px 15px;
+  width: 90%;
+  margin: 15px auto;
+  position: relative;
+  text-align: left;
+  resize:none;
+}
+div.shareableWindowConLink > div:first-of-type
+{
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+div.shareableWindowConLink
+{
+  height: 155px;
+  position: relative;
+  top: 50px;
+}
+
+
+div.shareableWindowConLink > div:first-of-type > input
+{
+  padding: 15px;
+  width: 90%;
+  margin: 15px auto;
+  position: relative;
+  text-align: center;
+}
+div.shareableLinkButton > span,
+div.shareableEmailButton > span
+{
+  color: #FFF;
+  font-family: arial;
+  position: relative;
+  top: 5px;
+}
+
+div.shareableLinkButton,
+div.shareableEmailButton
+{
+  cursor: pointer;
+  position: relative;
+  float: right;
+  background: var(--vta-red);
+  height: 30px;
+  width: 125px;
+  text-align: center;
+}
+div.shareableLinkMsg
+{
+  display:none;
+  color: #8a6d3b;
+  border: 1px solid #faebcc;
+  background: #fcf8e3;
+  float: left;
+  padding:4px 6px 4px 6px;
+  position: relative;
+  top: 0px;
+}
+div.shareableEmailMsg
+{
+  display: none;
+  color: #8a6d3b;
+  border: 1px solid #faebcc;
+  background: #fcf8e3;
+  padding: 4px 6px 4px 6px;
+  position: absolute;
+  bottom: 17px;
+  left: 22px;
+}
+
+div.shareableWindowCon
+{
+  text-align: center;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.1);
+  z-index: 999;
+}
+div.shareableLinkHeader > span
+{
+  cursor: pointer;
+  color: var(--vta-red);
+  font-size: 18px;
+  top: 6px;
+  font-family: arial;
+  position: relative;
+  right: 15px;
+}
+div.shareableLinkHeader
+{
+  height: 25px;
+  width: 100%;
+  text-align: right;
+}
+
+input#windowConEmailName
+{
+  float: left;
+  padding: 5px 3px 5px 3px;
+  width: 48%;
+}
+
+input#windowConEmailRecipient
+{
+  float: right;
+  padding: 5px 3px 5px 3px;
+  width: 48%;
+}
+
+div.shareableLinkFooter
+{
+  width: 90%;
+  margin: 0 auto;
+  position: relative;
+  text-align: center;
+  height: 30px;
+  top: 17px;
+}
+div.shareableWindow
+{
+  margin: 0 auto;
+  position: relative;
+  top: 15%;
+  background: #F9F9F9;
+  max-width: 420px;
+  min-width: 240px;
+  height: 505px;
+  border: 1px solid rgba(0,0,0,1);
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+div.shareEmailFormCon
+{
+  width: 90%;
+  margin: 0 auto;
+  text-align: left;
+}
+
+span.shareEmailFormTitle
+{
+  text-align: left;
+  font-size: 18px;
+  color: #455a71;
+  font-weight: 700;
 }
 
 .SidePanel.top {
@@ -23,6 +281,7 @@
   min-height: 300px;
   height: 100%;
   padding-bottom: 120px;
+  overflow: hidden;
 }
 
 .SidePanel.bottom {
@@ -139,6 +398,52 @@
 
 .SidePanel .footer .btn {
   margin: 6px 8px;
+}
+.printTipRouteText,
+.shareTipRouteText
+{
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  bottom: 33px;
+  z-index: 1;
+}
+.printTipRouteText
+{
+  left: -43px;
+}
+.shareTipRouteText 
+{
+  left: -43px;
+}
+
+.shareTipText {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    bottom: 50px;
+    z-index: 1;
+    right: 10px;
+}
+
+.share-link:hover .shareTipText {
+    visibility: visible;
+}
+
+div.share-link
+{
+  position: relative;
+  left: 4px;
 }
 
 .SidePanel .footer .btn.send-feedback{

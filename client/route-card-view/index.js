@@ -167,6 +167,17 @@ var displayFirst = View.prototype.displayFirst = function(view, model)
     });
 };
 
+showTip = function(t)
+{
+    $(t).find("span").css("visibility","visible");
+}
+
+hideTip = function(t)
+{
+    $(t).find("span").css("visibility","hidden");
+}
+
+
 
 View.prototype.calculator = function () {
     return new Calculator(this.model);
@@ -263,6 +274,13 @@ View.prototype.openPrintPage = function(t, d)
  * Creates a "snapshot" of the route on the map and inserts
  * Above turn by turn directions using canvas
 */
+View.prototype.shareDetails = function(e)
+{
+     L.lastCardSelected = this;
+     copyToClipboardPopup();
+}
+
+
 View.prototype.printDetails = function(e)
 {
     var _this = this;
@@ -394,7 +412,7 @@ View.prototype.showDetails = function (e)
 
     var _this = this;
     optionsView.lastCardSelected = _this;
-
+    L.lastCardSelected = _this;
     e.preventDefault();
     mapView.clearExistingRoutes();
     var el = this.el;
@@ -429,7 +447,7 @@ View.prototype.showDetails = function (e)
 View.prototype.hideDetails = function (e) {
     optionsView.lastCardSelected = null;
     e.preventDefault();
-
+    L.lastCardSelected = undefined;
     var isTouchScreen = 'ontouchstart' in window;
     if (isTouchScreen) {
         this.isSelected = false;

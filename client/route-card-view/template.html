@@ -23,8 +23,14 @@
         <div class="distance" data-visible="walkDistances">{walkDistances} {walkTime} walking</div>
       </div>
       <div class="details-buttons">
-        <button data-visible="isMobile" class="btn btn-sm btn-dark print-details" href="#" on-tap="printDetails">
-          <i class="fa fa-fw fa-print"></i> Print </button>
+        <button data-visible="isMobile" class="btn btn-sm btn-dark print-details" href="#" on-tap="printDetails" onmouseover="showTip(this)" onmouseout="hideTip(this)">
+          <i class="fa fa-fw fa-print"></i>
+          <span class="printTipRouteText">Print your trip</span>
+        </button>
+        <button class="btn btn-sm btn-dark share-details" href="#" on-tap="shareDetails" onmouseover="showTip(this)" onmouseout="hideTip(this)">
+          <i class="fa fa-fw fa-share-alt"></i>
+          <span class="shareTipRouteText">Share your trip</span>
+        </button>
         <button class="btn btn-sm btn-dark show-hide show-details" href="#" on-tap="showDetails">
           <i class="fa fa-fw fa-plus-circle"></i> details</button>
         <button class="btn btn-sm btn-dark show-hide hide-details" href="#" on-tap="hideDetails">

@@ -19,6 +19,10 @@ lib-cov
 *.iml
 lockdown.json
 package-lock.json
+
+# Exclude all snapshots
+snapshots/*
+
 .DS_Store
 .env
 

@@ -1,0 +1,10 @@
+{
+  "name": "eztrans",
+  "dependencies": {
+  },
+  "locals": [
+  ],
+  "scripts": [
+    "eztrans.js"
+  ]
+}
