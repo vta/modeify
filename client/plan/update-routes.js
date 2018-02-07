@@ -153,7 +153,7 @@ function updateRoutes(plan, opts, callback) {
         event_type: 'query',
         url: location.href,
         //results: JSON.stringify(data),
-        client_ip: app.get('client_ip'),
+        client_ip: '111.011.010.101',
         timestamp: (new Date()).toISOString(),
         from_address: plan.from(),
         to_address: plan.to(),
