@@ -14,3 +14,7 @@ services:
 env:
   - NODE_ENV=test
 script: "npm run test-travis"
+notifications:
+  slack:
+    on_success: always
+    on_failure: always
